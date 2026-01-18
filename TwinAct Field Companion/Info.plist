@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Privacy Usage Descriptions -->
+
+	<!-- Camera Access - Required for QR code scanning and AR overlays -->
+	<key>NSCameraUsageDescription</key>
+	<string>TwinAct needs camera access to scan QR codes on assets and enable AR overlays</string>
+
+	<!-- Microphone Access - Required for voice commands -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>TwinAct needs microphone access for voice commands</string>
+
+	<!-- Speech Recognition - Required for processing voice commands -->
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>TwinAct uses speech recognition to process voice commands</string>
+
+	<!-- Local Network Access - Required for connecting to AAS servers -->
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>TwinAct needs local network access to connect to AAS servers</string>
+
+	<!-- Bonjour Services for AAS server discovery -->
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_aas._tcp</string>
+		<string>_http._tcp</string>
+	</array>
+
+	<!-- Background Modes -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<!-- Background fetch for offline sync -->
+		<string>fetch</string>
+		<!-- Background processing for longer sync operations -->
+		<string>processing</string>
+	</array>
+
+	<!-- Background Task Identifiers -->
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.twinact.fieldcompanion.sync</string>
+		<string>com.twinact.fieldcompanion.refresh</string>
+	</array>
+
+	<!-- App Transport Security Settings (for development with local servers) -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- Allow localhost connections for development -->
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+		<!-- Note: For production, configure specific exception domains or use HTTPS -->
+	</dict>
+</dict>
+</plist>
