@@ -98,6 +98,23 @@ public protocol PersistenceRepositoryProtocol {
 
     /// Get audit statistics
     func getAuditStats() async -> AuditStats
+
+    // MARK: - Sync Operations
+
+    /// Get operation by ID
+    func getOperation(id: UUID) async -> OutboxOperation?
+
+    /// Mark operation as in progress
+    func markOperationInProgress(_ id: UUID) async throws
+
+    /// Reset failed operation for retry
+    func resetOperationForRetry(_ id: UUID) async throws
+
+    /// Get operations that need manual resolution
+    func getOperationsNeedingResolution() async -> [OutboxOperation]
+
+    /// Delete an operation (used for discarding failed operations)
+    func deleteOperation(_ id: UUID) async throws
 }
 
 // MARK: - Statistics Structs
@@ -503,6 +520,70 @@ public final class PersistenceService: PersistenceRepositoryProtocol, Observable
         )
 
         return operation
+    }
+
+    // MARK: - Sync Integration
+
+    /// Get operation by ID
+    public func getOperation(id: UUID) async -> OutboxOperation? {
+        let descriptor = FetchDescriptor<OutboxOperation>(
+            predicate: #Predicate { $0.id == id }
+        )
+
+        return try? context.fetch(descriptor).first
+    }
+
+    /// Mark operation as in progress
+    public func markOperationInProgress(_ id: UUID) async throws {
+        let descriptor = FetchDescriptor<OutboxOperation>(
+            predicate: #Predicate { $0.id == id }
+        )
+
+        guard let operation = try context.fetch(descriptor).first else {
+            throw PersistenceError.notFound("OutboxOperation with id \(id)")
+        }
+
+        operation.markInProgress()
+        try context.save()
+    }
+
+    /// Reset failed operation for retry
+    public func resetOperationForRetry(_ id: UUID) async throws {
+        let descriptor = FetchDescriptor<OutboxOperation>(
+            predicate: #Predicate { $0.id == id }
+        )
+
+        guard let operation = try context.fetch(descriptor).first else {
+            throw PersistenceError.notFound("OutboxOperation with id \(id)")
+        }
+
+        operation.resetForRetry()
+        try context.save()
+    }
+
+    /// Get operations that need manual resolution
+    public func getOperationsNeedingResolution() async -> [OutboxOperation] {
+        let maxRetries = OutboxOperation.maxRetryAttempts
+        let descriptor = FetchDescriptor<OutboxOperation>(
+            predicate: #Predicate { $0.status == .failed && $0.attemptCount >= maxRetries },
+            sortBy: [SortDescriptor(\.createdAt, order: .forward)]
+        )
+
+        return (try? context.fetch(descriptor)) ?? []
+    }
+
+    /// Delete an operation (used for discarding failed operations)
+    public func deleteOperation(_ id: UUID) async throws {
+        let descriptor = FetchDescriptor<OutboxOperation>(
+            predicate: #Predicate { $0.id == id }
+        )
+
+        guard let operation = try context.fetch(descriptor).first else {
+            throw PersistenceError.notFound("OutboxOperation with id \(id)")
+        }
+
+        context.delete(operation)
+        try context.save()
     }
 }
 
