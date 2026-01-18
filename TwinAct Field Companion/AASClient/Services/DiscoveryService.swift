@@ -156,7 +156,8 @@ public final class DiscoveryService: DiscoveryServiceProtocol, @unchecked Sendab
         }
 
         let endpoint = Endpoint.delete(
-            "/lookup/shells/\(encodedId)"
+            "/lookup/shells/\(encodedId)",
+            queryItems: queryItems
         )
 
         do {
