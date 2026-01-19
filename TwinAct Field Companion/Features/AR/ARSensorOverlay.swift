@@ -28,8 +28,8 @@ public struct ARSensorOverlay {
         value: String,
         unit: String,
         color: UIColor = .systemBlue
-    ) -> Entity {
-        let container = Entity()
+    ) -> RealityKit.Entity {
+        let container = RealityKit.Entity()
 
         // Create background card
         let cardEntity = createCardBackground(
@@ -89,11 +89,11 @@ public struct ARSensorOverlay {
         value: Double,
         unit: String,
         normalRange: ClosedRange<Double>? = nil
-    ) -> Entity {
+    ) -> RealityKit.Entity {
         let isNormal = normalRange?.contains(value) ?? true
         let statusColor: UIColor = isNormal ? .systemGreen : .systemRed
 
-        let container = Entity()
+        let container = RealityKit.Entity()
 
         // Create larger background card
         let cardEntity = createCardBackground(
@@ -168,8 +168,8 @@ public struct ARSensorOverlay {
     /// Create a warning indicator entity.
     /// - Parameter message: The warning message
     /// - Returns: A configured Entity
-    public static func createWarningEntity(message: String) -> Entity {
-        let container = Entity()
+    public static func createWarningEntity(message: String) -> RealityKit.Entity {
+        let container = RealityKit.Entity()
 
         // Warning background (red-tinted)
         let cardEntity = createCardBackground(
@@ -183,13 +183,13 @@ public struct ARSensorOverlay {
         let borderEntity = createCardBorder(
             width: 0.14,
             height: 0.045,
-            color: .systemRed
+            color: UIColor.systemRed
         )
         container.addChild(borderEntity)
 
         // Warning icon (triangle with exclamation)
         let iconMesh = MeshResource.generateBox(size: 0.008)
-        let iconMaterial = SimpleMaterial(color: .systemOrange, isMetallic: false)
+        let iconMaterial = SimpleMaterial(color: UIColor.systemOrange, isMetallic: false)
         let iconEntity = ModelEntity(mesh: iconMesh, materials: [iconMaterial])
         iconEntity.position = SIMD3<Float>(-0.06, 0, 0.002)
         container.addChild(iconEntity)
@@ -204,7 +204,7 @@ public struct ARSensorOverlay {
             alignment: .left,
             lineBreakMode: .byTruncatingTail
         ) {
-            let textMaterial = SimpleMaterial(color: .systemRed, isMetallic: false)
+            let textMaterial = SimpleMaterial(color: UIColor.systemRed, isMetallic: false)
             let textEntity = ModelEntity(mesh: textMesh, materials: [textMaterial])
             textEntity.position = SIMD3<Float>(-0.05, -0.003, 0.002)
             container.addChild(textEntity)
@@ -220,8 +220,8 @@ public struct ARSensorOverlay {
     ///   - title: The information title
     ///   - details: The detail text
     /// - Returns: A configured Entity
-    public static func createInfoEntity(title: String, details: String) -> Entity {
-        let container = Entity()
+    public static func createInfoEntity(title: String, details: String) -> RealityKit.Entity {
+        let container = RealityKit.Entity()
 
         // Info background
         let cardEntity = createCardBackground(
@@ -281,7 +281,7 @@ public struct ARSensorOverlay {
         width: Float,
         height: Float,
         color: UIColor
-    ) -> Entity {
+    ) -> RealityKit.Entity {
         let mesh = MeshResource.generatePlane(width: width, depth: height, cornerRadius: 0.005)
         var material = SimpleMaterial()
         material.color = .init(tint: color)
@@ -295,10 +295,10 @@ public struct ARSensorOverlay {
         width: Float,
         height: Float,
         color: UIColor
-    ) -> Entity {
+    ) -> RealityKit.Entity {
         // Create a thin box as border
         let thickness: Float = 0.002
-        let container = Entity()
+        let container = RealityKit.Entity()
 
         // Top border
         let topMesh = MeshResource.generateBox(size: SIMD3<Float>(width, thickness, 0.001))
@@ -326,7 +326,7 @@ public struct ARSensorOverlay {
     }
 
     /// Add billboard behavior to make entity always face the camera.
-    private static func addBillboardBehavior(to entity: Entity) {
+    private static func addBillboardBehavior(to entity: RealityKit.Entity) {
         // RealityKit 2+ supports BillboardComponent
         // For older versions, this needs to be handled via session updates
         #if swift(>=5.5)
@@ -354,8 +354,8 @@ extension ARSensorOverlay {
         minValue: Double,
         maxValue: Double,
         unit: String
-    ) -> Entity {
-        let container = Entity()
+    ) -> RealityKit.Entity {
+        let container = RealityKit.Entity()
 
         // Background circle
         let bgMesh = MeshResource.generatePlane(width: 0.08, depth: 0.08, cornerRadius: 0.04)

@@ -7,9 +7,13 @@
 
 import SwiftUI
 
+// MARK: - Content View
+
 struct ContentView: View {
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @StateObject private var appState = AppState()
     @StateObject private var syncEngine: SyncEngine
+    @State private var showSettings = false
 
     init() {
         let persistence = PersistenceService()
@@ -23,6 +27,20 @@ struct ContentView: View {
     }
 
     var body: some View {
+        Group {
+            if hasCompletedOnboarding {
+                mainTabView
+            } else {
+                OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
+            }
+        }
+        .environmentObject(appState)
+        .environmentObject(syncEngine)
+    }
+
+    // MARK: - Main Tab View
+
+    private var mainTabView: some View {
         TabView {
             DiscoveryView()
                 .tabItem {
@@ -38,11 +56,22 @@ struct ContentView: View {
                 .tabItem {
                     Label("Technician", systemImage: "wrench.and.screwdriver")
                 }
+
+            SettingsTabView()
+                .tabItem {
+                    Label("Settings", systemImage: "gear")
+                }
         }
-        .environmentObject(appState)
-        .environmentObject(syncEngine)
+        .overlay(alignment: .top) {
+            // Offline banner when disconnected
+            if !NetworkMonitor.shared.isConnected {
+                OfflineBannerView(pendingChangesCount: syncEngine.pendingOperationCount)
+            }
+        }
     }
 }
+
+// MARK: - Passport Tab View
 
 private struct PassportTabView: View {
     @EnvironmentObject private var appState: AppState
@@ -58,27 +87,39 @@ private struct PassportTabView: View {
     }
 }
 
+// MARK: - Passport Empty State View
+
 private struct PassportEmptyStateView: View {
     @EnvironmentObject private var appState: AppState
 
     var body: some View {
-        ContentUnavailableView {
-            Label("No Asset Selected", systemImage: "tag.slash")
-        } description: {
-            Text("Scan an asset QR code or search manually to view its Digital Product Passport.")
-        } actions: {
-            if AppConfiguration.isDemoMode {
-                Button {
-                    appState.setSelectedAsset(DemoData.asset)
-                } label: {
-                    Label("Load Demo Passport", systemImage: "sparkles")
-                }
-                .buttonStyle(.borderedProminent)
-            }
-        }
+        EmptyStateView(
+            type: .noAssetSelected,
+            actionTitle: AppConfiguration.isDemoMode ? "Load Demo Passport" : nil,
+            action: AppConfiguration.isDemoMode ? {
+                appState.setSelectedAsset(DemoData.asset)
+            } : nil,
+            secondaryActionTitle: AppConfiguration.isDemoMode ? nil : "Go to Discover",
+            secondaryAction: nil
+        )
+        .navigationTitle("Passport")
     }
 }
 
-#Preview {
+// MARK: - Settings Tab View
+
+private struct SettingsTabView: View {
+    var body: some View {
+        SettingsView()
+    }
+}
+
+// MARK: - Preview
+
+#Preview("Main App") {
     ContentView()
+}
+
+#Preview("With Onboarding") {
+    OnboardingView(hasCompletedOnboarding: .constant(false))
 }

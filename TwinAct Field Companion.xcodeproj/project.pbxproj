@@ -6,19 +6,8 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		0F83D763129D4C14B9E3F24D781FFA7F /* TwinAct Field Companion/Features/AR/ARProcedureOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72FE444BE82496A98C7F1402B74A461 /* TwinAct Field Companion/Features/AR/ARProcedureOverlay.swift */; };
-		41B9C7EBE4AB40BCBE8E3652D2D58447 /* TwinAct Field Companion/Features/AR/AROverlayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6649B2F0DCBB4C38B1393E198096DDD3 /* TwinAct Field Companion/Features/AR/AROverlayViewModel.swift */; };
-		49945317D3DC444DAFB74E85674FA85D /* TwinAct Field Companion/Features/AR/TrackingStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C343D348E7543059B7EA7153DCD43AC /* TwinAct Field Companion/Features/AR/TrackingStatusView.swift */; };
-		79C8E208E42E4C259E0FA249AC9BA56B /* TwinAct Field Companion/Features/AR/ARSensorOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10403FB053C44ED3974DE2E1BD457782 /* TwinAct Field Companion/Features/AR/ARSensorOverlay.swift */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXFileReference section */
-		10403FB053C44ED3974DE2E1BD457782 /* TwinAct Field Companion/Features/AR/ARSensorOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TwinAct Field Companion/Features/AR/ARSensorOverlay.swift"; sourceTree = "<group>"; };
 		24B644882F1D756D00CA0BC6 /* TwinAct Field Companion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TwinAct Field Companion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		4C343D348E7543059B7EA7153DCD43AC /* TwinAct Field Companion/Features/AR/TrackingStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TwinAct Field Companion/Features/AR/TrackingStatusView.swift"; sourceTree = "<group>"; };
-		6649B2F0DCBB4C38B1393E198096DDD3 /* TwinAct Field Companion/Features/AR/AROverlayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TwinAct Field Companion/Features/AR/AROverlayViewModel.swift"; sourceTree = "<group>"; };
-		C72FE444BE82496A98C7F1402B74A461 /* TwinAct Field Companion/Features/AR/ARProcedureOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TwinAct Field Companion/Features/AR/ARProcedureOverlay.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -45,7 +34,6 @@
 			children = (
 				24B6448A2F1D756D00CA0BC6 /* TwinAct Field Companion */,
 				24B644892F1D756D00CA0BC6 /* Products */,
-				24B647792F1E0E4800CA0BC6 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -55,17 +43,6 @@
 				24B644882F1D756D00CA0BC6 /* TwinAct Field Companion.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		24B647792F1E0E4800CA0BC6 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				6649B2F0DCBB4C38B1393E198096DDD3 /* TwinAct Field Companion/Features/AR/AROverlayViewModel.swift */,
-				C72FE444BE82496A98C7F1402B74A461 /* TwinAct Field Companion/Features/AR/ARProcedureOverlay.swift */,
-				10403FB053C44ED3974DE2E1BD457782 /* TwinAct Field Companion/Features/AR/ARSensorOverlay.swift */,
-				4C343D348E7543059B7EA7153DCD43AC /* TwinAct Field Companion/Features/AR/TrackingStatusView.swift */,
-			);
-			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -142,10 +119,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				41B9C7EBE4AB40BCBE8E3652D2D58447 /* TwinAct Field Companion/Features/AR/AROverlayViewModel.swift in Sources */,
-				0F83D763129D4C14B9E3F24D781FFA7F /* TwinAct Field Companion/Features/AR/ARProcedureOverlay.swift in Sources */,
-				79C8E208E42E4C259E0FA249AC9BA56B /* TwinAct Field Companion/Features/AR/ARSensorOverlay.swift in Sources */,
-				49945317D3DC444DAFB74E85674FA85D /* TwinAct Field Companion/Features/AR/TrackingStatusView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,6 +7,7 @@
 //
 
 @preconcurrency import AVFoundation
+@preconcurrency import Dispatch
 import Combine
 import os.log
 import SwiftUI
@@ -108,7 +109,7 @@ public final class QRScannerViewModel: NSObject, ObservableObject {
 
     // MARK: - Private Properties
 
-    nonisolated private let logger = Logger(
+    private let logger = Logger(
         subsystem: AppConfiguration.AppInfo.bundleIdentifier,
         category: "QRScannerViewModel"
     )
@@ -117,7 +118,7 @@ public final class QRScannerViewModel: NSObject, ObservableObject {
     private let sessionQueue = DispatchQueue(label: "com.twinact.scanner.session")
 
     /// Queue for metadata processing
-    nonisolated private let metadataQueue = DispatchQueue(label: "com.twinact.scanner.metadata")
+    private let metadataQueue = DispatchQueue(label: "com.twinact.scanner.metadata")
 
     /// The active video capture device
     nonisolated(unsafe) private var videoCaptureDevice: AVCaptureDevice?
@@ -140,7 +141,7 @@ public final class QRScannerViewModel: NSObject, ObservableObject {
     // MARK: - Configuration
 
     /// Supported metadata object types
-    nonisolated private let supportedCodeTypes: [AVMetadataObject.ObjectType] = [
+    private let supportedCodeTypes: [AVMetadataObject.ObjectType] = [
         .qr,
         .dataMatrix,
         .aztec,

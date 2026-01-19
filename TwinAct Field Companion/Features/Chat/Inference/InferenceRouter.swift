@@ -280,10 +280,14 @@ public final class InferenceRouter: @unchecked Sendable {
 
     // MARK: - Complexity Estimation
 
-    private enum QueryComplexity {
+    private enum QueryComplexity: String, CustomStringConvertible {
         case low
         case medium
         case high
+
+        var description: String {
+            rawValue
+        }
     }
 
     private func estimatePromptComplexity(_ prompt: String) -> QueryComplexity {
@@ -327,7 +331,11 @@ public final class InferenceRouter: @unchecked Sendable {
 
     /// Check if any provider is available
     public func hasAvailableProvider() async -> Bool {
-        await onDevice.isAvailable || await cloud.isAvailable
+        let onDeviceAvailable = await onDevice.isAvailable
+        if onDeviceAvailable {
+            return true
+        }
+        return await cloud.isAvailable
     }
 }
 

@@ -304,14 +304,57 @@ public struct SubmodelValue: Codable, Sendable {
 // MARK: - AnyCodable Helper
 
 /// Type-erased Codable value for dynamic JSON handling.
-public struct AnyCodable: Codable, Hashable {
-    public let value: AnyHashable
+public struct AnyCodable: Codable, Hashable, Sendable {
+    public let value: AnyCodableValue
 
     public init(_ value: Any) {
-        if let hashable = value as? AnyHashable {
-            self.value = hashable
-        } else {
-            self.value = String(describing: value)
+        self.value = AnyCodableValue(value)
+    }
+
+    public init(from decoder: Decoder) throws {
+        self.value = try AnyCodableValue(from: decoder)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        try value.encode(to: encoder)
+    }
+
+    /// Get the value as a specific type.
+    public func typedValue<T>() -> T? {
+        value.typedValue()
+    }
+}
+
+/// Strongly typed payload for AnyCodable to preserve Sendable safety.
+public enum AnyCodableValue: Codable, Hashable, Sendable {
+    case string(String)
+    case int(Int)
+    case double(Double)
+    case bool(Bool)
+    case array([AnyCodable])
+    case dictionary([String: AnyCodable])
+    case null
+
+    public init(_ value: Any) {
+        switch value {
+        case let string as String:
+            self = .string(string)
+        case let int as Int:
+            self = .int(int)
+        case let double as Double:
+            self = .double(double)
+        case let bool as Bool:
+            self = .bool(bool)
+        case let array as [AnyCodable]:
+            self = .array(array)
+        case let array as [Any]:
+            self = .array(array.map(AnyCodable.init))
+        case let dict as [String: AnyCodable]:
+            self = .dictionary(dict)
+        case let dict as [String: Any]:
+            self = .dictionary(dict.mapValues(AnyCodable.init))
+        default:
+            self = .string(String(describing: value))
         }
     }
 
@@ -319,19 +362,19 @@ public struct AnyCodable: Codable, Hashable {
         let container = try decoder.singleValueContainer()
 
         if let string = try? container.decode(String.self) {
-            self.value = string
+            self = .string(string)
         } else if let int = try? container.decode(Int.self) {
-            self.value = int
+            self = .int(int)
         } else if let double = try? container.decode(Double.self) {
-            self.value = double
+            self = .double(double)
         } else if let bool = try? container.decode(Bool.self) {
-            self.value = bool
+            self = .bool(bool)
         } else if let array = try? container.decode([AnyCodable].self) {
-            self.value = array as AnyHashable
+            self = .array(array)
         } else if let dict = try? container.decode([String: AnyCodable].self) {
-            self.value = dict as AnyHashable
+            self = .dictionary(dict)
         } else if container.decodeNil() {
-            self.value = "null"
+            self = .null
         } else {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Cannot decode AnyCodable")
         }
@@ -340,28 +383,33 @@ public struct AnyCodable: Codable, Hashable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
 
-        switch value.base {
-        case let string as String:
+        switch self {
+        case .string(let string):
             try container.encode(string)
-        case let int as Int:
+        case .int(let int):
             try container.encode(int)
-        case let double as Double:
+        case .double(let double):
             try container.encode(double)
-        case let bool as Bool:
+        case .bool(let bool):
             try container.encode(bool)
-        case let array as [AnyCodable]:
+        case .array(let array):
             try container.encode(array)
-        case let dict as [String: AnyCodable]:
+        case .dictionary(let dict):
             try container.encode(dict)
-        default:
-            try container.encode(String(describing: value))
+        case .null:
+            try container.encodeNil()
         }
     }
 
-    /// Get the value as a specific type.
     public func typedValue<T>() -> T? {
-        value.base as? T
+        switch self {
+        case .string(let value): return value as? T
+        case .int(let value): return value as? T
+        case .double(let value): return value as? T
+        case .bool(let value): return value as? T
+        case .array(let value): return value as? T
+        case .dictionary(let value): return value as? T
+        case .null: return nil
+        }
     }
 }
-
-extension AnyCodable: @unchecked Sendable {}

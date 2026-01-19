@@ -26,8 +26,8 @@ public struct ARProcedureOverlay {
         stepNumber: Int,
         description: String,
         isCurrentStep: Bool
-    ) -> Entity {
-        let container = Entity()
+    ) -> RealityKit.Entity {
+        let container = RealityKit.Entity()
 
         let primaryColor: UIColor = isCurrentStep ? .systemOrange : .systemGray
         let backgroundColor: UIColor = isCurrentStep
@@ -106,8 +106,8 @@ public struct ARProcedureOverlay {
         from startPosition: SIMD3<Float>,
         to endPosition: SIMD3<Float>,
         color: UIColor = .systemYellow
-    ) -> Entity {
-        let container = Entity()
+    ) -> RealityKit.Entity {
+        let container = RealityKit.Entity()
 
         // Calculate direction and length
         let direction = endPosition - startPosition
@@ -154,8 +154,8 @@ public struct ARProcedureOverlay {
         center: SIMD3<Float>,
         size: SIMD3<Float>,
         color: UIColor = .systemYellow
-    ) -> Entity {
-        let container = Entity()
+    ) -> RealityKit.Entity {
+        let container = RealityKit.Entity()
         container.position = center
 
         // Semi-transparent fill
@@ -201,8 +201,8 @@ public struct ARProcedureOverlay {
     public static func createChecklistItem(
         text: String,
         isCompleted: Bool
-    ) -> Entity {
-        let container = Entity()
+    ) -> RealityKit.Entity {
+        let container = RealityKit.Entity()
 
         // Checkbox
         let checkboxColor: UIColor = isCompleted ? .systemGreen : .systemGray
@@ -257,8 +257,8 @@ public struct ARProcedureOverlay {
     public static func createChecklist(
         items: [(text: String, isCompleted: Bool)],
         title: String? = nil
-    ) -> Entity {
-        let container = Entity()
+    ) -> RealityKit.Entity {
+        let container = RealityKit.Entity()
         var yOffset: Float = 0
 
         // Title
@@ -312,8 +312,8 @@ public struct ARProcedureOverlay {
     public static func createToolIndicator(
         toolName: String,
         isAvailable: Bool
-    ) -> Entity {
-        let container = Entity()
+    ) -> RealityKit.Entity {
+        let container = RealityKit.Entity()
 
         let statusColor: UIColor = isAvailable ? .systemGreen : .systemRed
         let iconColor: UIColor = .systemBlue
@@ -369,8 +369,8 @@ public struct ARProcedureOverlay {
         height: Float,
         color: UIColor,
         borderColor: UIColor
-    ) -> Entity {
-        let container = Entity()
+    ) -> RealityKit.Entity {
+        let container = RealityKit.Entity()
 
         // Background
         let bgMesh = MeshResource.generatePlane(width: width, depth: height, cornerRadius: 0.008)
@@ -395,8 +395,8 @@ public struct ARProcedureOverlay {
         number: Int,
         color: UIColor,
         isActive: Bool
-    ) -> Entity {
-        let container = Entity()
+    ) -> RealityKit.Entity {
+        let container = RealityKit.Entity()
 
         // Circle background
         let circleMesh = MeshResource.generatePlane(width: 0.018, depth: 0.018, cornerRadius: 0.009)
@@ -425,7 +425,7 @@ public struct ARProcedureOverlay {
     }
 
     /// Create a pulse indicator for the current step.
-    private static func createPulseIndicator(color: UIColor) -> Entity {
+    private static func createPulseIndicator(color: UIColor) -> RealityKit.Entity {
         let mesh = MeshResource.generatePlane(width: 0.025, depth: 0.025, cornerRadius: 0.0125)
         var material = SimpleMaterial()
         material.color = .init(tint: color.withAlphaComponent(0.3))
@@ -435,7 +435,7 @@ public struct ARProcedureOverlay {
     }
 
     /// Add billboard behavior to make entity always face the camera.
-    private static func addBillboardBehavior(to entity: Entity) {
+    private static func addBillboardBehavior(to entity: RealityKit.Entity) {
         #if swift(>=5.5)
         if #available(iOS 15.0, *) {
             entity.components.set(BillboardComponent())

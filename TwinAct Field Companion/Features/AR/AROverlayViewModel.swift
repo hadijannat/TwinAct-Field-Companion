@@ -17,7 +17,7 @@ public struct AROverlay: Identifiable {
     public let id: UUID
     public let type: AROverlayType
     public let position: SIMD3<Float>
-    public let entity: Entity?
+    public let entity: RealityKit.Entity?
 
     /// Title for the overlay
     public var title: String {
@@ -26,7 +26,7 @@ public struct AROverlay: Identifiable {
             return propertyName
         case .maintenanceStep(let stepNumber, _):
             return "Step \(stepNumber)"
-        case .warning(let message):
+        case .warning:
             return "Warning"
         case .information(let title, _):
             return title
@@ -89,7 +89,7 @@ public struct AROverlay: Identifiable {
         id: UUID = UUID(),
         type: AROverlayType,
         position: SIMD3<Float>,
-        entity: Entity? = nil
+        entity: RealityKit.Entity? = nil
     ) {
         self.id = id
         self.type = type
@@ -146,7 +146,7 @@ public final class AROverlayViewModel: ObservableObject {
     private let timeSeriesData: TimeSeriesData?
     private let maintenanceInstructions: MaintenanceInstructions?
     private var sessionManager: ARSessionManager?
-    private var overlayEntities: [UUID: Entity] = [:]
+    private var overlayEntities: [UUID: RealityKit.Entity] = [:]
     private var mainAnchor: AnchorEntity?
 
     // MARK: - Initialization
@@ -193,7 +193,7 @@ public final class AROverlayViewModel: ObservableObject {
             addOverlaysToScene(sensorOverlays, on: anchor)
         }
 
-        if let instructions = maintenanceInstructions,
+        if maintenanceInstructions != nil,
            let step = currentMaintenanceStep {
             let procedureOverlays = createMaintenanceOverlays(for: step)
             addOverlaysToScene(procedureOverlays, on: anchor)
@@ -375,7 +375,6 @@ public final class AROverlayViewModel: ObservableObject {
             anchor.addChild(entity)
             overlayEntities[overlay.id] = entity
 
-            var overlayWithEntity = overlay
             overlays.append(AROverlay(
                 id: overlay.id,
                 type: overlay.type,
@@ -385,7 +384,7 @@ public final class AROverlayViewModel: ObservableObject {
         }
     }
 
-    private func createEntity(for overlay: AROverlay) -> Entity {
+    private func createEntity(for overlay: AROverlay) -> RealityKit.Entity {
         switch overlay.type {
         case .sensorValue(let propertyName, let value, let unit):
             return ARSensorOverlay.createEntity(

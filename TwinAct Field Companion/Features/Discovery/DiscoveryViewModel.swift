@@ -158,11 +158,20 @@ public final class DiscoveryViewModel: ObservableObject {
 
     /// Initialize with default services.
     public convenience init(tokenProvider: TokenProvider? = nil) {
-        self.init(
-            discoveryService: DiscoveryService(tokenProvider: tokenProvider),
-            registryService: RegistryService(tokenProvider: tokenProvider),
-            submodelService: SubmodelService(tokenProvider: tokenProvider)
-        )
+        if let tokenProvider = tokenProvider {
+            self.init(
+                discoveryService: DiscoveryService(tokenProvider: tokenProvider),
+                registryService: RegistryService(tokenProvider: tokenProvider),
+                submodelService: SubmodelService(tokenProvider: tokenProvider)
+            )
+        } else {
+            let container = DependencyContainer.shared
+            self.init(
+                discoveryService: container.discoveryService,
+                registryService: container.registryService,
+                submodelService: container.submodelService
+            )
+        }
     }
 
     // MARK: - Public API
@@ -585,37 +594,7 @@ extension DiscoveryViewModel {
 }
 
 // Mock services for previews
-private struct MockDiscoveryService: DiscoveryServiceProtocol {
-    func lookupShells(assetIds: [SpecificAssetId]) async throws -> [String] { [] }
-    func lookupShells(name: String, value: String) async throws -> [String] { [] }
-    func getAllLinkedAssetIds(aasId: String) async throws -> [SpecificAssetId] { [] }
-    func linkAssetIds(aasId: String, assetIds: [SpecificAssetId]) async throws {}
-    func unlinkAssetIds(aasId: String, assetIds: [SpecificAssetId]) async throws {}
-}
-
-private struct MockRegistryService: RegistryServiceProtocol {
-    func getAllShellDescriptors(cursor: String?) async throws -> PagedResult<AASDescriptor> {
-        PagedResult(result: [])
-    }
-    func getShellDescriptor(aasId: String) async throws -> AASDescriptor {
-        AASDescriptor(id: aasId, idShort: "Mock Asset")
-    }
-    func getSubmodelDescriptors(aasId: String) async throws -> [SubmodelDescriptor] { [] }
-    func getSubmodelDescriptor(aasId: String, submodelId: String) async throws -> SubmodelDescriptor {
-        SubmodelDescriptor(id: submodelId)
-    }
-    func searchShells(idShort: String) async throws -> [AASDescriptor] { [] }
-    func searchShells(query: ShellSearchQuery) async throws -> PagedResult<AASDescriptor> {
-        PagedResult(result: [])
-    }
-    func registerShell(descriptor: AASDescriptor) async throws {}
-    func updateShellDescriptor(aasId: String, descriptor: AASDescriptor) async throws {}
-    func deleteShellDescriptor(aasId: String) async throws {}
-    func registerSubmodelDescriptor(aasId: String, descriptor: SubmodelDescriptor) async throws {}
-    func deleteSubmodelDescriptor(aasId: String, submodelId: String) async throws {}
-}
-
-private struct MockSubmodelService: SubmodelServiceProtocol {
+private struct DiscoveryPreviewSubmodelService: SubmodelServiceProtocol {
     func getSubmodel(submodelId: String) async throws -> Submodel {
         Submodel(id: submodelId, idShort: "Mock Submodel")
     }

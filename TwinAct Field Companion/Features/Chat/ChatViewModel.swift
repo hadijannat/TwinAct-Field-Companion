@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import os.log
+import Combine
 
 // MARK: - Chat ViewModel
 
