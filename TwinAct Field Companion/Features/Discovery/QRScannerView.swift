@@ -52,6 +52,34 @@ public struct QRScannerView: View {
     // MARK: - Body
 
     public var body: some View {
+        scannerContent
+            .alert("Camera Access Required", isPresented: $showPermissionAlert) {
+                Button("Open Settings") {
+                    openAppSettings()
+                }
+                Button("Cancel", role: .cancel) {
+                    dismiss()
+                }
+            } message: {
+                Text("Please enable camera access in Settings to scan QR codes.")
+            }
+            .alert("Scanner Error", isPresented: $showErrorAlert) {
+                Button("Retry") {
+                    viewModel.reset()
+                    viewModel.startScanning()
+                }
+                Button("Cancel", role: .cancel) {
+                    dismiss()
+                }
+            } message: {
+                Text(viewModel.error?.localizedDescription ?? "An unknown error occurred.")
+            }
+            .sheet(isPresented: $showManualEntry) {
+                ManualEntrySheet(onSubmit: handleManualEntry)
+            }
+    }
+
+    private var scannerContent: some View {
         ZStack {
             // Camera preview
             cameraPreview
@@ -88,30 +116,6 @@ public struct QRScannerView: View {
             } else if error != nil {
                 showErrorAlert = true
             }
-        }
-        .alert("Camera Access Required", isPresented: $showPermissionAlert) {
-            Button("Open Settings") {
-                openAppSettings()
-            }
-            Button("Cancel", role: .cancel) {
-                dismiss()
-            }
-        } message: {
-            Text("Please enable camera access in Settings to scan QR codes.")
-        }
-        .alert("Scanner Error", isPresented: $showErrorAlert) {
-            Button("Retry") {
-                viewModel.reset()
-                viewModel.startScanning()
-            }
-            Button("Cancel", role: .cancel) {
-                dismiss()
-            }
-        } message: {
-            Text(viewModel.error?.localizedDescription ?? "An unknown error occurred.")
-        }
-        .sheet(isPresented: $showManualEntry) {
-            ManualEntrySheet(onSubmit: handleManualEntry)
         }
     }
 

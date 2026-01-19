@@ -579,6 +579,8 @@ struct CarbonFootprintView_Previews: PreviewProvider {
                     tcfCO2eq: 15.2,
                     ucfCO2eq: 280.0,
                     eolCO2eq: 12.3,
+                    recyclabilityPercentage: 85,
+                    recycledContentPercentage: 30,
                     verificationStatement: URL(string: "https://example.com/verify"),
                     validityPeriodStart: Date(),
                     validityPeriodEnd: Date().addingTimeInterval(365 * 24 * 60 * 60),
@@ -586,9 +588,7 @@ struct CarbonFootprintView_Previews: PreviewProvider {
                     verificationStandard: "ISO 14067",
                     waterFootprint: 450,
                     energyEfficiencyClass: "A+",
-                    circularEconomyScore: 72,
-                    recyclabilityPercentage: 85,
-                    recycledContentPercentage: 30
+                    circularEconomyScore: 72
                 )
             )
             .padding()

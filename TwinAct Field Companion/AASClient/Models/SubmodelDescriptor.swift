@@ -31,7 +31,7 @@ public struct SubmodelDescriptor: Codable, Sendable, Identifiable, Hashable {
     public let displayName: [LangString]?
 
     /// Endpoints where this submodel can be accessed
-    public let endpoints: [Endpoint]?
+    public let endpoints: [AASServiceEndpoint]?
 
     /// Administrative information
     public let administration: AdministrativeInformation?
@@ -43,7 +43,7 @@ public struct SubmodelDescriptor: Codable, Sendable, Identifiable, Hashable {
         supplementalSemanticId: [Reference]? = nil,
         description: [LangString]? = nil,
         displayName: [LangString]? = nil,
-        endpoints: [Endpoint]? = nil,
+        endpoints: [AASServiceEndpoint]? = nil,
         administration: AdministrativeInformation? = nil
     ) {
         self.id = id
@@ -60,7 +60,7 @@ public struct SubmodelDescriptor: Codable, Sendable, Identifiable, Hashable {
 // MARK: - Reference
 
 /// Reference to semantic definitions or other AAS elements.
-public struct Reference: Codable, Sendable, Hashable {
+public final class Reference: Codable, Sendable, Hashable {
     /// Type of reference
     public let type: ReferenceType
 
@@ -74,6 +74,18 @@ public struct Reference: Codable, Sendable, Hashable {
         self.type = type
         self.keys = keys
         self.referredSemanticId = referredSemanticId
+    }
+
+    public static func == (lhs: Reference, rhs: Reference) -> Bool {
+        lhs.type == rhs.type &&
+        lhs.keys == rhs.keys &&
+        lhs.referredSemanticId == rhs.referredSemanticId
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(type)
+        hasher.combine(keys)
+        hasher.combine(referredSemanticId)
     }
 
     /// Convenience initializer for a single global reference.

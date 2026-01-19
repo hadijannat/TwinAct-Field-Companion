@@ -8,6 +8,7 @@
 
 import SwiftUI
 import PDFKit
+import Combine
 
 // MARK: - Document Viewer View
 

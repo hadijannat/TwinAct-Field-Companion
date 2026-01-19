@@ -567,6 +567,7 @@ extension Endpoint {
     /// Create a DELETE endpoint
     public static func delete(
         _ path: String,
+        queryItems: [URLQueryItem]? = nil,
         headers: [String: String]? = nil,
         timeout: TimeInterval? = nil
     ) -> Endpoint {
@@ -574,7 +575,7 @@ extension Endpoint {
             path: path,
             method: .delete,
             headers: headers,
-            queryItems: nil,
+            queryItems: queryItems,
             body: nil,
             timeout: timeout
         )

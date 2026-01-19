@@ -71,12 +71,12 @@ public final class SyncEngine: ObservableObject {
         persistence: PersistenceRepositoryProtocol,
         networkMonitor: NetworkMonitor = .shared,
         repositoryService: RepositoryServiceProtocol,
-        conflictResolver: ConflictResolver = ConflictResolver()
+        conflictResolver: ConflictResolver? = nil
     ) {
         self.persistence = persistence
         self.networkMonitor = networkMonitor
         self.repositoryService = repositoryService
-        self.conflictResolver = conflictResolver
+        self.conflictResolver = conflictResolver ?? ConflictResolver()
         self.config = AppConfiguration.OfflineSync.self
         self.logger = Logger(
             subsystem: AppConfiguration.AppInfo.bundleIdentifier,
@@ -350,7 +350,7 @@ public final class SyncEngine: ObservableObject {
                 operationId: operation.id,
                 attempts: operation.attemptCount
             )
-            try? await persistence.markOperationFailed(operation.id, error: error.localizedDescription ?? "Max retries exceeded")
+            try? await persistence.markOperationFailed(operation.id, error: error.localizedDescription)
             return .failure(error)
         }
 
@@ -380,7 +380,7 @@ public final class SyncEngine: ObservableObject {
             return .success(())
 
         } catch let syncError as SyncError {
-            try? await persistence.markOperationFailed(operation.id, error: syncError.localizedDescription ?? "Unknown error")
+            try? await persistence.markOperationFailed(operation.id, error: syncError.localizedDescription)
             return .failure(syncError)
 
         } catch let aasError as AASError {
@@ -392,7 +392,7 @@ public final class SyncEngine: ObservableObject {
                 return .success(())
             }
 
-            try? await persistence.markOperationFailed(operation.id, error: syncError.localizedDescription ?? "AAS error")
+            try? await persistence.markOperationFailed(operation.id, error: syncError.localizedDescription)
             return .failure(syncError)
 
         } catch {

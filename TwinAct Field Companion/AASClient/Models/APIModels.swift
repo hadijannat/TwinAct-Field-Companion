@@ -304,7 +304,7 @@ public struct SubmodelValue: Codable, Sendable {
 // MARK: - AnyCodable Helper
 
 /// Type-erased Codable value for dynamic JSON handling.
-public struct AnyCodable: Codable, Sendable, Hashable {
+public struct AnyCodable: Codable, Hashable {
     public let value: AnyHashable
 
     public init(_ value: Any) {
@@ -359,7 +359,9 @@ public struct AnyCodable: Codable, Sendable, Hashable {
     }
 
     /// Get the value as a specific type.
-    public func value<T>() -> T? {
+    public func typedValue<T>() -> T? {
         value.base as? T
     }
 }
+
+extension AnyCodable: @unchecked Sendable {}

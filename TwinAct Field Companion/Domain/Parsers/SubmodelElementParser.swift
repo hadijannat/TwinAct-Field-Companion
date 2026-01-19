@@ -378,15 +378,19 @@ public struct SubmodelElementParser {
 
         // Parse records
         var records: [TimeSeriesRecord] = []
-        if let recordsCollection = findCollection(in: elements, named: "Records")
-            ?? findCollection(in: elements, named: "Data")
-            ?? findList(in: elements, named: "Records") {
+        var recordElements: [SubmodelElement] = []
 
-            for element in (recordsCollection.value ?? []) {
-                if case .submodelElementCollection(let recordCollection) = element {
-                    if let record = parseTimeSeriesRecord(from: recordCollection) {
-                        records.append(record)
-                    }
+        if let recordsCollection = findCollection(in: elements, named: "Records")
+            ?? findCollection(in: elements, named: "Data") {
+            recordElements = recordsCollection.value ?? []
+        } else if let recordsList = findList(in: elements, named: "Records") {
+            recordElements = recordsList.value ?? []
+        }
+
+        for element in recordElements {
+            if case .submodelElementCollection(let recordCollection) = element {
+                if let record = parseTimeSeriesRecord(from: recordCollection) {
+                    records.append(record)
                 }
             }
         }

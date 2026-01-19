@@ -20,6 +20,7 @@ public struct DiscoveryView: View {
     @State private var showManualSearch = false
     @State private var searchText = ""
     @State private var navigateToPassport = false
+    @EnvironmentObject private var appState: AppState
 
     // MARK: - Body
 
@@ -55,15 +56,22 @@ public struct DiscoveryView: View {
                 )
             }
             .navigationDestination(isPresented: $navigateToPassport) {
-                if let asset = viewModel.discoveredAsset {
-                    // Navigate to Passport view with discovered asset
-                    PassportPlaceholderView(asset: asset)
+                if let asset = viewModel.discoveredAsset ?? appState.selectedAsset {
+                    PassportView(assetId: asset.id)
                 }
             }
             .onChange(of: viewModel.state) { _, newState in
-                if case .found = newState {
-                    // Auto-navigate to passport on discovery
+                switch newState {
+                case .found(let asset):
+                    appState.setSelectedAsset(asset)
                     navigateToPassport = true
+                case .offline(let cachedAsset):
+                    if let asset = cachedAsset {
+                        appState.setSelectedAsset(asset)
+                        navigateToPassport = true
+                    }
+                default:
+                    break
                 }
             }
         }
@@ -155,7 +163,7 @@ public struct DiscoveryView: View {
                 .font(.headline)
                 .foregroundColor(.secondary)
 
-            HStack(spacing: 12) {
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 // Manual search
                 QuickActionCard(
                     icon: "magnifyingglass",
@@ -174,6 +182,18 @@ public struct DiscoveryView: View {
                     color: .purple
                 ) {
                     // TODO: Implement browse functionality
+                }
+
+                if AppConfiguration.isDemoMode {
+                    QuickActionCard(
+                        icon: "sparkles",
+                        title: "Demo Asset",
+                        subtitle: "App Review mode",
+                        color: .green
+                    ) {
+                        appState.setSelectedAsset(DemoData.asset)
+                        navigateToPassport = true
+                    }
                 }
             }
         }
@@ -307,6 +327,15 @@ public struct DiscoveryView: View {
     private func handleManualSearch() {
         showManualSearch = false
         guard !searchText.isEmpty else { return }
+
+        if AppConfiguration.isDemoMode {
+            let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            if trimmed == "demo" || trimmed == "demo-asset" || trimmed == DemoData.asset.id.lowercased() {
+                appState.setSelectedAsset(DemoData.asset)
+                navigateToPassport = true
+                return
+            }
+        }
 
         Task {
             await viewModel.lookupBySerialNumber(searchText)
@@ -520,6 +549,7 @@ struct InfoRow: View {
 struct DiscoveryView_Previews: PreviewProvider {
     static var previews: some View {
         DiscoveryView()
+            .environmentObject(AppState())
     }
 }
 #endif

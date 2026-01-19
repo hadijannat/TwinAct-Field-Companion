@@ -291,7 +291,6 @@ public struct IdentificationLinkParser {
     private static func parseURL(_ url: URL, originalString: String) -> AssetIdentificationLink? {
         let host = url.host?.lowercased() ?? ""
         let path = url.path
-        let query = url.queryParameters
 
         // Check for GS1 Digital Link
         if host.contains("id.gs1.org") || host.contains("gs1") {
@@ -384,9 +383,6 @@ public struct IdentificationLinkParser {
             aasId = remainder.split(separator: "/").first.map { String($0) }
         }
 
-        // Try to extract submodel ID if present
-        let query = url.queryParameters
-
         return AssetIdentificationLink(
             originalURL: url,
             originalString: originalString,
@@ -411,7 +407,7 @@ public struct IdentificationLinkParser {
         // Extract identifiers from path and query
         var serialNumber = query["serial"] ?? query["sn"] ?? query["serialNumber"]
         var partNumber = query["part"] ?? query["pn"] ?? query["partNumber"] ?? query["article"]
-        var productFamily = query["family"] ?? query["product"]
+        let productFamily = query["family"] ?? query["product"]
 
         // Try to extract from path segments
         let segments = path.split(separator: "/").map { String($0) }
@@ -462,7 +458,9 @@ public struct IdentificationLinkParser {
 
         // Check for generic "id." prefix
         if host.hasPrefix("id.") {
-            let manufacturer = extractManufacturerFromHost(host)
+            guard let manufacturer = extractManufacturerFromHost(host) else {
+                return nil
+            }
             return parseKnownManufacturerLink(url, manufacturer: manufacturer, originalString: originalString)
         }
 
@@ -579,7 +577,7 @@ public struct IdentificationLinkParser {
 
         // Try to extract any identifiers
         var serialNumber = query["serial"] ?? query["sn"] ?? query["id"]
-        var partNumber = query["part"] ?? query["pn"] ?? query["article"]
+        let partNumber = query["part"] ?? query["pn"] ?? query["article"]
 
         // Check last path segment
         if serialNumber == nil, let last = segments.last, looksLikeSerialNumber(last) {

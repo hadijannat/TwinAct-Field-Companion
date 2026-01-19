@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import os.log
+import Combine
 
 // MARK: - Passport View Model
 
@@ -96,6 +97,21 @@ public final class PassportViewModel: ObservableObject {
         defer { isLoading = false }
 
         logger.debug("Loading passport data for asset: \(self.assetId)")
+
+        if AppConfiguration.isDemoMode, assetId == DemoData.asset.id {
+            applyPassportData(
+                PassportData(
+                    asset: DemoData.asset,
+                    nameplate: DemoData.nameplate,
+                    carbonFootprint: DemoData.carbonFootprint,
+                    documents: DemoData.documents,
+                    technicalData: DemoData.technicalSummary
+                )
+            )
+            isFromCache = false
+            lastRefreshed = Date()
+            return
+        }
 
         do {
             // Try to load from cache first for immediate display
@@ -352,7 +368,7 @@ public final class PassportViewModel: ObservableObject {
                     case .file(let file):
                         if let urlString = file.value, let url = URL(string: urlString) {
                             files.append(DigitalFile(
-                                fileFormat: file.contentType ?? "application/octet-stream",
+                                fileFormat: file.contentType,
                                 file: url
                             ))
                         }

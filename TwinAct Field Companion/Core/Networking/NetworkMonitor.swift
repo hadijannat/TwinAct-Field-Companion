@@ -92,7 +92,6 @@ public struct NetworkStatus: Sendable, Equatable {
 // MARK: - Network Monitor
 
 /// Monitors network connectivity using NWPathMonitor
-@MainActor
 public final class NetworkMonitor: ObservableObject {
 
     // MARK: - Published Properties

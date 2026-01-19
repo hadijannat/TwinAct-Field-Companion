@@ -8,6 +8,7 @@
 import Foundation
 import SwiftData
 import SwiftUI
+import Combine
 
 // MARK: - Persistence Controller
 
@@ -225,20 +226,5 @@ public struct DatabaseStats {
 
     public var totalRecords: Int {
         outboxOperationCount + auditEntryCount + cachedSubmodelCount + cachedDocumentCount
-    }
-}
-
-// MARK: - SwiftUI Environment
-
-/// Environment key for the persistence controller
-private struct PersistenceControllerKey: EnvironmentKey {
-    @MainActor static let defaultValue = PersistenceController.shared
-}
-
-public extension EnvironmentValues {
-    /// The persistence controller for SwiftData operations
-    var persistenceController: PersistenceController {
-        get { self[PersistenceControllerKey.self] }
-        set { self[PersistenceControllerKey.self] = newValue }
     }
 }

@@ -48,11 +48,11 @@ public struct ConflictResolver: Sendable {
     // MARK: - Properties
 
     /// The strategy to use for resolving conflicts
-    public let strategy: AppConfiguration.OfflineSync.ConflictResolutionStrategy
+    let strategy: AppConfiguration.OfflineSync.ConflictResolutionStrategy
 
     // MARK: - Initialization
 
-    public init(strategy: AppConfiguration.OfflineSync.ConflictResolutionStrategy = AppConfiguration.OfflineSync.conflictResolutionStrategy) {
+    init(strategy: AppConfiguration.OfflineSync.ConflictResolutionStrategy = AppConfiguration.OfflineSync.conflictResolutionStrategy) {
         self.strategy = strategy
     }
 
@@ -323,7 +323,7 @@ public struct ConflictInfo: Sendable {
     public let serverTimestamp: Date?
 
     /// The resolution strategy that was applied
-    public let appliedStrategy: AppConfiguration.OfflineSync.ConflictResolutionStrategy
+    let appliedStrategy: AppConfiguration.OfflineSync.ConflictResolutionStrategy
 
     /// The resolution result
     public let resolution: ConflictResolver.Resolution
@@ -331,7 +331,7 @@ public struct ConflictInfo: Sendable {
     /// When the conflict was detected
     public let detectedAt: Date
 
-    public init(
+    init(
         operationId: UUID,
         entityType: String,
         entityId: String,

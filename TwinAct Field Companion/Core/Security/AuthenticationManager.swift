@@ -8,6 +8,7 @@
 import Foundation
 import AuthenticationServices
 import os.log
+import Combine
 
 /// Manages OAuth2 + PKCE authentication flow
 @MainActor
@@ -524,17 +525,23 @@ public final class AuthenticationManager: NSObject, ObservableObject {
 extension AuthenticationManager: ASWebAuthenticationPresentationContextProviding {
     public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         // Try to get the key window from the connected scenes
-        guard let windowScene = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first(where: { $0.activationState == .foregroundActive }),
-              let window = windowScene.windows.first(where: { $0.isKeyWindow }) else {
-            // Fallback to any available window
-            return UIApplication.shared.connectedScenes
-                .compactMap { $0 as? UIWindowScene }
-                .flatMap { $0.windows }
-                .first ?? ASPresentationAnchor()
+        let scenes = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+
+        if let windowScene = scenes.first(where: { $0.activationState == .foregroundActive }),
+           let window = windowScene.windows.first(where: { $0.isKeyWindow }) {
+            return window
         }
-        return window
+
+        if let window = scenes.flatMap({ $0.windows }).first {
+            return window
+        }
+
+        if let fallbackScene = scenes.first {
+            return UIWindow(windowScene: fallbackScene)
+        }
+
+        preconditionFailure("No UIWindowScene available for authentication presentation.")
     }
 }
 

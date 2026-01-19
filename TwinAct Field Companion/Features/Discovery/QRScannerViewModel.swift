@@ -6,7 +6,7 @@
 //  QR detection, and IEC 61406 link parsing.
 //
 
-import AVFoundation
+@preconcurrency import AVFoundation
 import Combine
 import os.log
 import SwiftUI
@@ -14,7 +14,7 @@ import SwiftUI
 // MARK: - Scanner Error
 
 /// Errors that can occur during QR scanning.
-public enum ScannerError: Error, LocalizedError {
+public enum ScannerError: Error, LocalizedError, Equatable {
     case cameraAccessDenied
     case cameraAccessRestricted
     case cameraUnavailable
@@ -98,17 +98,17 @@ public final class QRScannerViewModel: NSObject, ObservableObject {
     // MARK: - Capture Session
 
     /// The AVCaptureSession used for camera capture
-    public let captureSession = AVCaptureSession()
+    nonisolated(unsafe) public let captureSession = AVCaptureSession()
 
     /// Metadata output for QR code detection
-    private let metadataOutput = AVCaptureMetadataOutput()
+    nonisolated(unsafe) private let metadataOutput = AVCaptureMetadataOutput()
 
     /// Video preview layer (lazily created)
-    private var videoPreviewLayer: AVCaptureVideoPreviewLayer?
+    nonisolated(unsafe) private var videoPreviewLayer: AVCaptureVideoPreviewLayer?
 
     // MARK: - Private Properties
 
-    private let logger = Logger(
+    nonisolated private let logger = Logger(
         subsystem: AppConfiguration.AppInfo.bundleIdentifier,
         category: "QRScannerViewModel"
     )
@@ -117,10 +117,10 @@ public final class QRScannerViewModel: NSObject, ObservableObject {
     private let sessionQueue = DispatchQueue(label: "com.twinact.scanner.session")
 
     /// Queue for metadata processing
-    private let metadataQueue = DispatchQueue(label: "com.twinact.scanner.metadata")
+    nonisolated private let metadataQueue = DispatchQueue(label: "com.twinact.scanner.metadata")
 
     /// The active video capture device
-    private var videoCaptureDevice: AVCaptureDevice?
+    nonisolated(unsafe) private var videoCaptureDevice: AVCaptureDevice?
 
     /// Debounce timer for continuous scanning
     private var scanDebounceTimer: Timer?
@@ -140,7 +140,7 @@ public final class QRScannerViewModel: NSObject, ObservableObject {
     // MARK: - Configuration
 
     /// Supported metadata object types
-    private let supportedCodeTypes: [AVMetadataObject.ObjectType] = [
+    nonisolated private let supportedCodeTypes: [AVMetadataObject.ObjectType] = [
         .qr,
         .dataMatrix,
         .aztec,
@@ -155,7 +155,9 @@ public final class QRScannerViewModel: NSObject, ObservableObject {
     }
 
     deinit {
-        stopScanning()
+        Task { @MainActor [weak self] in
+            self?.stopScanning()
+        }
     }
 
     // MARK: - Public API
@@ -261,7 +263,8 @@ public final class QRScannerViewModel: NSObject, ObservableObject {
                 }
 
                 device.unlockForConfiguration()
-                self?.logger.debug("Focused at point: \(point)")
+                let pointDescription = "\(point.x), \(point.y)"
+                self?.logger.debug("Focused at point: \(pointDescription)")
             } catch {
                 self?.logger.error("Failed to focus: \(error.localizedDescription)")
             }
@@ -343,7 +346,7 @@ public final class QRScannerViewModel: NSObject, ObservableObject {
         }
     }
 
-    private func configureCaptureSession() throws {
+    nonisolated private func configureCaptureSession() throws {
         captureSession.beginConfiguration()
         defer { captureSession.commitConfiguration() }
 
@@ -395,7 +398,7 @@ public final class QRScannerViewModel: NSObject, ObservableObject {
         configureDeviceSettings(device)
     }
 
-    private func configureDeviceSettings(_ device: AVCaptureDevice) {
+    nonisolated private func configureDeviceSettings(_ device: AVCaptureDevice) {
         do {
             try device.lockForConfiguration()
 

@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 // MARK: - Protocol Abstractions
 
@@ -16,12 +17,6 @@ protocol DependencyContainerProtocol: AnyObject {
     var authenticationManager: AuthenticationManagerProtocol { get }
     var persistenceController: PersistenceControllerProtocol { get }
     var syncEngine: SyncEngineProtocol { get }
-}
-
-/// Protocol for HTTP networking operations
-protocol HTTPClientProtocol: Sendable {
-    func request<T: Decodable>(_ endpoint: URL, method: String, body: Data?) async throws -> T
-    func request(_ endpoint: URL, method: String, body: Data?) async throws -> Data
 }
 
 /// Protocol for authentication management
@@ -53,11 +48,15 @@ protocol SyncEngineProtocol: Sendable {
 
 /// Placeholder HTTP client - replace with actual implementation
 final class PlaceholderHTTPClient: HTTPClientProtocol, @unchecked Sendable {
-    func request<T: Decodable>(_ endpoint: URL, method: String, body: Data?) async throws -> T {
+    func request<T: Decodable>(_ endpoint: Endpoint) async throws -> T {
         fatalError("HTTPClient not yet implemented. Replace PlaceholderHTTPClient with actual implementation.")
     }
 
-    func request(_ endpoint: URL, method: String, body: Data?) async throws -> Data {
+    func request(_ endpoint: Endpoint) async throws -> Data {
+        fatalError("HTTPClient not yet implemented. Replace PlaceholderHTTPClient with actual implementation.")
+    }
+
+    func upload(_ endpoint: Endpoint, data: Data) async throws -> Data {
         fatalError("HTTPClient not yet implemented. Replace PlaceholderHTTPClient with actual implementation.")
     }
 }
@@ -291,19 +290,5 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
         _syncEngine = nil
         isSyncInProgress = false
         lastSyncTimestamp = nil
-    }
-}
-
-// MARK: - Environment Key
-
-/// Environment key for accessing the dependency container
-struct DependencyContainerKey: EnvironmentKey {
-    @MainActor static let defaultValue: DependencyContainer = .shared
-}
-
-extension EnvironmentValues {
-    var dependencyContainer: DependencyContainer {
-        get { self[DependencyContainerKey.self] }
-        set { self[DependencyContainerKey.self] = newValue }
     }
 }

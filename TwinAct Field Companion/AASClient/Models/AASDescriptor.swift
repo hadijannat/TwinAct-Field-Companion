@@ -35,7 +35,7 @@ public struct AASDescriptor: Codable, Sendable, Identifiable, Hashable {
     public let displayName: [LangString]?
 
     /// Endpoints where this AAS can be accessed
-    public let endpoints: [Endpoint]?
+    public let endpoints: [AASServiceEndpoint]?
 
     /// Administrative information
     public let administration: AdministrativeInformation?
@@ -51,7 +51,7 @@ public struct AASDescriptor: Codable, Sendable, Identifiable, Hashable {
         specificAssetIds: [SpecificAssetId]? = nil,
         description: [LangString]? = nil,
         displayName: [LangString]? = nil,
-        endpoints: [Endpoint]? = nil,
+        endpoints: [AASServiceEndpoint]? = nil,
         administration: AdministrativeInformation? = nil,
         submodelDescriptors: [SubmodelDescriptor]? = nil
     ) {
@@ -127,10 +127,10 @@ public struct LangString: Codable, Sendable, Hashable {
     }
 }
 
-// MARK: - Endpoint
+// MARK: - AAS Service Endpoint
 
 /// Access endpoint for an AAS or submodel.
-public struct Endpoint: Codable, Sendable, Hashable {
+public struct AASServiceEndpoint: Codable, Sendable, Hashable {
     /// Protocol information (e.g., HTTP, MQTT)
     public let `interface`: String
 

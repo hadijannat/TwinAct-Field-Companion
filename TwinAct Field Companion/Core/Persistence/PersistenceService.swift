@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import Combine
 
 // MARK: - Persistence Repository Protocol
 
@@ -14,6 +15,7 @@ import SwiftData
 ///
 /// Provides a clean interface for all persistence operations,
 /// abstracting away SwiftData implementation details.
+@MainActor
 public protocol PersistenceRepositoryProtocol {
 
     // MARK: - Outbox Operations
@@ -38,6 +40,17 @@ public protocol PersistenceRepositoryProtocol {
 
     /// Get outbox statistics
     func getOutboxStats() async -> OutboxStats
+
+    /// Queue an operation for sync and return the created outbox operation
+    @discardableResult
+    func queueForSync(
+        operationType: OutboxOperationType,
+        entityType: String,
+        entityId: String,
+        submodelId: String,
+        payload: Encodable,
+        priority: Int
+    ) async throws -> OutboxOperation
 
     // MARK: - Cache Operations
 
@@ -165,8 +178,12 @@ public final class PersistenceService: PersistenceRepositoryProtocol, Observable
 
     // MARK: - Initialization
 
-    public init(controller: PersistenceController = .shared) {
+    public init(controller: PersistenceController) {
         self.controller = controller
+    }
+
+    public convenience init() {
+        self.init(controller: PersistenceController.shared)
     }
 
     // MARK: - Outbox Operations
@@ -178,25 +195,26 @@ public final class PersistenceService: PersistenceRepositoryProtocol, Observable
 
     public func getPendingOperations() async -> [OutboxOperation] {
         let descriptor = FetchDescriptor<OutboxOperation>(
-            predicate: #Predicate { $0.status == .pending || $0.status == .failed },
             sortBy: [
                 SortDescriptor(\.priority, order: .reverse),
                 SortDescriptor(\.createdAt, order: .forward)
             ]
         )
 
-        return (try? context.fetch(descriptor)) ?? []
+        let operations = (try? context.fetch(descriptor)) ?? []
+        return operations.filter { $0.status == .pending || $0.status == .failed }
     }
 
     public func getPendingOperations(entityType: String) async -> [OutboxOperation] {
         let descriptor = FetchDescriptor<OutboxOperation>(
             predicate: #Predicate {
-                ($0.status == .pending || $0.status == .failed) && $0.entityType == entityType
+                $0.entityType == entityType
             },
             sortBy: [SortDescriptor(\.createdAt, order: .forward)]
         )
 
-        return (try? context.fetch(descriptor)) ?? []
+        let operations = (try? context.fetch(descriptor)) ?? []
+        return operations.filter { $0.status == .pending || $0.status == .failed }
     }
 
     public func markOperationComplete(_ id: UUID) async throws {
@@ -227,11 +245,13 @@ public final class PersistenceService: PersistenceRepositoryProtocol, Observable
 
     public func deleteCompletedOperations(olderThan date: Date) async throws {
         let descriptor = FetchDescriptor<OutboxOperation>(
-            predicate: #Predicate { $0.status == .completed && $0.createdAt < date }
+            predicate: #Predicate { $0.createdAt < date }
         )
 
         let operations = try context.fetch(descriptor)
-        operations.forEach { context.delete($0) }
+        operations
+            .filter { $0.status == .completed }
+            .forEach { context.delete($0) }
         try context.save()
     }
 
@@ -565,11 +585,11 @@ public final class PersistenceService: PersistenceRepositoryProtocol, Observable
     public func getOperationsNeedingResolution() async -> [OutboxOperation] {
         let maxRetries = OutboxOperation.maxRetryAttempts
         let descriptor = FetchDescriptor<OutboxOperation>(
-            predicate: #Predicate { $0.status == .failed && $0.attemptCount >= maxRetries },
             sortBy: [SortDescriptor(\.createdAt, order: .forward)]
         )
 
-        return (try? context.fetch(descriptor)) ?? []
+        let operations = (try? context.fetch(descriptor)) ?? []
+        return operations.filter { $0.status == .failed && $0.attemptCount >= maxRetries }
     }
 
     /// Delete an operation (used for discarding failed operations)

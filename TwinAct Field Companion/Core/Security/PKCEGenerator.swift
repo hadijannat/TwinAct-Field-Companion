@@ -31,7 +31,7 @@ public struct PKCEGenerator {
         var buffer = [UInt8](repeating: 0, count: randomByteCount)
         let status = SecRandomCopyBytes(kSecRandomDefault, buffer.count, &buffer)
 
-        guard status == errSecSuccess else {
+        if status != errSecSuccess {
             // Fallback to less secure but functional random generation
             // This should rarely happen on iOS
             buffer = (0..<randomByteCount).map { _ in UInt8.random(in: 0...255) }
@@ -59,7 +59,7 @@ public struct PKCEGenerator {
         var buffer = [UInt8](repeating: 0, count: 16)
         let status = SecRandomCopyBytes(kSecRandomDefault, buffer.count, &buffer)
 
-        guard status == errSecSuccess else {
+        if status != errSecSuccess {
             buffer = (0..<16).map { _ in UInt8.random(in: 0...255) }
         }
 
@@ -74,7 +74,7 @@ public struct PKCEGenerator {
         var buffer = [UInt8](repeating: 0, count: 16)
         let status = SecRandomCopyBytes(kSecRandomDefault, buffer.count, &buffer)
 
-        guard status == errSecSuccess else {
+        if status != errSecSuccess {
             buffer = (0..<16).map { _ in UInt8.random(in: 0...255) }
         }
 

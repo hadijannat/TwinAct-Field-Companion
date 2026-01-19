@@ -311,7 +311,10 @@ public final class DiscoveryViewModel: ObservableObject {
             // Try to load Digital Nameplate first (for display info)
             var loadedNameplate: DigitalNameplate?
 
-            if let nameplateSubmodel = try? await submodelService.getDigitalNameplate(aasId: descriptor.id) {
+            if let nameplateSubmodel = try await submodelService.getSubmodelBySemanticId(
+                aasId: descriptor.id,
+                semanticId: IDTASemanticId.digitalNameplate
+            ) {
                 loadedNameplate = parseDigitalNameplate(from: nameplateSubmodel)
                 nameplate = loadedNameplate
                 logger.debug("Loaded Digital Nameplate for \(descriptor.idShort ?? descriptor.id)")
@@ -436,7 +439,7 @@ public final class DiscoveryViewModel: ObservableObject {
                     break
                 }
 
-            case .submodelElementCollection(let smc):
+            case .submodelElementCollection:
                 // Recurse into collections (e.g., "ContactInformation")
                 // Simplified - full implementation would handle nested structures
                 break

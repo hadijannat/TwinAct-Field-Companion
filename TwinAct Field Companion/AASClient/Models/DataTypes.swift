@@ -234,7 +234,7 @@ public enum AASValueConverter {
         // Simple parser for ISO 8601 duration format: P[n]Y[n]M[n]DT[n]H[n]M[n]S
         guard value.hasPrefix("P") else { return nil }
 
-        var remaining = String(value.dropFirst())
+        let remaining = String(value.dropFirst())
         var seconds: TimeInterval = 0
 
         // Check for time component
