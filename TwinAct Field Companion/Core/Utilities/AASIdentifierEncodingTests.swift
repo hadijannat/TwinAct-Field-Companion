@@ -8,6 +8,8 @@
 
 import Foundation
 
+#if DEBUG
+
 // MARK: - Test Runner
 
 /// Test runner for AAS Identifier Encoding tests.
@@ -273,7 +275,6 @@ public enum AASIdentifierEncodingTests {
 
 // MARK: - Debug Verification
 
-#if DEBUG
 /// Convenience function to verify encoding works correctly.
 /// Call this during app startup in debug builds.
 public func verifyAASEncodingInDebug() {
@@ -282,4 +283,5 @@ public func verifyAASEncodingInDebug() {
         assertionFailure("AAS Encoding tests failed! \(results.failed) failures. Check console for details.")
     }
 }
-#endif
+
+#endif // DEBUG

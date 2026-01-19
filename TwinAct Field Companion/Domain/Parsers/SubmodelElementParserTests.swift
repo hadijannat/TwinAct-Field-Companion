@@ -8,6 +8,8 @@
 
 import Foundation
 
+#if DEBUG
+
 // MARK: - Submodel Element Parser Tests
 
 /// Test runner for SubmodelElementParser tests.
@@ -446,7 +448,6 @@ public enum SubmodelElementParserTests {
 
 // MARK: - Debug Verification
 
-#if DEBUG
 /// Convenience function to verify SubmodelElementParser works correctly.
 /// Call this during app startup in debug builds.
 public func verifySubmodelElementParserInDebug() {
@@ -455,4 +456,5 @@ public func verifySubmodelElementParserInDebug() {
         assertionFailure("SubmodelElementParser tests failed! \(results.failed) failures. Check console for details.")
     }
 }
-#endif
+
+#endif // DEBUG

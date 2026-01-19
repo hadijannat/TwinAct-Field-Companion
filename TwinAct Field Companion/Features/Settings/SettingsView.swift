@@ -22,6 +22,10 @@ public struct SettingsView: View {
     @State private var showResetOnboardingAlert = false
     @State private var cacheSize: String = "Calculating..."
     @State private var isAuthenticated = false
+    @State private var currentUserEmail: String?
+    @State private var currentUserName: String?
+    @State private var showCacheErrorAlert = false
+    @State private var cacheErrorMessage = ""
     @Environment(\.dismiss) private var dismiss
 
     // MARK: - Body
@@ -46,11 +50,13 @@ public struct SettingsView: View {
                                 .font(.title2)
                                 .foregroundColor(.blue)
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Signed In")
+                                Text(currentUserName ?? "Signed In")
                                     .font(.body)
-                                Text("user@example.com")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                if let email = currentUserEmail {
+                                    Text(email)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
                             }
                             Spacer()
                         }
@@ -178,6 +184,11 @@ public struct SettingsView: View {
                     }
                 } message: {
                     Text("Are you sure you want to clear the cache? Downloaded documents and images will need to be re-downloaded.")
+                }
+                .alert("Cache Error", isPresented: $showCacheErrorAlert) {
+                    Button("OK", role: .cancel) {}
+                } message: {
+                    Text(cacheErrorMessage)
                 }
 
                 // MARK: - About Section
@@ -321,17 +332,29 @@ public struct SettingsView: View {
         let fileManager = FileManager.default
 
         guard let cacheDirectory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first else {
+            cacheErrorMessage = "Could not locate cache directory"
+            showCacheErrorAlert = true
             return
         }
 
         do {
             let contents = try fileManager.contentsOfDirectory(at: cacheDirectory, includingPropertiesForKeys: nil)
+            var failedCount = 0
             for fileURL in contents {
-                try? fileManager.removeItem(at: fileURL)
+                do {
+                    try fileManager.removeItem(at: fileURL)
+                } catch {
+                    failedCount += 1
+                }
+            }
+            if failedCount > 0 {
+                cacheErrorMessage = "Failed to remove \(failedCount) item(s). Some files may be in use."
+                showCacheErrorAlert = true
             }
             cacheSize = "0 bytes"
         } catch {
-            // Handle error silently
+            cacheErrorMessage = "Failed to clear cache: \(error.localizedDescription)"
+            showCacheErrorAlert = true
         }
 
         // Clear demo data cache

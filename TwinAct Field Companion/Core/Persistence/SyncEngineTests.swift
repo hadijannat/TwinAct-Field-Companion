@@ -8,6 +8,8 @@
 
 import Foundation
 
+#if DEBUG
+
 // MARK: - Sync Engine Tests
 
 /// Test runner for SyncEngine tests.
@@ -270,7 +272,6 @@ public enum SyncEngineTests {
 
 // MARK: - Debug Verification
 
-#if DEBUG
 /// Convenience function to verify SyncEngine works correctly.
 /// Call this during app startup in debug builds.
 public func verifySyncEngineInDebug() {
@@ -279,4 +280,5 @@ public func verifySyncEngineInDebug() {
         assertionFailure("SyncEngine tests failed! \(results.failed) failures. Check console for details.")
     }
 }
-#endif
+
+#endif // DEBUG
