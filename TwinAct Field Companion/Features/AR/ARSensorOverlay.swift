@@ -41,35 +41,33 @@ public struct ARSensorOverlay {
 
         // Create text mesh for the label
         let labelText = "\(propertyName)"
-        if let labelMesh = try? MeshResource.generateText(
+        let labelMesh = MeshResource.generateText(
             labelText,
             extrusionDepth: 0.001,
             font: .systemFont(ofSize: 0.008, weight: .medium),
             containerFrame: .zero,
             alignment: .center,
             lineBreakMode: .byTruncatingTail
-        ) {
-            let labelMaterial = SimpleMaterial(color: .darkGray, isMetallic: false)
-            let labelEntity = ModelEntity(mesh: labelMesh, materials: [labelMaterial])
-            labelEntity.position = SIMD3<Float>(-0.05, 0.008, 0.001)
-            container.addChild(labelEntity)
-        }
+        )
+        let labelMaterial = SimpleMaterial(color: .darkGray, isMetallic: false)
+        let labelEntity = ModelEntity(mesh: labelMesh, materials: [labelMaterial])
+        labelEntity.position = SIMD3<Float>(-0.05, 0.008, 0.001)
+        container.addChild(labelEntity)
 
         // Create text mesh for the value
         let valueText = "\(value) \(unit)"
-        if let valueMesh = try? MeshResource.generateText(
+        let valueMesh = MeshResource.generateText(
             valueText,
             extrusionDepth: 0.001,
             font: .systemFont(ofSize: 0.012, weight: .bold),
             containerFrame: .zero,
             alignment: .center,
             lineBreakMode: .byTruncatingTail
-        ) {
-            let valueMaterial = SimpleMaterial(color: color, isMetallic: false)
-            let valueEntity = ModelEntity(mesh: valueMesh, materials: [valueMaterial])
-            valueEntity.position = SIMD3<Float>(-0.05, -0.008, 0.001)
-            container.addChild(valueEntity)
-        }
+        )
+        let valueMaterial = SimpleMaterial(color: color, isMetallic: false)
+        let valueEntity = ModelEntity(mesh: valueMesh, materials: [valueMaterial])
+        valueEntity.position = SIMD3<Float>(-0.05, -0.008, 0.001)
+        container.addChild(valueEntity)
 
         // Add billboard component to always face camera
         addBillboardBehavior(to: container)
@@ -111,53 +109,50 @@ public struct ARSensorOverlay {
         container.addChild(statusEntity)
 
         // Property name label
-        if let nameMesh = try? MeshResource.generateText(
+        let nameMesh = MeshResource.generateText(
             name,
             extrusionDepth: 0.001,
             font: .systemFont(ofSize: 0.008, weight: .medium),
             containerFrame: .zero,
             alignment: .left,
             lineBreakMode: .byTruncatingTail
-        ) {
-            let nameMaterial = SimpleMaterial(color: .darkGray, isMetallic: false)
-            let nameEntity = ModelEntity(mesh: nameMesh, materials: [nameMaterial])
-            nameEntity.position = SIMD3<Float>(-0.05, 0.012, 0.002)
-            container.addChild(nameEntity)
-        }
+        )
+        let nameMaterial = SimpleMaterial(color: .darkGray, isMetallic: false)
+        let nameEntity = ModelEntity(mesh: nameMesh, materials: [nameMaterial])
+        nameEntity.position = SIMD3<Float>(-0.05, 0.012, 0.002)
+        container.addChild(nameEntity)
 
         // Value display
         let formattedValue = String(format: "%.2f", value)
         let valueText = "\(formattedValue) \(unit)"
-        if let valueMesh = try? MeshResource.generateText(
+        let valueMesh = MeshResource.generateText(
             valueText,
             extrusionDepth: 0.001,
             font: .systemFont(ofSize: 0.014, weight: .bold),
             containerFrame: .zero,
             alignment: .left,
             lineBreakMode: .byTruncatingTail
-        ) {
-            let valueMaterial = SimpleMaterial(color: statusColor, isMetallic: false)
-            let valueEntity = ModelEntity(mesh: valueMesh, materials: [valueMaterial])
-            valueEntity.position = SIMD3<Float>(-0.06, -0.008, 0.002)
-            container.addChild(valueEntity)
-        }
+        )
+        let valueMaterial = SimpleMaterial(color: statusColor, isMetallic: false)
+        let valueEntity = ModelEntity(mesh: valueMesh, materials: [valueMaterial])
+        valueEntity.position = SIMD3<Float>(-0.06, -0.008, 0.002)
+        container.addChild(valueEntity)
 
         // Range indicator (if provided)
         if let range = normalRange {
             let rangeText = "Range: \(String(format: "%.1f", range.lowerBound)) - \(String(format: "%.1f", range.upperBound))"
-            if let rangeMesh = try? MeshResource.generateText(
+            let rangeMesh = MeshResource.generateText(
                 rangeText,
                 extrusionDepth: 0.0005,
                 font: .systemFont(ofSize: 0.005, weight: .regular),
                 containerFrame: .zero,
                 alignment: .left,
                 lineBreakMode: .byTruncatingTail
-            ) {
-                let rangeMaterial = SimpleMaterial(color: .gray, isMetallic: false)
-                let rangeEntity = ModelEntity(mesh: rangeMesh, materials: [rangeMaterial])
-                rangeEntity.position = SIMD3<Float>(-0.06, -0.022, 0.002)
-                container.addChild(rangeEntity)
-            }
+            )
+            let rangeMaterial = SimpleMaterial(color: .gray, isMetallic: false)
+            let rangeEntity = ModelEntity(mesh: rangeMesh, materials: [rangeMaterial])
+            rangeEntity.position = SIMD3<Float>(-0.06, -0.022, 0.002)
+            container.addChild(rangeEntity)
         }
 
         addBillboardBehavior(to: container)
@@ -196,19 +191,18 @@ public struct ARSensorOverlay {
 
         // Warning text
         let truncatedMessage = String(message.prefix(30))
-        if let textMesh = try? MeshResource.generateText(
+        let textMesh = MeshResource.generateText(
             truncatedMessage,
             extrusionDepth: 0.001,
             font: .systemFont(ofSize: 0.007, weight: .semibold),
             containerFrame: .zero,
             alignment: .left,
             lineBreakMode: .byTruncatingTail
-        ) {
-            let textMaterial = SimpleMaterial(color: UIColor.systemRed, isMetallic: false)
-            let textEntity = ModelEntity(mesh: textMesh, materials: [textMaterial])
-            textEntity.position = SIMD3<Float>(-0.05, -0.003, 0.002)
-            container.addChild(textEntity)
-        }
+        )
+        let textMaterial = SimpleMaterial(color: UIColor.systemRed, isMetallic: false)
+        let textEntity = ModelEntity(mesh: textMesh, materials: [textMaterial])
+        textEntity.position = SIMD3<Float>(-0.05, -0.003, 0.002)
+        container.addChild(textEntity)
 
         addBillboardBehavior(to: container)
 
@@ -239,35 +233,33 @@ public struct ARSensorOverlay {
         container.addChild(iconEntity)
 
         // Title
-        if let titleMesh = try? MeshResource.generateText(
+        let titleMesh = MeshResource.generateText(
             title,
             extrusionDepth: 0.001,
             font: .systemFont(ofSize: 0.008, weight: .bold),
             containerFrame: .zero,
             alignment: .left,
             lineBreakMode: .byTruncatingTail
-        ) {
-            let titleMaterial = SimpleMaterial(color: .systemBlue, isMetallic: false)
-            let titleEntity = ModelEntity(mesh: titleMesh, materials: [titleMaterial])
-            titleEntity.position = SIMD3<Float>(-0.05, 0.01, 0.002)
-            container.addChild(titleEntity)
-        }
+        )
+        let titleMaterial = SimpleMaterial(color: .systemBlue, isMetallic: false)
+        let titleEntity = ModelEntity(mesh: titleMesh, materials: [titleMaterial])
+        titleEntity.position = SIMD3<Float>(-0.05, 0.01, 0.002)
+        container.addChild(titleEntity)
 
         // Details
         let truncatedDetails = String(details.prefix(40))
-        if let detailsMesh = try? MeshResource.generateText(
+        let detailsMesh = MeshResource.generateText(
             truncatedDetails,
             extrusionDepth: 0.001,
             font: .systemFont(ofSize: 0.006, weight: .regular),
             containerFrame: .zero,
             alignment: .left,
             lineBreakMode: .byTruncatingTail
-        ) {
-            let detailsMaterial = SimpleMaterial(color: .darkGray, isMetallic: false)
-            let detailsEntity = ModelEntity(mesh: detailsMesh, materials: [detailsMaterial])
-            detailsEntity.position = SIMD3<Float>(-0.06, -0.008, 0.002)
-            container.addChild(detailsEntity)
-        }
+        )
+        let detailsMaterial = SimpleMaterial(color: .darkGray, isMetallic: false)
+        let detailsEntity = ModelEntity(mesh: detailsMesh, materials: [detailsMaterial])
+        detailsEntity.position = SIMD3<Float>(-0.06, -0.008, 0.002)
+        container.addChild(detailsEntity)
 
         addBillboardBehavior(to: container)
 
