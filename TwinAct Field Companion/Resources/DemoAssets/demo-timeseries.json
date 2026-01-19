@@ -1,0 +1,179 @@
+{
+  "metadata": {
+    "name": "SP-500 Operational Data",
+    "description": [
+      {"language": "en", "text": "Real-time sensor data from SP-500 Smart Industrial Pump including temperature, pressure, flow rate, and vibration measurements."}
+    ],
+    "startTime": "2025-01-01T00:00:00Z",
+    "endTime": "2025-01-19T23:59:59Z",
+    "samplingInterval": 60.0,
+    "unit": "mixed",
+    "source": "IoT Gateway SP500-GW-001",
+    "properties": [
+      {
+        "name": "temperature",
+        "description": [{"language": "en", "text": "Pump bearing temperature"}],
+        "unit": "C",
+        "dataType": "double",
+        "minValue": 20.0,
+        "maxValue": 85.0
+      },
+      {
+        "name": "pressure",
+        "description": [{"language": "en", "text": "Discharge pressure"}],
+        "unit": "bar",
+        "dataType": "double",
+        "minValue": 0.0,
+        "maxValue": 16.0
+      },
+      {
+        "name": "flowRate",
+        "description": [{"language": "en", "text": "Volumetric flow rate"}],
+        "unit": "m3/h",
+        "dataType": "double",
+        "minValue": 0.0,
+        "maxValue": 150.0
+      },
+      {
+        "name": "vibration",
+        "description": [{"language": "en", "text": "Vibration velocity (RMS)"}],
+        "unit": "mm/s",
+        "dataType": "double",
+        "minValue": 0.0,
+        "maxValue": 15.0
+      },
+      {
+        "name": "power",
+        "description": [{"language": "en", "text": "Motor power consumption"}],
+        "unit": "kW",
+        "dataType": "double",
+        "minValue": 0.0,
+        "maxValue": 25.0
+      }
+    ],
+    "segments": [
+      {
+        "name": "Normal Operation",
+        "description": [{"language": "en", "text": "Standard operating conditions"}],
+        "state": "running"
+      },
+      {
+        "name": "Startup",
+        "description": [{"language": "en", "text": "Pump startup sequence"}],
+        "state": "starting"
+      },
+      {
+        "name": "Idle",
+        "description": [{"language": "en", "text": "Pump idle/standby"}],
+        "state": "idle"
+      }
+    ]
+  },
+  "records": [
+    {
+      "timestamp": "2025-01-19T08:00:00Z",
+      "values": {"temperature": 42.3, "pressure": 8.5, "flowRate": 95.2, "vibration": 3.2, "power": 15.8},
+      "quality": "good"
+    },
+    {
+      "timestamp": "2025-01-19T08:01:00Z",
+      "values": {"temperature": 42.5, "pressure": 8.6, "flowRate": 96.1, "vibration": 3.1, "power": 15.9},
+      "quality": "good"
+    },
+    {
+      "timestamp": "2025-01-19T08:02:00Z",
+      "values": {"temperature": 42.8, "pressure": 8.5, "flowRate": 95.8, "vibration": 3.3, "power": 16.0},
+      "quality": "good"
+    },
+    {
+      "timestamp": "2025-01-19T08:03:00Z",
+      "values": {"temperature": 43.1, "pressure": 8.7, "flowRate": 97.2, "vibration": 3.4, "power": 16.2},
+      "quality": "good"
+    },
+    {
+      "timestamp": "2025-01-19T08:04:00Z",
+      "values": {"temperature": 43.4, "pressure": 8.6, "flowRate": 96.5, "vibration": 3.2, "power": 16.1},
+      "quality": "good"
+    },
+    {
+      "timestamp": "2025-01-19T08:05:00Z",
+      "values": {"temperature": 43.2, "pressure": 8.8, "flowRate": 98.1, "vibration": 3.5, "power": 16.4},
+      "quality": "good"
+    },
+    {
+      "timestamp": "2025-01-19T08:06:00Z",
+      "values": {"temperature": 43.6, "pressure": 8.7, "flowRate": 97.8, "vibration": 4.1, "power": 16.3},
+      "quality": "good"
+    },
+    {
+      "timestamp": "2025-01-19T08:07:00Z",
+      "values": {"temperature": 44.0, "pressure": 8.9, "flowRate": 99.2, "vibration": 4.5, "power": 16.6},
+      "quality": "good"
+    },
+    {
+      "timestamp": "2025-01-19T08:08:00Z",
+      "values": {"temperature": 44.5, "pressure": 8.8, "flowRate": 98.5, "vibration": 5.2, "power": 16.5},
+      "quality": "uncertain"
+    },
+    {
+      "timestamp": "2025-01-19T08:09:00Z",
+      "values": {"temperature": 45.2, "pressure": 8.7, "flowRate": 97.1, "vibration": 6.8, "power": 16.8},
+      "quality": "uncertain"
+    },
+    {
+      "timestamp": "2025-01-19T08:10:00Z",
+      "values": {"temperature": 46.1, "pressure": 8.5, "flowRate": 95.3, "vibration": 8.5, "power": 17.2},
+      "quality": "uncertain"
+    },
+    {
+      "timestamp": "2025-01-19T08:11:00Z",
+      "values": {"temperature": 47.3, "pressure": 8.3, "flowRate": 93.8, "vibration": 10.2, "power": 17.5},
+      "quality": "uncertain"
+    },
+    {
+      "timestamp": "2025-01-19T08:12:00Z",
+      "values": {"temperature": 48.2, "pressure": 8.1, "flowRate": 91.5, "vibration": 11.8, "power": 17.8},
+      "quality": "uncertain"
+    },
+    {
+      "timestamp": "2025-01-19T08:13:00Z",
+      "values": {"temperature": 48.8, "pressure": 8.0, "flowRate": 90.2, "vibration": 12.1, "power": 18.0},
+      "quality": "bad"
+    },
+    {
+      "timestamp": "2025-01-19T08:14:00Z",
+      "values": {"temperature": 47.5, "pressure": 8.2, "flowRate": 92.1, "vibration": 9.5, "power": 17.2},
+      "quality": "uncertain"
+    },
+    {
+      "timestamp": "2025-01-19T08:15:00Z",
+      "values": {"temperature": 46.2, "pressure": 8.4, "flowRate": 94.5, "vibration": 7.2, "power": 16.8},
+      "quality": "good"
+    },
+    {
+      "timestamp": "2025-01-19T08:16:00Z",
+      "values": {"temperature": 45.1, "pressure": 8.5, "flowRate": 95.8, "vibration": 5.5, "power": 16.4},
+      "quality": "good"
+    },
+    {
+      "timestamp": "2025-01-19T08:17:00Z",
+      "values": {"temperature": 44.2, "pressure": 8.6, "flowRate": 96.5, "vibration": 4.2, "power": 16.1},
+      "quality": "good"
+    },
+    {
+      "timestamp": "2025-01-19T08:18:00Z",
+      "values": {"temperature": 43.5, "pressure": 8.7, "flowRate": 97.2, "vibration": 3.5, "power": 15.9},
+      "quality": "good"
+    },
+    {
+      "timestamp": "2025-01-19T08:19:00Z",
+      "values": {"temperature": 43.0, "pressure": 8.6, "flowRate": 96.8, "vibration": 3.2, "power": 15.8},
+      "quality": "good"
+    },
+    {
+      "timestamp": "2025-01-19T08:20:00Z",
+      "values": {"temperature": 42.8, "pressure": 8.5, "flowRate": 96.2, "vibration": 3.1, "power": 15.7},
+      "quality": "good"
+    }
+  ]
+}

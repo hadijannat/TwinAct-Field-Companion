@@ -7,6 +7,22 @@
 
 import Foundation
 
+// MARK: - Demo Mode Notification
+
+extension Notification.Name {
+    /// Posted when demo mode is enabled or disabled.
+    static let demoModeDidChange = Notification.Name("com.twinact.fieldcompanion.demoModeDidChange")
+}
+
+// MARK: - UserDefaults Extension
+
+extension UserDefaults {
+    /// Check if a key exists in UserDefaults.
+    func contains(key: String) -> Bool {
+        return object(forKey: key) != nil
+    }
+}
+
 /// App configuration for different environments and settings
 struct AppConfiguration {
 
@@ -196,7 +212,42 @@ struct AppConfiguration {
 
     static let isAREnabled: Bool = true
     static let isVoiceEnabled: Bool = true
-    static let isDemoMode: Bool = true
+
+    // MARK: - Demo Mode
+
+    /// UserDefaults key for demo mode setting
+    private static let demoModeKey = "com.twinact.fieldcompanion.demoModeEnabled"
+
+    /// Whether the app is running in demo mode (no server connection required).
+    /// Demo mode provides bundled sample data for App Store review and offline demos.
+    public static var isDemoMode: Bool {
+        get {
+            // Default to true if key not set (for first launch / App Store review)
+            if !UserDefaults.standard.contains(key: demoModeKey) {
+                return true
+            }
+            return UserDefaults.standard.bool(forKey: demoModeKey)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: demoModeKey)
+            NotificationCenter.default.post(name: .demoModeDidChange, object: nil)
+        }
+    }
+
+    /// Enable demo mode.
+    public static func enableDemoMode() {
+        isDemoMode = true
+    }
+
+    /// Disable demo mode (requires server connection).
+    public static func disableDemoMode() {
+        isDemoMode = false
+    }
+
+    /// Toggle demo mode.
+    public static func toggleDemoMode() {
+        isDemoMode.toggle()
+    }
 
     // MARK: - App Metadata
 

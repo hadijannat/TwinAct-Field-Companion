@@ -1,0 +1,44 @@
+{
+  "manufacturerName": "PumpTech Industrial Solutions GmbH",
+  "manufacturerProductDesignation": "Smart Industrial Pump SP-500",
+  "manufacturerProductFamily": "Industrial Centrifugal Pumps",
+  "manufacturerProductType": "SP-500",
+  "orderCode": "SP500-IND-2025-EU",
+  "serialNumber": "SP500-2025-0042",
+  "batchNumber": "BATCH-2025-Q1-042",
+  "productionDate": "2025-01-15T08:30:00Z",
+  "countryOfOrigin": "DE",
+  "yearOfConstruction": 2025,
+  "hardwareVersion": "HW-3.2",
+  "firmwareVersion": "FW-5.1.0",
+  "softwareVersion": "SW-2.8.3",
+  "manufacturerAddress": {
+    "street": "Industriestrasse 42",
+    "zipCode": "70469",
+    "city": "Stuttgart",
+    "stateCounty": "Baden-Wuerttemberg",
+    "country": "Germany",
+    "phone": "+49 711 123 4567",
+    "email": "support@pumptech-industrial.example"
+  },
+  "manufacturerLogo": "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=200",
+  "productImage": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400",
+  "markings": [
+    {
+      "name": "CE",
+      "additionalText": "Conformite Europeenne - meets EU safety standards"
+    },
+    {
+      "name": "ATEX",
+      "additionalText": "Zone 2 rated for hazardous environments"
+    },
+    {
+      "name": "ISO 9001",
+      "additionalText": "Quality Management System certified"
+    },
+    {
+      "name": "ISO 14001",
+      "additionalText": "Environmental Management System certified"
+    }
+  ]
+}

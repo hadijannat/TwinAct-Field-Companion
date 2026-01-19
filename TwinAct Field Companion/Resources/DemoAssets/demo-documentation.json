@@ -1,0 +1,154 @@
+{
+  "documents": [
+    {
+      "id": "DOC-SP500-OM-001",
+      "title": [
+        {"language": "en", "text": "SP-500 Operating Manual"},
+        {"language": "de", "text": "SP-500 Betriebsanleitung"}
+      ],
+      "summary": [
+        {"language": "en", "text": "Complete operating manual including installation, startup, operation, and shutdown procedures for the SP-500 Smart Industrial Pump."},
+        {"language": "de", "text": "Vollstaendige Betriebsanleitung mit Installations-, Inbetriebnahme-, Betriebs- und Abschaltverfahren fuer die SP-500 Industriepumpe."}
+      ],
+      "documentClass": "02-01",
+      "documentVersion": "3.2",
+      "language": ["en", "de"],
+      "digitalFile": [
+        {
+          "fileFormat": "application/pdf",
+          "file": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          "fileSize": 2450000,
+          "fileName": "SP500-Operating-Manual-v3.2.pdf"
+        }
+      ],
+      "keywords": [
+        {"language": "en", "text": "operation"},
+        {"language": "en", "text": "startup"},
+        {"language": "en", "text": "installation"},
+        {"language": "en", "text": "commissioning"}
+      ],
+      "documentDate": "2024-06-15T00:00:00Z",
+      "organization": "PumpTech Industrial Solutions GmbH"
+    },
+    {
+      "id": "DOC-SP500-SI-001",
+      "title": [
+        {"language": "en", "text": "Safety Instructions and Hazard Information"},
+        {"language": "de", "text": "Sicherheitsanweisungen und Gefahreninformationen"}
+      ],
+      "summary": [
+        {"language": "en", "text": "Critical safety information, hazard warnings, PPE requirements, and emergency procedures for SP-500 pump operation and maintenance."},
+        {"language": "de", "text": "Wichtige Sicherheitsinformationen, Gefahrenwarnungen, PSA-Anforderungen und Notfallverfahren fuer Betrieb und Wartung der SP-500 Pumpe."}
+      ],
+      "documentClass": "02-03",
+      "documentVersion": "2.1",
+      "language": ["en", "de"],
+      "digitalFile": [
+        {
+          "fileFormat": "application/pdf",
+          "file": "https://www.orimi.com/pdf-test.pdf",
+          "fileSize": 1850000,
+          "fileName": "SP500-Safety-Instructions-v2.1.pdf"
+        }
+      ],
+      "keywords": [
+        {"language": "en", "text": "safety"},
+        {"language": "en", "text": "hazard"},
+        {"language": "en", "text": "PPE"},
+        {"language": "en", "text": "emergency"}
+      ],
+      "documentDate": "2024-08-01T00:00:00Z",
+      "organization": "PumpTech Industrial Solutions GmbH"
+    },
+    {
+      "id": "DOC-SP500-MM-001",
+      "title": [
+        {"language": "en", "text": "Maintenance and Service Manual"},
+        {"language": "de", "text": "Wartungs- und Servicehandbuch"}
+      ],
+      "summary": [
+        {"language": "en", "text": "Comprehensive maintenance manual with preventive maintenance schedules, troubleshooting guides, and spare parts information for SP-500."},
+        {"language": "de", "text": "Umfassendes Wartungshandbuch mit praeventiven Wartungsplaenen, Fehlerbehebungsanleitungen und Ersatzteilinformationen fuer SP-500."}
+      ],
+      "documentClass": "02-04",
+      "documentVersion": "3.0",
+      "language": ["en", "de"],
+      "digitalFile": [
+        {
+          "fileFormat": "application/pdf",
+          "file": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          "fileSize": 5200000,
+          "fileName": "SP500-Maintenance-Manual-v3.0.pdf"
+        }
+      ],
+      "keywords": [
+        {"language": "en", "text": "maintenance"},
+        {"language": "en", "text": "service"},
+        {"language": "en", "text": "spare parts"},
+        {"language": "en", "text": "troubleshooting"}
+      ],
+      "documentDate": "2024-09-20T00:00:00Z",
+      "organization": "PumpTech Industrial Solutions GmbH"
+    },
+    {
+      "id": "DOC-SP500-DS-001",
+      "title": [
+        {"language": "en", "text": "Technical Datasheet"},
+        {"language": "de", "text": "Technisches Datenblatt"}
+      ],
+      "summary": [
+        {"language": "en", "text": "Technical specifications, performance curves, and dimensional drawings for the SP-500 Smart Industrial Pump."},
+        {"language": "de", "text": "Technische Spezifikationen, Leistungskurven und Masszeichnungen fuer die SP-500 Industriepumpe."}
+      ],
+      "documentClass": "01-01",
+      "documentVersion": "1.5",
+      "language": ["en", "de"],
+      "digitalFile": [
+        {
+          "fileFormat": "application/pdf",
+          "file": "https://www.orimi.com/pdf-test.pdf",
+          "fileSize": 980000,
+          "fileName": "SP500-Datasheet-v1.5.pdf"
+        }
+      ],
+      "keywords": [
+        {"language": "en", "text": "specifications"},
+        {"language": "en", "text": "performance"},
+        {"language": "en", "text": "dimensions"},
+        {"language": "en", "text": "datasheet"}
+      ],
+      "documentDate": "2024-05-10T00:00:00Z",
+      "organization": "PumpTech Industrial Solutions GmbH"
+    },
+    {
+      "id": "DOC-SP500-CE-001",
+      "title": [
+        {"language": "en", "text": "EU Declaration of Conformity"},
+        {"language": "de", "text": "EU-Konformitaetserklaerung"}
+      ],
+      "summary": [
+        {"language": "en", "text": "Official CE declaration of conformity certifying compliance with applicable EU directives and harmonized standards."},
+        {"language": "de", "text": "Offizielle CE-Konformitaetserklaerung, die die Einhaltung der geltenden EU-Richtlinien und harmonisierten Normen bescheinigt."}
+      ],
+      "documentClass": "03-03",
+      "documentVersion": "1.0",
+      "language": ["en", "de"],
+      "digitalFile": [
+        {
+          "fileFormat": "application/pdf",
+          "file": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          "fileSize": 450000,
+          "fileName": "SP500-CE-Declaration-v1.0.pdf"
+        }
+      ],
+      "keywords": [
+        {"language": "en", "text": "CE"},
+        {"language": "en", "text": "conformity"},
+        {"language": "en", "text": "certification"},
+        {"language": "en", "text": "compliance"}
+      ],
+      "documentDate": "2024-01-20T00:00:00Z",
+      "organization": "PumpTech Industrial Solutions GmbH"
+    }
+  ]
+}

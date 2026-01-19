@@ -200,6 +200,71 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
         return engine
     }
 
+    // MARK: - AAS Services (Demo Mode Aware)
+
+    /// Cached AAS services (cleared when demo mode changes)
+    private var _discoveryService: DiscoveryServiceProtocol?
+    private var _registryService: RegistryServiceProtocol?
+    private var _repositoryService: RepositoryServiceProtocol?
+    private var _submodelService: SubmodelServiceProtocol?
+
+    /// Discovery service - returns mock in demo mode, real service otherwise.
+    var discoveryService: DiscoveryServiceProtocol {
+        if let service = _discoveryService {
+            return service
+        }
+        let service: DiscoveryServiceProtocol = AppConfiguration.isDemoMode
+            ? MockDiscoveryService()
+            : DiscoveryService()
+        _discoveryService = service
+        return service
+    }
+
+    /// Registry service - returns mock in demo mode, real service otherwise.
+    var registryService: RegistryServiceProtocol {
+        if let service = _registryService {
+            return service
+        }
+        let service: RegistryServiceProtocol = AppConfiguration.isDemoMode
+            ? MockRegistryService()
+            : RegistryService()
+        _registryService = service
+        return service
+    }
+
+    /// Repository service - returns mock in demo mode, real service otherwise.
+    var repositoryService: RepositoryServiceProtocol {
+        if let service = _repositoryService {
+            return service
+        }
+        let service: RepositoryServiceProtocol = AppConfiguration.isDemoMode
+            ? MockRepositoryService()
+            : RepositoryService()
+        _repositoryService = service
+        return service
+    }
+
+    /// Submodel service - returns mock in demo mode, real service otherwise.
+    var submodelService: SubmodelServiceProtocol {
+        if let service = _submodelService {
+            return service
+        }
+        let service: SubmodelServiceProtocol = AppConfiguration.isDemoMode
+            ? MockSubmodelService()
+            : SubmodelService()
+        _submodelService = service
+        return service
+    }
+
+    /// Clears cached AAS services, forcing them to be recreated.
+    /// Call this when demo mode changes.
+    func invalidateAASServices() {
+        _discoveryService = nil
+        _registryService = nil
+        _repositoryService = nil
+        _submodelService = nil
+    }
+
     // MARK: - Published State
 
     /// Whether the app is currently performing a sync operation
@@ -213,8 +278,29 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
 
     // MARK: - Initialization
 
+    /// Subscription for demo mode changes
+    private var demoModeObserver: NSObjectProtocol?
+
     private init() {
         // Default initialization - services are lazily created
+        setupDemoModeObserver()
+    }
+
+    /// Set up observer for demo mode changes.
+    private func setupDemoModeObserver() {
+        demoModeObserver = NotificationCenter.default.addObserver(
+            forName: .demoModeDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.invalidateAASServices()
+        }
+    }
+
+    deinit {
+        if let observer = demoModeObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
 
     /// Creates a container with custom service implementations (for testing)
@@ -288,6 +374,7 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
         _authenticationManager = nil
         _persistenceController = nil
         _syncEngine = nil
+        invalidateAASServices()
         isSyncInProgress = false
         lastSyncTimestamp = nil
     }

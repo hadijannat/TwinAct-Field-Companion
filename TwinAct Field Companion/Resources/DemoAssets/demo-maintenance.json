@@ -1,0 +1,313 @@
+{
+  "instructions": [
+    {
+      "id": "MI-SP500-001",
+      "title": [
+        {"language": "en", "text": "Daily Visual Inspection"},
+        {"language": "de", "text": "Taegliche Sichtpruefung"}
+      ],
+      "description": [
+        {"language": "en", "text": "Perform daily visual inspection to identify leaks, unusual noises, or abnormal conditions."}
+      ],
+      "maintenanceType": "preventive",
+      "intervalValue": 1,
+      "intervalUnit": "days",
+      "estimatedDuration": 10,
+      "skillLevel": "basic",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": [{"language": "en", "text": "Ensure pump is running and system is at normal operating temperature."}],
+          "duration": 1
+        },
+        {
+          "stepNumber": 2,
+          "description": [{"language": "en", "text": "Visually inspect pump casing, piping connections, and mechanical seal area for leaks."}],
+          "warnings": [{"language": "en", "text": "Do not touch rotating parts or hot surfaces."}],
+          "duration": 3,
+          "isCritical": true
+        },
+        {
+          "stepNumber": 3,
+          "description": [{"language": "en", "text": "Listen for unusual noises such as cavitation, bearing noise, or impeller contact."}],
+          "duration": 2
+        },
+        {
+          "stepNumber": 4,
+          "description": [{"language": "en", "text": "Check gauges for normal pressure and flow readings."}],
+          "verification": [{"language": "en", "text": "Pressure should be 8-10 bar, flow rate 90-100 m3/h during normal operation."}],
+          "duration": 2
+        },
+        {
+          "stepNumber": 5,
+          "description": [{"language": "en", "text": "Record observations in maintenance log and report any abnormalities."}],
+          "duration": 2
+        }
+      ],
+      "requiredTools": ["Flashlight", "PPE (safety glasses, ear protection)"],
+      "safetyInstructions": [
+        {"language": "en", "text": "Always wear appropriate PPE when near operating equipment."},
+        {"language": "en", "text": "Maintain safe distance from rotating parts."}
+      ]
+    },
+    {
+      "id": "MI-SP500-002",
+      "title": [
+        {"language": "en", "text": "Weekly Bearing Temperature Check"},
+        {"language": "de", "text": "Woechentliche Lagertempruefung"}
+      ],
+      "description": [
+        {"language": "en", "text": "Check bearing temperatures using infrared thermometer to detect early signs of wear or lubrication issues."}
+      ],
+      "maintenanceType": "conditionBased",
+      "intervalValue": 7,
+      "intervalUnit": "days",
+      "estimatedDuration": 15,
+      "skillLevel": "intermediate",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": [{"language": "en", "text": "Allow pump to reach normal operating temperature (minimum 30 minutes runtime)."}],
+          "duration": 2
+        },
+        {
+          "stepNumber": 2,
+          "description": [{"language": "en", "text": "Using infrared thermometer, measure temperature at drive-end bearing housing."}],
+          "verification": [{"language": "en", "text": "Temperature should be 40-60C. Alert if >70C."}],
+          "duration": 3,
+          "isCritical": true
+        },
+        {
+          "stepNumber": 3,
+          "description": [{"language": "en", "text": "Measure temperature at non-drive-end bearing housing."}],
+          "verification": [{"language": "en", "text": "Temperature should be 35-55C. Alert if >65C."}],
+          "duration": 3,
+          "isCritical": true
+        },
+        {
+          "stepNumber": 4,
+          "description": [{"language": "en", "text": "Compare readings to previous measurements and baseline values."}],
+          "duration": 3
+        },
+        {
+          "stepNumber": 5,
+          "description": [{"language": "en", "text": "Record measurements in maintenance tracking system."}],
+          "duration": 4
+        }
+      ],
+      "requiredTools": ["Infrared thermometer", "PPE", "Maintenance log"],
+      "conditions": [
+        {"name": "Ambient Temperature", "value": "15-35", "unit": "C"},
+        {"name": "Pump Status", "value": "Running", "unit": null}
+      ],
+      "safetyInstructions": [
+        {"language": "en", "text": "Hot surfaces - do not touch bearing housings directly."},
+        {"language": "en", "text": "Maintain minimum 0.5m distance from rotating shaft."}
+      ]
+    },
+    {
+      "id": "MI-SP500-003",
+      "title": [
+        {"language": "en", "text": "Monthly Vibration Analysis"},
+        {"language": "de", "text": "Monatliche Schwingungsanalyse"}
+      ],
+      "description": [
+        {"language": "en", "text": "Perform comprehensive vibration measurement and analysis to detect developing mechanical issues."}
+      ],
+      "maintenanceType": "predictive",
+      "intervalValue": 30,
+      "intervalUnit": "days",
+      "estimatedDuration": 45,
+      "skillLevel": "advanced",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": [{"language": "en", "text": "Set up vibration analyzer with appropriate accelerometer and settings for pump analysis."}],
+          "duration": 5
+        },
+        {
+          "stepNumber": 2,
+          "description": [{"language": "en", "text": "Attach accelerometer to drive-end bearing housing (horizontal position)."}],
+          "duration": 2
+        },
+        {
+          "stepNumber": 3,
+          "description": [{"language": "en", "text": "Record vibration spectrum at drive-end horizontal position."}],
+          "verification": [{"language": "en", "text": "Overall velocity should be <4.5 mm/s RMS per ISO 10816."}],
+          "duration": 3,
+          "isCritical": true
+        },
+        {
+          "stepNumber": 4,
+          "description": [{"language": "en", "text": "Repeat measurement at drive-end vertical and axial positions."}],
+          "duration": 6
+        },
+        {
+          "stepNumber": 5,
+          "description": [{"language": "en", "text": "Move to non-drive-end and repeat all three position measurements."}],
+          "duration": 9
+        },
+        {
+          "stepNumber": 6,
+          "description": [{"language": "en", "text": "Analyze spectra for characteristic frequencies: imbalance, misalignment, bearing defects."}],
+          "duration": 10
+        },
+        {
+          "stepNumber": 7,
+          "description": [{"language": "en", "text": "Compare to baseline and trend data. Generate report with recommendations."}],
+          "duration": 10
+        }
+      ],
+      "requiredTools": ["Vibration analyzer", "Accelerometer", "Magnetic mount", "PPE", "Analysis software"],
+      "conditions": [
+        {"name": "Operating Load", "value": ">75%", "unit": "nominal"},
+        {"name": "Temperature", "value": "Stable", "unit": null}
+      ],
+      "safetyInstructions": [
+        {"language": "en", "text": "Do not position hands near rotating shaft when attaching sensors."},
+        {"language": "en", "text": "Use magnetic mount - do not use adhesive on hot surfaces."}
+      ]
+    },
+    {
+      "id": "MI-SP500-004",
+      "title": [
+        {"language": "en", "text": "Quarterly Alignment Check"},
+        {"language": "de", "text": "Vierteljaerige Ausrichtungspruefung"}
+      ],
+      "description": [
+        {"language": "en", "text": "Verify pump-motor alignment using laser alignment system and correct if necessary."}
+      ],
+      "maintenanceType": "preventive",
+      "intervalValue": 90,
+      "intervalUnit": "days",
+      "estimatedDuration": 120,
+      "skillLevel": "specialist",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": [{"language": "en", "text": "Lock out/tag out pump motor. Verify zero energy state."}],
+          "warnings": [{"language": "en", "text": "CRITICAL: Follow LOTO procedure. Verify motor cannot start."}],
+          "duration": 10,
+          "isCritical": true
+        },
+        {
+          "stepNumber": 2,
+          "description": [{"language": "en", "text": "Allow pump and motor to reach ambient temperature (minimum 4 hours after shutdown)."}],
+          "duration": 5
+        },
+        {
+          "stepNumber": 3,
+          "description": [{"language": "en", "text": "Remove coupling guard and inspect coupling for wear or damage."}],
+          "duration": 10
+        },
+        {
+          "stepNumber": 4,
+          "description": [{"language": "en", "text": "Mount laser alignment system on pump and motor shafts."}],
+          "duration": 15
+        },
+        {
+          "stepNumber": 5,
+          "description": [{"language": "en", "text": "Perform alignment measurement. Record horizontal and vertical offset/angularity."}],
+          "verification": [{"language": "en", "text": "Maximum offset: 0.05mm. Maximum angularity: 0.05mm/100mm."}],
+          "duration": 15,
+          "isCritical": true
+        },
+        {
+          "stepNumber": 6,
+          "description": [{"language": "en", "text": "If out of tolerance, adjust motor position using shims and bolts."}],
+          "duration": 45
+        },
+        {
+          "stepNumber": 7,
+          "description": [{"language": "en", "text": "Re-verify alignment after adjustments. Document final readings."}],
+          "duration": 10
+        },
+        {
+          "stepNumber": 8,
+          "description": [{"language": "en", "text": "Reinstall coupling guard. Remove LOTO. Test run pump."}],
+          "duration": 10
+        }
+      ],
+      "requiredTools": ["Laser alignment system", "Shim set", "Feeler gauges", "Torque wrench", "LOTO locks", "PPE"],
+      "requiredParts": ["Shim pack (assorted sizes)"],
+      "safetyInstructions": [
+        {"language": "en", "text": "MANDATORY: Complete LOTO before any work on rotating equipment."},
+        {"language": "en", "text": "Verify coupling guard is properly installed before startup."}
+      ]
+    },
+    {
+      "id": "MI-SP500-005",
+      "title": [
+        {"language": "en", "text": "Annual Comprehensive Overhaul"},
+        {"language": "de", "text": "Jaehrliche Generalueberholung"}
+      ],
+      "description": [
+        {"language": "en", "text": "Complete pump disassembly, inspection, replacement of wear parts, and reassembly with full testing."}
+      ],
+      "maintenanceType": "preventive",
+      "intervalValue": 365,
+      "intervalUnit": "days",
+      "estimatedDuration": 480,
+      "skillLevel": "specialist",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": [{"language": "en", "text": "Complete LOTO procedure. Drain pump and isolate from system."}],
+          "warnings": [{"language": "en", "text": "Ensure complete isolation from process fluid - may be hazardous."}],
+          "duration": 30,
+          "isCritical": true
+        },
+        {
+          "stepNumber": 2,
+          "description": [{"language": "en", "text": "Disconnect coupling, remove motor. Tag all electrical connections."}],
+          "duration": 30
+        },
+        {
+          "stepNumber": 3,
+          "description": [{"language": "en", "text": "Remove pump from baseplate. Transport to workshop."}],
+          "duration": 45
+        },
+        {
+          "stepNumber": 4,
+          "description": [{"language": "en", "text": "Disassemble pump: remove casing bolts, back pull-out, impeller, shaft."}],
+          "duration": 60
+        },
+        {
+          "stepNumber": 5,
+          "description": [{"language": "en", "text": "Inspect all components: impeller wear, shaft runout, bearing condition, seal faces."}],
+          "verification": [{"language": "en", "text": "Document all measurements. Compare to OEM tolerances."}],
+          "duration": 60,
+          "isCritical": true
+        },
+        {
+          "stepNumber": 6,
+          "description": [{"language": "en", "text": "Replace mechanical seal, bearings, and any worn components."}],
+          "duration": 90
+        },
+        {
+          "stepNumber": 7,
+          "description": [{"language": "en", "text": "Reassemble pump following OEM torque specifications."}],
+          "duration": 60
+        },
+        {
+          "stepNumber": 8,
+          "description": [{"language": "en", "text": "Reinstall pump, couple to motor, perform alignment."}],
+          "duration": 60
+        },
+        {
+          "stepNumber": 9,
+          "description": [{"language": "en", "text": "Test run: verify no leaks, normal vibration, correct rotation, rated performance."}],
+          "verification": [{"language": "en", "text": "Flow and head must meet 95% of rated values minimum."}],
+          "duration": 45,
+          "isCritical": true
+        }
+      ],
+      "requiredTools": ["Complete workshop tool set", "Bearing heater", "Alignment system", "Pressure gauges", "Flow meter"],
+      "requiredParts": ["Mechanical seal kit", "Bearing set (2x SKF 6205-2RS)", "O-ring kit", "Gasket set"],
+      "safetyInstructions": [
+        {"language": "en", "text": "Use appropriate lifting equipment for pump (weight: 85kg)."},
+        {"language": "en", "text": "Wear chemical-resistant PPE when handling process-wetted parts."}
+      ]
+    }
+  ]
+}
