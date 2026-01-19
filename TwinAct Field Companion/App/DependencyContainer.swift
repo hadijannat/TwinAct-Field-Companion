@@ -293,7 +293,9 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.invalidateAASServices()
+            Task { @MainActor in
+                self?.invalidateAASServices()
+            }
         }
     }
 

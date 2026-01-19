@@ -53,35 +53,33 @@ public struct ARProcedureOverlay {
         container.addChild(circleEntity)
 
         // Step label
-        if let labelMesh = try? MeshResource.generateText(
+        let labelMesh = MeshResource.generateText(
             "Step \(stepNumber)",
             extrusionDepth: 0.001,
             font: .systemFont(ofSize: 0.007, weight: .semibold),
             containerFrame: .zero,
             alignment: .left,
             lineBreakMode: .byTruncatingTail
-        ) {
-            let labelMaterial = SimpleMaterial(color: primaryColor, isMetallic: false)
-            let labelEntity = ModelEntity(mesh: labelMesh, materials: [labelMaterial])
-            labelEntity.position = SIMD3<Float>(-0.055, 0.012, 0.003)
-            container.addChild(labelEntity)
-        }
+        )
+        let labelMaterial = SimpleMaterial(color: primaryColor, isMetallic: false)
+        let labelEntity = ModelEntity(mesh: labelMesh, materials: [labelMaterial])
+        labelEntity.position = SIMD3<Float>(-0.055, 0.012, 0.003)
+        container.addChild(labelEntity)
 
         // Description text (truncated to fit)
         let truncatedDescription = String(description.prefix(50))
-        if let descMesh = try? MeshResource.generateText(
+        let descMesh = MeshResource.generateText(
             truncatedDescription,
             extrusionDepth: 0.001,
             font: .systemFont(ofSize: 0.006, weight: .regular),
             containerFrame: .zero,
             alignment: .left,
             lineBreakMode: .byTruncatingTail
-        ) {
-            let descMaterial = SimpleMaterial(color: .darkGray, isMetallic: false)
-            let descEntity = ModelEntity(mesh: descMesh, materials: [descMaterial])
-            descEntity.position = SIMD3<Float>(-0.08, -0.008, 0.003)
-            container.addChild(descEntity)
-        }
+        )
+        let descMaterial = SimpleMaterial(color: .darkGray, isMetallic: false)
+        let descEntity = ModelEntity(mesh: descMesh, materials: [descMaterial])
+        descEntity.position = SIMD3<Float>(-0.08, -0.008, 0.003)
+        container.addChild(descEntity)
 
         // Current step indicator (pulsing effect via larger highlight)
         if isCurrentStep {
@@ -224,25 +222,24 @@ public struct ARProcedureOverlay {
         // Text
         let textColor: UIColor = isCompleted ? .systemGreen : .darkGray
         let truncatedText = String(text.prefix(35))
-        if let textMesh = try? MeshResource.generateText(
+        let textMesh = MeshResource.generateText(
             truncatedText,
             extrusionDepth: 0.001,
             font: .systemFont(ofSize: 0.007, weight: isCompleted ? .regular : .medium),
             containerFrame: .zero,
             alignment: .left,
             lineBreakMode: .byTruncatingTail
-        ) {
-            let textMaterial = SimpleMaterial(color: textColor, isMetallic: false)
-            let textEntity = ModelEntity(mesh: textMesh, materials: [textMaterial])
-            textEntity.position = SIMD3<Float>(-0.05, -0.003, 0.001)
+        )
+        let textMaterial = SimpleMaterial(color: textColor, isMetallic: false)
+        let textEntity = ModelEntity(mesh: textMesh, materials: [textMaterial])
+        textEntity.position = SIMD3<Float>(-0.05, -0.003, 0.001)
 
-            // Strike-through effect for completed items (simplified)
-            if isCompleted {
-                textEntity.transform.scale = SIMD3<Float>(1, 0.9, 1)
-            }
-
-            container.addChild(textEntity)
+        // Strike-through effect for completed items (simplified)
+        if isCompleted {
+            textEntity.transform.scale = SIMD3<Float>(1, 0.9, 1)
         }
+
+        container.addChild(textEntity)
 
         addBillboardBehavior(to: container)
 
@@ -263,20 +260,19 @@ public struct ARProcedureOverlay {
 
         // Title
         if let title = title {
-            if let titleMesh = try? MeshResource.generateText(
+            let titleMesh = MeshResource.generateText(
                 title,
                 extrusionDepth: 0.001,
                 font: .systemFont(ofSize: 0.01, weight: .bold),
                 containerFrame: .zero,
                 alignment: .left,
                 lineBreakMode: .byTruncatingTail
-            ) {
-                let titleMaterial = SimpleMaterial(color: .systemOrange, isMetallic: false)
-                let titleEntity = ModelEntity(mesh: titleMesh, materials: [titleMaterial])
-                titleEntity.position = SIMD3<Float>(-0.06, yOffset, 0.001)
-                container.addChild(titleEntity)
-                yOffset -= 0.02
-            }
+            )
+            let titleMaterial = SimpleMaterial(color: .systemOrange, isMetallic: false)
+            let titleEntity = ModelEntity(mesh: titleMesh, materials: [titleMaterial])
+            titleEntity.position = SIMD3<Float>(-0.06, yOffset, 0.001)
+            container.addChild(titleEntity)
+            yOffset -= 0.02
         }
 
         // Items
@@ -335,19 +331,18 @@ public struct ARProcedureOverlay {
 
         // Tool name
         let truncatedName = String(toolName.prefix(15))
-        if let nameMesh = try? MeshResource.generateText(
+        let nameMesh = MeshResource.generateText(
             truncatedName,
             extrusionDepth: 0.001,
             font: .systemFont(ofSize: 0.006, weight: .medium),
             containerFrame: .zero,
             alignment: .left,
             lineBreakMode: .byTruncatingTail
-        ) {
-            let nameMaterial = SimpleMaterial(color: .darkGray, isMetallic: false)
-            let nameEntity = ModelEntity(mesh: nameMesh, materials: [nameMaterial])
-            nameEntity.position = SIMD3<Float>(-0.03, -0.002, 0.002)
-            container.addChild(nameEntity)
-        }
+        )
+        let nameMaterial = SimpleMaterial(color: .darkGray, isMetallic: false)
+        let nameEntity = ModelEntity(mesh: nameMesh, materials: [nameMaterial])
+        nameEntity.position = SIMD3<Float>(-0.03, -0.002, 0.002)
+        container.addChild(nameEntity)
 
         // Status indicator
         let statusMesh = MeshResource.generateSphere(radius: 0.003)
@@ -407,19 +402,18 @@ public struct ARProcedureOverlay {
         container.addChild(circleEntity)
 
         // Number text
-        if let numberMesh = try? MeshResource.generateText(
+        let numberMesh = MeshResource.generateText(
             "\(number)",
             extrusionDepth: 0.001,
             font: .systemFont(ofSize: 0.01, weight: .bold),
             containerFrame: .zero,
             alignment: .center,
             lineBreakMode: .byTruncatingTail
-        ) {
-            let numberMaterial = SimpleMaterial(color: .white, isMetallic: false)
-            let numberEntity = ModelEntity(mesh: numberMesh, materials: [numberMaterial])
-            numberEntity.position = SIMD3<Float>(-0.003, -0.004, 0.002)
-            container.addChild(numberEntity)
-        }
+        )
+        let numberMaterial = SimpleMaterial(color: .white, isMetallic: false)
+        let numberEntity = ModelEntity(mesh: numberMesh, materials: [numberMaterial])
+        numberEntity.position = SIMD3<Float>(-0.003, -0.004, 0.002)
+        container.addChild(numberEntity)
 
         return container
     }

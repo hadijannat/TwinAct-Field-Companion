@@ -40,7 +40,6 @@ public final class MockRepositoryService: RepositoryServiceProtocol, @unchecked 
 
         // Create a demo shell from the descriptor
         let descriptor = try demoProvider.loadAASDescriptor()
-        let nameplate = try? demoProvider.loadDigitalNameplate()
 
         let shell = AssetAdministrationShell(
             id: descriptor.id,
