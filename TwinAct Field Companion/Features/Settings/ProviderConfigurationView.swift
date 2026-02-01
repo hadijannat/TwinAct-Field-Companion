@@ -341,7 +341,26 @@ struct ProviderConfigurationView: View {
     private func loadModels() async {
         isLoadingModels = true
 
-        // First, try predefined models
+        // Prefer live model listing when supported
+        if provider.supportsModelListing, let activeProvider = providerManager.provider(for: provider) {
+            do {
+                let models = try await activeProvider.listModels()
+                if !models.isEmpty {
+                    await MainActor.run {
+                        availableModels = models
+                        if modelId.isEmpty {
+                            modelId = models.first?.modelId ?? ""
+                        }
+                        isLoadingModels = false
+                    }
+                    return
+                }
+            } catch {
+                // Silently fail - fall back to predefined list
+            }
+        }
+
+        // Fall back to predefined models
         let predefined = AIProviderModel.models(for: provider)
         if !predefined.isEmpty {
             await MainActor.run {
@@ -352,21 +371,6 @@ struct ProviderConfigurationView: View {
                 isLoadingModels = false
             }
             return
-        }
-
-        // For providers that support model listing, fetch from API
-        if provider.supportsModelListing, let activeProvider = providerManager.provider(for: provider) {
-            do {
-                let models = try await activeProvider.listModels()
-                await MainActor.run {
-                    availableModels = models
-                    if modelId.isEmpty && !models.isEmpty {
-                        modelId = models.first?.modelId ?? ""
-                    }
-                }
-            } catch {
-                // Silently fail - user can still enter model ID manually
-            }
         }
 
         await MainActor.run {

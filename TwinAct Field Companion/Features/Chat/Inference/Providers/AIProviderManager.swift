@@ -141,7 +141,11 @@ public final class AIProviderManager: ObservableObject {
         }
 
         // Create new provider
-        let config = configuration(for: type)
+        var config = configuration(for: type)
+        if type == .openRouter {
+            config.baseURL = normalizedOpenRouterBaseURL(config.baseURL)
+            config.modelId = normalizedOpenRouterModelId(config.modelId)
+        }
         guard config.isEnabled else { return nil }
 
         let apiKey = self.apiKey(for: type)
@@ -247,7 +251,12 @@ public final class AIProviderManager: ObservableObject {
             let decoded = try JSONDecoder().decode([String: AIProviderConfiguration].self, from: data)
             for (key, config) in decoded {
                 if let providerType = AIProviderType(rawValue: key) {
-                    configurations[providerType] = config
+                    var normalizedConfig = config
+                    if providerType == .openRouter {
+                        normalizedConfig.baseURL = normalizedOpenRouterBaseURL(config.baseURL)
+                        normalizedConfig.modelId = normalizedOpenRouterModelId(config.modelId)
+                    }
+                    configurations[providerType] = normalizedConfig
                 }
             }
 
@@ -264,6 +273,53 @@ public final class AIProviderManager: ObservableObject {
                 configurations[provider] = AIProviderConfiguration.defaultConfiguration(for: provider)
             }
         }
+    }
+
+    private func normalizedOpenRouterBaseURL(_ url: URL) -> URL {
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            return url
+        }
+
+        var path = components.path
+
+        if path.hasSuffix("/v1/") {
+            path = String(path.dropLast(4))
+        } else if path.hasSuffix("/v1") {
+            path = String(path.dropLast(3))
+        }
+
+        if path.isEmpty || path == "/" {
+            path = "/api"
+        }
+
+        if let host = components.host, host.contains("openrouter.ai") {
+            if !path.contains("/api") {
+                path = "/api"
+            }
+        }
+
+        if path.hasSuffix("/") && path != "/" {
+            path.removeLast()
+        }
+
+        components.path = path
+        return components.url ?? url
+    }
+
+    private func normalizedOpenRouterModelId(_ modelId: String) -> String {
+        let trimmed = modelId.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return modelId }
+        if trimmed.contains("/") { return trimmed }
+
+        let lower = trimmed.lowercased()
+        if lower.contains("claude") {
+            return "anthropic/\(trimmed)"
+        }
+        if lower == "o1" || lower.hasPrefix("gpt-") {
+            return "openai/\(trimmed)"
+        }
+
+        return trimmed
     }
 
     private func persistConfigurations() {

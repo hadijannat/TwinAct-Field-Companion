@@ -60,7 +60,7 @@ public enum AIProviderType: String, Codable, Sendable, CaseIterable, Identifiabl
 
     public var supportsModelListing: Bool {
         switch self {
-        case .ollama:
+        case .ollama, .openRouter:
             return true
         default:
             return false
@@ -310,8 +310,28 @@ public extension AIProviderModel {
         case .openai:
             return openAIModels
         case .openRouter:
-            // OpenRouter supports many models; return common ones
-            return anthropicModels + openAIModels
+            // Fallback set (if live listing fails). Use OpenRouter-prefixed IDs.
+            let anthropicFallback = anthropicModels.map { model in
+                AIProviderModel(
+                    modelId: "anthropic/\(model.modelId)",
+                    displayName: model.displayName,
+                    contextWindow: model.contextWindow,
+                    maxOutputTokens: model.maxOutputTokens,
+                    supportsVision: model.supportsVision,
+                    provider: .openRouter
+                )
+            }
+            let openAIFallback = openAIModels.map { model in
+                AIProviderModel(
+                    modelId: "openai/\(model.modelId)",
+                    displayName: model.displayName,
+                    contextWindow: model.contextWindow,
+                    maxOutputTokens: model.maxOutputTokens,
+                    supportsVision: model.supportsVision,
+                    provider: .openRouter
+                )
+            }
+            return anthropicFallback + openAIFallback
         case .ollama:
             // Ollama models are dynamic; return empty (fetched at runtime)
             return []
