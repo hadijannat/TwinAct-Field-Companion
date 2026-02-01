@@ -199,21 +199,21 @@ public final class ChatViewModel: ObservableObject {
                     )
                 )
 
-                // Update message
-                Task { @MainActor in
+                // Update message on MainActor
+                await MainActor.run {
                     updateMessage(id: placeholderId, with: finalMessage)
                 }
 
-                logger.info("Generated response with \(result.completionTokens ?? 0) tokens via \(result.provider.rawValue)")
+                logger.info("Generated response with \(result.completionTokens ?? 0) tokens via \(result.provider.rawValue), text length: \(result.text.count)")
 
             } catch is CancellationError {
                 // Remove placeholder on cancellation
-                Task { @MainActor in
+                await MainActor.run {
                     removeMessage(id: placeholderId)
                 }
             } catch let inferenceError as InferenceError {
                 logger.error("Inference error: \(inferenceError.localizedDescription)")
-                Task { @MainActor in
+                await MainActor.run {
                     let errorMessage = ChatMessage(
                         id: placeholderId,
                         role: .assistant,
@@ -225,7 +225,7 @@ public final class ChatViewModel: ObservableObject {
                 }
             } catch {
                 logger.error("Unexpected error: \(error.localizedDescription)")
-                Task { @MainActor in
+                await MainActor.run {
                     let errorMessage = ChatMessage(
                         id: placeholderId,
                         role: .assistant,

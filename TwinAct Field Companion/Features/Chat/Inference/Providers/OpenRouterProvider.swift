@@ -263,15 +263,24 @@ public actor OpenRouterProvider: CloudAIProvider {
             throw InferenceError.invalidResponse
         }
 
-        guard let content = choice.message.content, !content.isEmpty else {
-            logger.error("OpenRouter returned empty or null content")
+        // Try to get content - for reasoning models, content might be in 'reasoning' field
+        // or some models return content separately from reasoning
+        let responseContent: String
+        if let content = choice.message.content, !content.isEmpty {
+            responseContent = content
+            logger.debug("Response content length: \(content.count) characters")
+        } else if let reasoning = choice.message.reasoning, !reasoning.isEmpty {
+            // Fallback: some reasoning models might only return reasoning
+            responseContent = reasoning
+            logger.info("Using reasoning field as response (content was empty)")
+        } else {
+            // Log what we actually received for debugging
+            logger.error("OpenRouter returned empty response - content: \(choice.message.content ?? "nil"), reasoning: \(choice.message.reasoning ?? "nil")")
             throw InferenceError.invalidResponse
         }
 
-        logger.debug("Response content length: \(content.count) characters")
-
         return GenerationResult(
-            text: content,
+            text: responseContent,
             promptTokens: response.usage?.promptTokens,
             completionTokens: response.usage?.completionTokens,
             provider: .cloud,
@@ -343,6 +352,7 @@ private struct OpenRouterResponse: Codable, Sendable {
         struct Message: Codable, Sendable {
             let role: String
             let content: String?
+            let reasoning: String?  // For reasoning models (o1, o4-mini, etc.)
         }
     }
 
