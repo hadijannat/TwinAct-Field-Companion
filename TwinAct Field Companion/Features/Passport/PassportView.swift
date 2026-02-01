@@ -22,6 +22,11 @@ public struct PassportView: View {
     @State private var selectedSection: PassportSection?
     @Environment(\.dismiss) private var dismiss
 
+    // AASX Import
+    @StateObject private var aasxImportManager = AASXImportManager()
+    @State private var showFileImporter = false
+    @State private var showURLImporter = false
+
     let assetId: String
 
     // MARK: - Initialization
@@ -109,6 +114,26 @@ public struct PassportView: View {
         .navigationTitle("Asset Passport")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            // AASX Import menu
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button {
+                        showFileImporter = true
+                    } label: {
+                        Label("Import from Files", systemImage: "folder")
+                    }
+
+                    Button {
+                        showURLImporter = true
+                    } label: {
+                        Label("Import from URL", systemImage: "link")
+                    }
+                } label: {
+                    Image(systemName: "square.and.arrow.down")
+                }
+                .accessibilityLabel("Import AASX")
+            }
+
             ToolbarItem(placement: .topBarTrailing) {
                 if let asset = viewModel.asset {
                     ShareButton(asset: asset)
@@ -124,6 +149,21 @@ public struct PassportView: View {
         }
         .task {
             await viewModel.loadAsset()
+        }
+        // AASX file importer
+        .aasxFileImporter(isPresented: $showFileImporter, importManager: aasxImportManager)
+        // AASX URL import sheet
+        .sheet(isPresented: $showURLImporter) {
+            AASXURLImportSheet(importManager: aasxImportManager)
+        }
+        // Import completion handler
+        .onChange(of: aasxImportManager.state) { _, newState in
+            if case .completed = newState {
+                // Refresh the view to show new content
+                Task {
+                    await viewModel.refresh()
+                }
+            }
         }
     }
 
