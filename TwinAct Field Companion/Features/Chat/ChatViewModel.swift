@@ -202,6 +202,7 @@ public final class ChatViewModel: ObservableObject {
                 // Update message on MainActor
                 await MainActor.run {
                     updateMessage(id: placeholderId, with: finalMessage)
+                    logger.info("✅ Message updated in UI - content: \(finalMessage.content.prefix(50))...")
                 }
 
                 logger.info("Generated response with \(result.completionTokens ?? 0) tokens via \(result.provider.rawValue), text length: \(result.text.count)")
