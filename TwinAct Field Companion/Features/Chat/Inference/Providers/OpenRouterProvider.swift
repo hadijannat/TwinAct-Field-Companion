@@ -223,17 +223,55 @@ public actor OpenRouterProvider: CloudAIProvider {
         )
 
         logger.info("Sending request to OpenRouter API")
-        let response: OpenRouterResponse = try await httpClient.request(endpoint)
+
+        // Get raw response data first to handle error responses
+        let responseData: Data = try await httpClient.request(endpoint)
 
         try Task.checkCancellation()
 
-        // Extract text from first choice
-        guard let choice = response.choices.first else {
+        // Try to decode as error response first
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+
+        if let errorResponse = try? decoder.decode(OpenRouterErrorResponse.self, from: responseData),
+           let errorDetail = errorResponse.error {
+            logger.error("OpenRouter API error: \(errorDetail.message)")
+            throw InferenceError.providerError(
+                provider: "OpenRouter",
+                message: errorDetail.message,
+                code: errorDetail.code
+            )
+        }
+
+        // Decode as success response
+        let response: OpenRouterResponse
+        do {
+            response = try decoder.decode(OpenRouterResponse.self, from: responseData)
+        } catch {
+            // Log raw response preview for debugging (truncated for security)
+            let preview = String(data: responseData.prefix(500), encoding: .utf8) ?? "Unable to decode"
+            logger.error("Failed to decode OpenRouter response: \(error.localizedDescription)")
+            logger.debug("Response preview: \(preview)")
             throw InferenceError.invalidResponse
         }
 
+        logger.debug("OpenRouter response: choices=\(response.choices.count)")
+
+        // Extract text from first choice with validation
+        guard let choice = response.choices.first else {
+            logger.error("OpenRouter returned empty choices array")
+            throw InferenceError.invalidResponse
+        }
+
+        guard let content = choice.message.content, !content.isEmpty else {
+            logger.error("OpenRouter returned empty or null content")
+            throw InferenceError.invalidResponse
+        }
+
+        logger.debug("Response content length: \(content.count) characters")
+
         return GenerationResult(
-            text: choice.message.content ?? "",
+            text: content,
             promptTokens: response.usage?.promptTokens,
             completionTokens: response.usage?.completionTokens,
             provider: .cloud,
@@ -343,5 +381,18 @@ private struct OpenRouterModelsResponse: Codable, Sendable {
                 case maxCompletionTokens = "max_completion_tokens"
             }
         }
+    }
+}
+
+// MARK: - OpenRouter Error Response
+
+/// Error response format returned by OpenRouter API
+private struct OpenRouterErrorResponse: Codable, Sendable {
+    let error: ErrorDetail?
+
+    struct ErrorDetail: Codable, Sendable {
+        let message: String
+        let type: String?
+        let code: String?
     }
 }

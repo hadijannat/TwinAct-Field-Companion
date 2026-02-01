@@ -22,6 +22,7 @@ public enum InferenceError: Error, LocalizedError, Sendable {
     case contextTooLong(maxTokens: Int)
     case safetyViolation(reason: String)
     case networkError(underlying: Error)
+    case providerError(provider: String, message: String, code: String?)
 
     public var errorDescription: String? {
         switch self {
@@ -50,6 +51,8 @@ public enum InferenceError: Error, LocalizedError, Sendable {
             return "Safety policy violation: \(reason)"
         case .networkError(let underlying):
             return "Network error: \(underlying.localizedDescription)"
+        case .providerError(let provider, let message, _):
+            return "\(provider) error: \(message)"
         }
     }
 
