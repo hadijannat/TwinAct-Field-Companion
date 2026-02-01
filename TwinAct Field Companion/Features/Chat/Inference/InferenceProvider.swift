@@ -181,13 +181,35 @@ public enum InferenceProviderType: String, Sendable, CaseIterable {
     case onDevice = "on_device"
     case cloud = "cloud"
 
+    // Cloud provider subtypes (for tracking which specific provider was used)
+    case anthropic
+    case openai
+    case openRouter
+    case ollama
+    case custom
+
     public var displayName: String {
         switch self {
         case .onDevice:
             return "On-Device"
         case .cloud:
             return "Cloud"
+        case .anthropic:
+            return "Anthropic (Claude)"
+        case .openai:
+            return "OpenAI"
+        case .openRouter:
+            return "OpenRouter"
+        case .ollama:
+            return "Ollama (Local)"
+        case .custom:
+            return "Custom Endpoint"
         }
+    }
+
+    /// Whether this is a cloud-based provider (as opposed to on-device)
+    public var isCloudProvider: Bool {
+        self != .onDevice
     }
 }
 

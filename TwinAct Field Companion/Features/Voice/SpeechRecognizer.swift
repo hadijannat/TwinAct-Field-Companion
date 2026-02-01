@@ -286,9 +286,10 @@ public final class SpeechRecognizer: ObservableObject, @unchecked Sendable {
         // Configure audio tap
         let inputNode = audioEngine.inputNode
         let recordingFormat = inputNode.outputFormat(forBus: 0)
+        let request = recognitionRequest
 
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
-            self?.recognitionRequest?.append(buffer)
+            request.append(buffer)
 
             // Calculate audio level for visualization
             Task { @MainActor in
@@ -359,7 +360,7 @@ public final class SpeechRecognizer: ObservableObject, @unchecked Sendable {
     private func resetSilenceTimer() {
         silenceTimer?.invalidate()
         silenceTimer = Timer.scheduledTimer(withTimeInterval: silenceTimeout, repeats: false) { [weak self] _ in
-            MainActor.assumeIsolated {
+            Task { @MainActor in
                 guard let self = self, !self.transcript.isEmpty else { return }
                 self.stopListening()
             }

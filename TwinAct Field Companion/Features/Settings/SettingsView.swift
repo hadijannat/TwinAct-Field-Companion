@@ -100,6 +100,18 @@ public struct SettingsView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
+
+                    NavigationLink {
+                        AIProviderSettingsView()
+                    } label: {
+                        HStack {
+                            Label("Cloud Provider Settings", systemImage: "cloud")
+                            Spacer()
+                            Text(DependencyContainer.shared.aiProviderManager.activeProviderType.displayName)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
                 } header: {
                     Text("AI Assistant")
                 } footer: {

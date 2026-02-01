@@ -52,6 +52,7 @@ public final class InferenceRouter: @unchecked Sendable {
 
     private let onDevice: OnDeviceInference
     private let cloud: CloudInference
+    private var providerManager: AIProviderManager?
     private let safetyAudit: SafetyAudit
     private let logger: Logger
 
@@ -63,15 +64,18 @@ public final class InferenceRouter: @unchecked Sendable {
     /// Initialize inference router
     /// - Parameters:
     ///   - onDevice: On-device inference provider
-    ///   - cloud: Cloud inference provider
+    ///   - cloud: Cloud inference provider (legacy fallback)
+    ///   - providerManager: Multi-provider manager (optional, uses configured providers)
     ///   - strategy: Routing strategy (defaults to app configuration)
     public init(
         onDevice: OnDeviceInference = OnDeviceInference(),
         cloud: CloudInference = CloudInference(),
+        providerManager: AIProviderManager? = nil,
         strategy: InferenceRoutingStrategy? = nil
     ) {
         self.onDevice = onDevice
         self.cloud = cloud
+        self.providerManager = providerManager
         self.safetyAudit = SafetyAudit()
         self.logger = Logger(
             subsystem: AppConfiguration.AppInfo.bundleIdentifier,
@@ -86,6 +90,11 @@ public final class InferenceRouter: @unchecked Sendable {
         } else {
             self.strategy = .preferCloud
         }
+    }
+
+    /// Set the provider manager (can be called after initialization)
+    public func setProviderManager(_ manager: AIProviderManager) {
+        self.providerManager = manager
     }
 
     // MARK: - Public API
@@ -185,10 +194,15 @@ public final class InferenceRouter: @unchecked Sendable {
         prompt: String,
         options: GenerationOptions
     ) async throws -> GenerationResult {
-        // Try cloud first
+        // Try configured cloud provider first
+        if let result = try await generateWithConfiguredProvider(prompt: prompt, options: options) {
+            return result
+        }
+
+        // Fall back to legacy cloud inference
         if await cloud.isAvailable {
             do {
-                logger.info("Using cloud inference")
+                logger.info("Using legacy cloud inference")
                 return try await cloud.generate(prompt: prompt, options: options)
             } catch let error as InferenceError where error.isRetryable {
                 logger.warning("Cloud inference failed (retryable): \(error.localizedDescription)")
@@ -223,12 +237,56 @@ public final class InferenceRouter: @unchecked Sendable {
         prompt: String,
         options: GenerationOptions
     ) async throws -> GenerationResult {
+        // Try configured cloud provider first
+        if let result = try await generateWithConfiguredProvider(prompt: prompt, options: options) {
+            return result
+        }
+
+        // Fall back to legacy cloud inference
         guard await cloud.isAvailable else {
             throw InferenceError.endpointNotConfigured
         }
 
-        logger.info("Using cloud inference (cloud-only mode)")
+        logger.info("Using legacy cloud inference (cloud-only mode)")
         return try await cloud.generate(prompt: prompt, options: options)
+    }
+
+    // MARK: - Multi-Provider Support
+
+    /// Check if a configured cloud provider is available
+    private func checkConfiguredProviderAvailable() async -> Bool {
+        guard let manager = providerManager else {
+            return false
+        }
+        return await MainActor.run { manager.activeProvider() != nil }
+    }
+
+    /// Try to generate using the configured cloud provider from AIProviderManager
+    private func generateWithConfiguredProvider(
+        prompt: String,
+        options: GenerationOptions
+    ) async throws -> GenerationResult? {
+        guard let manager = providerManager else {
+            return nil
+        }
+
+        // Get the active provider from manager (must call on main actor)
+        let activeProvider = await MainActor.run { manager.activeProvider() }
+
+        guard let provider = activeProvider else {
+            logger.info("No configured cloud provider available")
+            return nil
+        }
+
+        let providerType = await MainActor.run { manager.activeProviderType }
+        logger.info("Using configured provider: \(providerType.rawValue)")
+
+        do {
+            return try await provider.generate(prompt: prompt, options: options)
+        } catch let error as InferenceError where error.isRetryable {
+            logger.warning("Configured provider failed (retryable): \(error.localizedDescription)")
+            return nil  // Allow fallback
+        }
     }
 
     private func generateAdaptive(
@@ -244,13 +302,20 @@ public final class InferenceRouter: @unchecked Sendable {
         let complexity = estimatePromptComplexity(prompt)
         let isRegulatoryQuery = detectRegulatoryIntent(prompt)
         let onDeviceAvailable = await onDevice.isAvailable
-        let cloudAvailable = await cloud.isAvailable
+
+        // Check if we have a configured cloud provider
+        let hasConfiguredProvider = await checkConfiguredProviderAvailable()
+        let legacyCloudAvailable = await cloud.isAvailable
+        let cloudAvailable = hasConfiguredProvider || legacyCloudAvailable
 
         logger.info("Adaptive routing - complexity: \(complexity), regulatory: \(isRegulatoryQuery), onDevice: \(onDeviceAvailable), cloud: \(cloudAvailable)")
 
         // For regulatory/domain questions, prefer cloud (larger context window, better reasoning)
         if isRegulatoryQuery && cloudAvailable {
             logger.info("Routing regulatory query to cloud for enhanced reasoning")
+            if let result = try await generateWithConfiguredProvider(prompt: prompt, options: options) {
+                return result
+            }
             do {
                 return try await cloud.generate(prompt: prompt, options: options)
             } catch {
@@ -264,6 +329,9 @@ public final class InferenceRouter: @unchecked Sendable {
 
         // For complex queries, prefer cloud if available
         if complexity == .high && cloudAvailable {
+            if let result = try await generateWithConfiguredProvider(prompt: prompt, options: options) {
+                return result
+            }
             do {
                 return try await cloud.generate(prompt: prompt, options: options)
             } catch {
@@ -280,6 +348,9 @@ public final class InferenceRouter: @unchecked Sendable {
                 return try await onDevice.generate(prompt: prompt, options: options)
             } catch {
                 if cloudAvailable {
+                    if let result = try await generateWithConfiguredProvider(prompt: prompt, options: options) {
+                        return result
+                    }
                     return try await cloud.generate(prompt: prompt, options: options)
                 }
                 throw error
@@ -288,6 +359,9 @@ public final class InferenceRouter: @unchecked Sendable {
 
         // Last resort: try cloud
         if cloudAvailable {
+            if let result = try await generateWithConfiguredProvider(prompt: prompt, options: options) {
+                return result
+            }
             return try await cloud.generate(prompt: prompt, options: options)
         }
 

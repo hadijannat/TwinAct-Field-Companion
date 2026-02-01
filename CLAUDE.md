@@ -116,7 +116,15 @@ Features/Chat/
 ├── Inference/
 │   ├── InferenceRouter.swift   # Routing strategy selection
 │   ├── OnDeviceInference.swift # Core ML model inference
-│   └── CloudInference.swift    # Cloud API client
+│   ├── CloudInference.swift    # Legacy cloud API client
+│   └── Providers/              # Multi-provider system
+│       ├── AIProviderModels.swift      # Provider types and config
+│       ├── AIProviderManager.swift     # Provider lifecycle
+│       ├── AnthropicProvider.swift     # Claude API
+│       ├── OpenAIProvider.swift        # OpenAI API
+│       ├── OpenRouterProvider.swift    # OpenRouter API
+│       ├── OllamaProvider.swift        # Local Ollama
+│       └── CustomEndpointProvider.swift # Custom endpoints
 ├── RAG/
 │   ├── DocumentIndexer.swift   # PDF text extraction & chunking
 │   ├── EmbeddingModel.swift    # Apple NLEmbedding wrapper
@@ -138,9 +146,19 @@ Features/Chat/
 
 ### Configuration
 
-**Environment Variables:**
+**Environment Variables (Legacy):**
 - `TWINACT_GENAI_URL` - Override GenAI endpoint
 - `GENAI_API_KEY` - API key for cloud inference
+
+**Multi-Provider Configuration:**
+Users can configure cloud providers via Settings > AI Assistant > Cloud Provider Settings:
+- **Anthropic (Claude)** - Claude Opus 4, Sonnet 4, Haiku 3.5
+- **OpenAI** - GPT-4o, GPT-4o Mini, O1
+- **OpenRouter** - Access to 100+ models
+- **Ollama** - Local models (no API key required)
+- **Custom** - User-defined endpoints (OpenAI-compatible or Anthropic format)
+
+API keys are stored securely in the iOS Keychain via `AIProviderKeyStorage`.
 
 **Generation Options:**
 ```swift
@@ -149,6 +167,21 @@ GenerationOptions(
     temperature: 0.7,      // 0.3 for factual, 0.7 for explanatory
     systemPrompt: "..."    // Custom system prompt
 )
+```
+
+**Provider Access:**
+```swift
+// Access provider manager via DependencyContainer
+let manager = DependencyContainer.shared.aiProviderManager
+
+// Get active provider
+let provider = manager.activeProvider()
+
+// Test connection
+let success = await manager.testConnection(for: .anthropic)
+
+// Store API key securely
+manager.storeAPIKey("sk-...", for: .anthropic)
 ```
 
 ### RAG Pipeline

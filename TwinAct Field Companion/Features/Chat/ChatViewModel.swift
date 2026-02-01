@@ -68,8 +68,8 @@ public final class ChatViewModel: ObservableObject {
         self.assetId = assetId
         self.assetName = assetName
 
-        // Use shared vector store from DependencyContainer by default
-        // This ensures knowledge documents are available for RAG
+        // Use shared services from DependencyContainer by default
+        // This ensures knowledge documents and configured AI providers are available
         let store = vectorStore ?? DependencyContainer.shared.vectorStore
         self.vectorStore = store
         self.embeddingModel = EmbeddingModel()
@@ -78,7 +78,8 @@ public final class ChatViewModel: ObservableObject {
             vectorStore: store,
             embeddingModel: embeddingModel
         )
-        self.inferenceRouter = InferenceRouter()
+        // Use shared inference router to access configured AI providers
+        self.inferenceRouter = DependencyContainer.shared.inferenceRouter
         self.routingStrategy = inferenceRouter.getStrategy()
 
         self.logger = Logger(

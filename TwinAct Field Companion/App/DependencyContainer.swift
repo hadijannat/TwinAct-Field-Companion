@@ -64,6 +64,9 @@ protocol AuthenticationManagerProtocol: Sendable {
     /// Refresh the access token using the stored refresh token.
     /// - Throws: Authentication error if refresh fails (user must sign in again).
     func refreshToken() async throws
+
+    /// Get a valid access token for API calls.
+    func getAccessToken() async throws -> String
 }
 
 /// Protocol for key-value persistence operations.
@@ -127,15 +130,15 @@ protocol SyncEngineProtocol: Sendable {
 /// Placeholder HTTP client - replace with actual implementation
 final class PlaceholderHTTPClient: HTTPClientProtocol, @unchecked Sendable {
     func request<T: Decodable>(_ endpoint: Endpoint) async throws -> T {
-        fatalError("HTTPClient not yet implemented. Replace PlaceholderHTTPClient with actual implementation.")
+        throw HTTPError.notImplemented
     }
 
     func request(_ endpoint: Endpoint) async throws -> Data {
-        fatalError("HTTPClient not yet implemented. Replace PlaceholderHTTPClient with actual implementation.")
+        throw HTTPError.notImplemented
     }
 
     func upload(_ endpoint: Endpoint, data: Data) async throws -> Data {
-        fatalError("HTTPClient not yet implemented. Replace PlaceholderHTTPClient with actual implementation.")
+        throw HTTPError.notImplemented
     }
 }
 
@@ -147,7 +150,7 @@ final class PlaceholderAuthenticationManager: AuthenticationManagerProtocol, @un
     }
 
     func signIn(username: String, password: String) async throws {
-        fatalError("AuthenticationManager not yet implemented. Replace PlaceholderAuthenticationManager with actual implementation.")
+        throw AuthenticationError.configurationError(message: "Authentication is not configured.")
     }
 
     func signOut() async {
@@ -155,7 +158,11 @@ final class PlaceholderAuthenticationManager: AuthenticationManagerProtocol, @un
     }
 
     func refreshToken() async throws {
-        fatalError("AuthenticationManager not yet implemented. Replace PlaceholderAuthenticationManager with actual implementation.")
+        throw AuthenticationError.notAuthenticated
+    }
+
+    func getAccessToken() async throws -> String {
+        throw AuthenticationError.notAuthenticated
     }
 }
 
@@ -228,6 +235,10 @@ final class AuthenticationManagerAdapter: AuthenticationManagerProtocol, @unchec
 
     func refreshToken() async throws {
         try await manager.refreshTokenIfNeeded()
+    }
+
+    func getAccessToken() async throws -> String {
+        try await manager.getAccessToken()
     }
 }
 
@@ -397,15 +408,24 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
     private var _registryService: RegistryServiceProtocol?
     private var _repositoryService: RepositoryServiceProtocol?
     private var _submodelService: SubmodelServiceProtocol?
+    private var _assetService: AssetServiceProtocol?
+
+    private func makeTokenProvider() -> TokenProvider {
+        { [weak self] in
+            guard let self else { return nil }
+            return try? await self.authenticationManager.getAccessToken()
+        }
+    }
 
     /// Discovery service - returns mock in demo mode, real service otherwise.
     var discoveryService: DiscoveryServiceProtocol {
         if let service = _discoveryService {
             return service
         }
+        let tokenProvider = makeTokenProvider()
         let service: DiscoveryServiceProtocol = AppConfiguration.isDemoMode
             ? MockDiscoveryService()
-            : DiscoveryService()
+            : DiscoveryService(tokenProvider: tokenProvider)
         _discoveryService = service
         return service
     }
@@ -415,9 +435,10 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
         if let service = _registryService {
             return service
         }
+        let tokenProvider = makeTokenProvider()
         let service: RegistryServiceProtocol = AppConfiguration.isDemoMode
             ? MockRegistryService()
-            : RegistryService()
+            : RegistryService(tokenProvider: tokenProvider)
         _registryService = service
         return service
     }
@@ -427,9 +448,10 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
         if let service = _repositoryService {
             return service
         }
+        let tokenProvider = makeTokenProvider()
         let service: RepositoryServiceProtocol = AppConfiguration.isDemoMode
             ? MockRepositoryService()
-            : RepositoryService()
+            : RepositoryService(tokenProvider: tokenProvider)
         _repositoryService = service
         return service
     }
@@ -439,10 +461,24 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
         if let service = _submodelService {
             return service
         }
+        let tokenProvider = makeTokenProvider()
         let service: SubmodelServiceProtocol = AppConfiguration.isDemoMode
             ? MockSubmodelService()
-            : SubmodelService()
+            : SubmodelService(tokenProvider: tokenProvider)
         _submodelService = service
+        return service
+    }
+
+    /// Asset service - provides asset browsing and lookup.
+    var assetService: AssetServiceProtocol {
+        if let service = _assetService {
+            return service
+        }
+        let repository = AssetRepository(
+            registryService: registryService
+        )
+        let service = AssetService(repository: repository)
+        _assetService = service
         return service
     }
 
@@ -453,9 +489,36 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
         _registryService = nil
         _repositoryService = nil
         _submodelService = nil
+        _assetService = nil
     }
 
     // MARK: - AI/Inference Services
+
+    /// Cached AI provider key storage
+    private var _aiProviderKeyStorage: AIProviderKeyStorage?
+
+    /// Secure storage for AI provider API keys
+    var aiProviderKeyStorage: AIProviderKeyStorage {
+        if let storage = _aiProviderKeyStorage {
+            return storage
+        }
+        let storage = AIProviderKeyStorage()
+        _aiProviderKeyStorage = storage
+        return storage
+    }
+
+    /// Cached AI provider manager
+    private var _aiProviderManager: AIProviderManager?
+
+    /// Manager for multi-provider AI inference configuration
+    var aiProviderManager: AIProviderManager {
+        if let manager = _aiProviderManager {
+            return manager
+        }
+        let manager = AIProviderManager(keyStorage: aiProviderKeyStorage)
+        _aiProviderManager = manager
+        return manager
+    }
 
     /// Cached inference router
     private var _inferenceRouter: InferenceRouter?
@@ -465,7 +528,7 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
         if let router = _inferenceRouter {
             return router
         }
-        let router = InferenceRouter()
+        let router = InferenceRouter(providerManager: aiProviderManager)
         _inferenceRouter = router
         return router
     }
@@ -644,6 +707,8 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
         _authenticationManager = nil
         _persistenceController = nil
         _syncEngine = nil
+        _aiProviderKeyStorage = nil
+        _aiProviderManager = nil
         _inferenceRouter = nil
         _glossaryService = nil
         _vectorStore = nil

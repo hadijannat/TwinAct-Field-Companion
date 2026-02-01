@@ -184,6 +184,68 @@ struct AppConfiguration {
         }
     }
 
+    // MARK: - Authentication Configuration
+
+    struct Auth {
+        /// OIDC issuer URL for authentication.
+        static var issuerURL: URL {
+            let raw: String
+            switch current {
+            case .development:
+                raw = ProcessInfo.processInfo.environment["TWINACT_AUTH_URL"]
+                    ?? Bundle.main.infoDictionary?["AuthIssuerURL"] as? String
+                    ?? "http://localhost:8080/auth/realms/twinact"
+            case .staging:
+                raw = ProcessInfo.processInfo.environment["TWINACT_STAGING_AUTH_URL"]
+                    ?? Bundle.main.infoDictionary?["StagingAuthIssuerURL"] as? String
+                    ?? "https://staging-auth.example.com/realms/twinact"
+            case .production:
+                raw = ProcessInfo.processInfo.environment["TWINACT_PRODUCTION_AUTH_URL"]
+                    ?? Bundle.main.infoDictionary?["ProductionAuthIssuerURL"] as? String
+                    ?? "https://auth.example.com/realms/twinact"
+            }
+
+            guard let url = URL(string: raw) else {
+                let fallback = URL(string: "https://auth.example.com/realms/twinact")!
+                configLogger.fault("Invalid auth issuer URL '\(raw, privacy: .public)'. Falling back to \(fallback.absoluteString, privacy: .public)")
+                assertionFailure("AppConfiguration.Auth: Invalid issuer URL.")
+                return fallback
+            }
+
+            return url
+        }
+
+        /// OAuth client ID.
+        static var clientId: String {
+            ProcessInfo.processInfo.environment["TWINACT_AUTH_CLIENT_ID"]
+                ?? Bundle.main.infoDictionary?["AuthClientId"] as? String
+                ?? "twinact-mobile"
+        }
+
+        /// OAuth redirect URI.
+        static var redirectURI: URL {
+            let raw = ProcessInfo.processInfo.environment["TWINACT_AUTH_REDIRECT_URI"]
+                ?? Bundle.main.infoDictionary?["AuthRedirectURI"] as? String
+                ?? "twinact://callback"
+            return URL(string: raw) ?? URL(string: "twinact://callback")!
+        }
+
+        /// Requested OAuth scopes.
+        static var scopes: [String] {
+            if let raw = ProcessInfo.processInfo.environment["TWINACT_AUTH_SCOPES"]
+                ?? Bundle.main.infoDictionary?["AuthScopes"] as? String {
+                let parsed = raw
+                    .split(separator: " ")
+                    .map { String($0) }
+                    .filter { !$0.isEmpty }
+                if !parsed.isEmpty {
+                    return parsed
+                }
+            }
+            return ["openid", "profile", "email", "aas"]
+        }
+    }
+
     // MARK: - GenAI Configuration
 
     struct GenAI {
@@ -242,6 +304,14 @@ struct AppConfiguration {
 
         /// Cache expiration for LLM-generated glossary entries (in seconds)
         static let glossaryCacheExpiration: TimeInterval = 86400 * 7  // 7 days
+
+        // MARK: - Multi-Provider Configuration
+
+        /// Default cloud provider type when none is configured
+        static let defaultProviderType: AIProviderType = .anthropic
+
+        /// Timeout for provider connection tests (in seconds)
+        static let connectionTestTimeout: TimeInterval = 10.0
     }
 
     // MARK: - Offline Sync Configuration

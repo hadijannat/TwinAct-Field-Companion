@@ -328,6 +328,9 @@ extension AASError {
 
         case .cancelled:
             return .networkError(underlying: httpError)
+
+        case .notImplemented:
+            return .serverError(statusCode: 501, message: "Not implemented")
         }
     }
 }
