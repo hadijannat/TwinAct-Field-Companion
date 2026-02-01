@@ -91,7 +91,7 @@ struct ProviderConfigurationView: View {
                 } else if provider == .custom {
                     Text("Enter the base URL of your API endpoint (e.g., https://your-server.com/api)")
                 } else if provider == .openRouter {
-                    Text("Default: https://openrouter.ai/api. Do not include /v1 in the base URL.")
+                    Text("Default: https://openrouter.ai/api. If you include /v1, the app will use it as-is.")
                 }
             }
 
@@ -411,14 +411,11 @@ struct ProviderConfigurationView: View {
         }
 
         var path = components.path
-        if path.isEmpty || path == "/" {
-            path = "/api"
-        }
 
-        if path.hasSuffix("/v1/") {
-            path = String(path.dropLast(4))
-        } else if path.hasSuffix("/v1") {
-            path = String(path.dropLast(3))
+        if path.isEmpty || path == "/" {
+            if let host = components.host, host.contains("openrouter.ai") {
+                path = "/api"
+            }
         }
 
         if path.hasSuffix("/") && path != "/" {

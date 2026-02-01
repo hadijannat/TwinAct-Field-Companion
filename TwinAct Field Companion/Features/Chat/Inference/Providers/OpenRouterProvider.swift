@@ -130,10 +130,11 @@ public actor OpenRouterProvider: CloudAIProvider {
         }
 
         let headers = buildHeaders(apiKey: apiKey)
+        let prefix = apiVersionPathPrefix
 
         // Test with models endpoint
         let endpoint = Endpoint(
-            path: "/v1/models",
+            path: "\(prefix)/models",
             method: .get,
             headers: headers,
             timeout: 10.0
@@ -158,9 +159,10 @@ public actor OpenRouterProvider: CloudAIProvider {
         }
 
         let headers = buildHeaders(apiKey: apiKey)
+        let prefix = apiVersionPathPrefix
 
         let endpoint = Endpoint(
-            path: "/v1/models",
+            path: "\(prefix)/models",
             method: .get,
             headers: headers,
             timeout: 30.0
@@ -212,8 +214,9 @@ public actor OpenRouterProvider: CloudAIProvider {
             stop: options.stopSequences
         )
 
+        let prefix = apiVersionPathPrefix
         let endpoint = try Endpoint.post(
-            "/v1/chat/completions",
+            "\(prefix)/chat/completions",
             body: requestBody,
             headers: headers,
             timeout: configuration.timeout
@@ -246,6 +249,16 @@ public actor OpenRouterProvider: CloudAIProvider {
             "HTTP-Referer": "https://twinact.example.com",
             "X-Title": appName
         ]
+    }
+
+    private var apiVersionPathPrefix: String {
+        let pathComponents = configuration.baseURL.path
+            .split(separator: "/")
+            .map { $0.lowercased() }
+        if pathComponents.contains("v1") {
+            return ""
+        }
+        return "/v1"
     }
 }
 

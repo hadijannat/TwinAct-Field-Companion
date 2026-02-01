@@ -282,14 +282,10 @@ public final class AIProviderManager: ObservableObject {
 
         var path = components.path
 
-        if path.hasSuffix("/v1/") {
-            path = String(path.dropLast(4))
-        } else if path.hasSuffix("/v1") {
-            path = String(path.dropLast(3))
-        }
-
         if path.isEmpty || path == "/" {
-            path = "/api"
+            if let host = components.host, host.contains("openrouter.ai") {
+                path = "/api"
+            }
         }
 
         if let host = components.host, host.contains("openrouter.ai") {
