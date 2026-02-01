@@ -259,7 +259,8 @@ public struct AASXFileImporterModifier: ViewModifier {
         content
             .fileImporter(
                 isPresented: $isPresented,
-                allowedContentTypes: [.aasx, .zip],
+                // Include .item and .data to allow selecting .aasx files which iOS doesn't recognize natively
+                allowedContentTypes: [.aasx, .zip, .archive, .item],
                 allowsMultipleSelection: false
             ) { result in
                 switch result {
