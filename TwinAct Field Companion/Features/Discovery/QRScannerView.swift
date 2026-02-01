@@ -36,6 +36,9 @@ public struct QRScannerView: View {
     @State private var showPermissionAlert = false
     @State private var showErrorAlert = false
     @State private var showManualEntry = false
+#if DEBUG
+    @State private var didSimulateDetection = false
+#endif
 
     // MARK: - Initialization
 
@@ -97,12 +100,54 @@ public struct QRScannerView: View {
         .ignoresSafeArea()
         .statusBar(hidden: true)
         .onAppear {
-            viewModel.startScanning()
+            if shouldUseSimulatedScanner {
+                viewModel.state = .scanning
+                viewModel.isScanning = true
+            } else {
+                viewModel.startScanning()
+            }
         }
         .onDisappear {
             viewModel.stopScanning()
         }
+#if DEBUG
+        .task {
+            guard shouldUseSimulatedScanner, !didSimulateDetection else {
+                return
+            }
+            didSimulateDetection = true
+
+            let delaySeconds = simulatedScanDelaySeconds
+            if delaySeconds > 0 {
+                let delayNanos = UInt64(delaySeconds * 1_000_000_000)
+                try? await Task.sleep(nanoseconds: delayNanos)
+            }
+
+            let rawCode = simulatedQRCode
+                ?? "https://id.twinact.example/asset/QR/SP500-2025-0042"
+            let link = IdentificationLinkParser.parse(rawCode) ?? AssetIdentificationLink(
+                originalURL: URL(string: rawCode),
+                originalString: rawCode,
+                linkType: .manufacturerLink,
+                manufacturer: "PumpTech",
+                productFamily: "SP-500",
+                serialNumber: DemoData.serialNumber,
+                globalAssetId: DemoData.globalAssetId,
+                confidence: 0.9
+            )
+
+            await MainActor.run {
+                viewModel.detectedCode = rawCode
+                viewModel.parsedAssetLink = link
+                viewModel.state = .detected(rawCode)
+                viewModel.isScanning = false
+            }
+
+            handleDetection(link: link)
+        }
+#endif
         .onChange(of: viewModel.parsedAssetLink) { _, link in
+            guard !shouldUseSimulatedScanner else { return }
             handleDetection(link: link)
         }
         .onChange(of: viewModel.detectedCode) { _, code in
@@ -118,6 +163,34 @@ public struct QRScannerView: View {
             }
         }
     }
+
+#if DEBUG
+    private var shouldUseSimulatedScanner: Bool {
+        let env = ProcessInfo.processInfo.environment
+        if env["DEMO_GIF"] == "1" {
+            return true
+        }
+        return AppConfiguration.isUITest
+    }
+
+    private var simulatedQRCode: String? {
+        AppConfiguration.simulatedQRCode
+    }
+
+    private var simulatedScanDelaySeconds: Double {
+        let env = ProcessInfo.processInfo.environment
+        if let raw = env["SIMULATED_QR_DELAY_SECONDS"],
+           let value = Double(raw) {
+            return max(0, value)
+        }
+        if env["DEMO_GIF"] == "1" {
+            return 0.9
+        }
+        return AppConfiguration.isUITest ? 0.4 : 0.0
+    }
+#else
+    private var shouldUseSimulatedScanner: Bool { false }
+#endif
 
     // MARK: - Camera Preview
 

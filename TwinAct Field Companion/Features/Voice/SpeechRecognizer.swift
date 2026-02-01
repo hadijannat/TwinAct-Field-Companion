@@ -75,7 +75,7 @@ public enum SpeechError: Error, LocalizedError {
 /// }
 /// ```
 @MainActor
-public final class SpeechRecognizer: ObservableObject {
+public final class SpeechRecognizer: ObservableObject, @unchecked Sendable {
 
     // MARK: - Published Properties
 
@@ -166,9 +166,15 @@ public final class SpeechRecognizer: ObservableObject {
     /// Update the authorization status based on current permissions
     private func updateAuthorizationStatus() {
         let speechStatus = SFSpeechRecognizer.authorizationStatus()
-        let micStatus = AVAudioSession.sharedInstance().recordPermission
+        let micAuthorized: Bool
 
-        isAuthorized = (speechStatus == .authorized && micStatus == .granted)
+        if #available(iOS 17.0, *) {
+            micAuthorized = AVAudioApplication.shared.recordPermission == .granted
+        } else {
+            micAuthorized = AVAudioSession.sharedInstance().recordPermission == .granted
+        }
+
+        isAuthorized = (speechStatus == .authorized && micAuthorized)
     }
 
     // MARK: - Recognition Control
@@ -352,12 +358,10 @@ public final class SpeechRecognizer: ObservableObject {
     /// Reset the silence detection timer
     private func resetSilenceTimer() {
         silenceTimer?.invalidate()
-        silenceTimer = Timer.scheduledTimer(withTimeInterval: silenceTimeout, repeats: false) { [weak self] _ in
-            Task { @MainActor in
-                // Stop if we have some speech and silence is detected
-                if let self = self, !self.transcript.isEmpty {
-                    self.stopListening()
-                }
+        silenceTimer = Timer.scheduledTimer(withTimeInterval: silenceTimeout, repeats: false) { _ in
+            Task { @MainActor [weak self] in
+                guard let strongSelf = self, !strongSelf.transcript.isEmpty else { return }
+                strongSelf.stopListening()
             }
         }
     }

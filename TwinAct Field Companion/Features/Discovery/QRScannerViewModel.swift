@@ -155,12 +155,6 @@ public final class QRScannerViewModel: NSObject, ObservableObject {
         checkAuthorizationStatus()
     }
 
-    deinit {
-        Task { @MainActor [weak self] in
-            self?.stopScanning()
-        }
-    }
-
     // MARK: - Public API
 
     /// Start the QR code scanner.
@@ -191,8 +185,9 @@ public final class QRScannerViewModel: NSObject, ObservableObject {
     public func stopScanning() {
         logger.debug("Stopping scanner")
 
-        sessionQueue.async { [weak self] in
-            self?.captureSession.stopRunning()
+        let session = captureSession
+        sessionQueue.async {
+            session.stopRunning()
         }
 
         isScanning = false
@@ -518,7 +513,11 @@ extension QRScannerViewModel {
     /// Create a preview instance with mock detected code.
     static func preview(withCode code: String? = nil) -> QRScannerViewModel {
         let viewModel = QRScannerViewModel()
-        viewModel.state = code != nil ? .detected(code!) : .scanning
+        if let code {
+            viewModel.state = .detected(code)
+        } else {
+            viewModel.state = .scanning
+        }
         viewModel.isScanning = code == nil
         viewModel.detectedCode = code
         if let code = code {

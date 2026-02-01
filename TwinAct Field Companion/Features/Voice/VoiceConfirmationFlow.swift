@@ -73,7 +73,7 @@ public struct VoiceCommandResult: Sendable {
 /// await flow.confirm()
 /// ```
 @MainActor
-public final class VoiceConfirmationFlow: ObservableObject {
+public final class VoiceConfirmationFlow: ObservableObject, @unchecked Sendable {
 
     // MARK: - Published Properties
 
@@ -387,11 +387,12 @@ public final class VoiceConfirmationFlow: ObservableObject {
 
     private func startConfirmationTimeout() {
         timeRemaining = timeoutDuration
+        let timeout = timeoutDuration
 
         // Start countdown timer
-        countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                guard let self = self else { return }
+        countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
                 self.timeRemaining -= 1
 
                 if self.timeRemaining <= 0 {
@@ -401,10 +402,11 @@ public final class VoiceConfirmationFlow: ObservableObject {
         }
 
         // Also set up a safety task
-        confirmationTimeout = Task {
-            try? await Task.sleep(for: .seconds(timeoutDuration))
+        confirmationTimeout = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(timeout))
 
-            await MainActor.run {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
                 if case .awaitingConfirmation = self.state {
                     self.handleTimeout()
                 }

@@ -386,49 +386,46 @@ extension ARSensorOverlay {
 
         // Value text
         let formattedValue = String(format: "%.1f", value)
-        if let valueMesh = try? MeshResource.generateText(
+        let valueMesh = MeshResource.generateText(
             formattedValue,
             extrusionDepth: 0.001,
             font: .systemFont(ofSize: 0.015, weight: .bold),
             containerFrame: .zero,
             alignment: .center,
             lineBreakMode: .byTruncatingTail
-        ) {
-            let valueMaterial = SimpleMaterial(color: progressColor, isMetallic: false)
-            let valueEntity = ModelEntity(mesh: valueMesh, materials: [valueMaterial])
-            valueEntity.position = SIMD3<Float>(-0.02, 0.005, 0.002)
-            container.addChild(valueEntity)
-        }
+        )
+        let valueMaterial = SimpleMaterial(color: progressColor, isMetallic: false)
+        let valueEntity = ModelEntity(mesh: valueMesh, materials: [valueMaterial])
+        valueEntity.position = SIMD3<Float>(-0.02, 0.005, 0.002)
+        container.addChild(valueEntity)
 
         // Unit text
-        if let unitMesh = try? MeshResource.generateText(
+        let unitMesh = MeshResource.generateText(
             unit,
             extrusionDepth: 0.0005,
             font: .systemFont(ofSize: 0.006, weight: .regular),
             containerFrame: .zero,
             alignment: .center,
             lineBreakMode: .byTruncatingTail
-        ) {
-            let unitMaterial = SimpleMaterial(color: .gray, isMetallic: false)
-            let unitEntity = ModelEntity(mesh: unitMesh, materials: [unitMaterial])
-            unitEntity.position = SIMD3<Float>(-0.01, -0.005, 0.002)
-            container.addChild(unitEntity)
-        }
+        )
+        let unitMaterial = SimpleMaterial(color: .gray, isMetallic: false)
+        let unitEntity = ModelEntity(mesh: unitMesh, materials: [unitMaterial])
+        unitEntity.position = SIMD3<Float>(-0.01, -0.005, 0.002)
+        container.addChild(unitEntity)
 
         // Name label
-        if let nameMesh = try? MeshResource.generateText(
+        let nameMesh = MeshResource.generateText(
             name,
             extrusionDepth: 0.0005,
             font: .systemFont(ofSize: 0.005, weight: .medium),
             containerFrame: .zero,
             alignment: .center,
             lineBreakMode: .byTruncatingTail
-        ) {
-            let nameMaterial = SimpleMaterial(color: .darkGray, isMetallic: false)
-            let nameEntity = ModelEntity(mesh: nameMesh, materials: [nameMaterial])
-            nameEntity.position = SIMD3<Float>(-0.02, 0.028, 0.002)
-            container.addChild(nameEntity)
-        }
+        )
+        let nameMaterial = SimpleMaterial(color: .darkGray, isMetallic: false)
+        let nameEntity = ModelEntity(mesh: nameMesh, materials: [nameMaterial])
+        nameEntity.position = SIMD3<Float>(-0.02, 0.028, 0.002)
+        container.addChild(nameEntity)
 
         addBillboardBehavior(to: container)
 

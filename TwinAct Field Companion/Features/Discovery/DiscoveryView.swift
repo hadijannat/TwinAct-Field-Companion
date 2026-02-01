@@ -21,6 +21,9 @@ public struct DiscoveryView: View {
     @State private var searchText = ""
     @State private var navigateToPassport = false
     @EnvironmentObject private var appState: AppState
+#if DEBUG
+    @State private var didTriggerDemoScan = false
+#endif
 
     // MARK: - Body
 
@@ -47,7 +50,7 @@ public struct DiscoveryView: View {
                         await viewModel.processIdentificationLink(link)
                     }
                 }
-                .autoDismiss(true, delay: 0.5)
+                .autoDismiss(true, delay: autoDismissDelay)
             }
             .sheet(isPresented: $showManualSearch) {
                 ManualSearchSheet(
@@ -74,7 +77,29 @@ public struct DiscoveryView: View {
                     break
                 }
             }
+#if DEBUG
+            .onAppear {
+                guard !didTriggerDemoScan,
+                      ProcessInfo.processInfo.environment["DEMO_GIF"] == "1" else {
+                    return
+                }
+                didTriggerDemoScan = true
+                showScanner = true
+            }
+#endif
         }
+    }
+
+private var autoDismissDelay: TimeInterval {
+#if DEBUG
+        if AppConfiguration.isUITest {
+            return 0.2
+        }
+        if ProcessInfo.processInfo.environment["DEMO_GIF"] == "1" {
+            return 2.0
+        }
+#endif
+        return 0.5
     }
 
     // MARK: - Main Content
@@ -137,7 +162,7 @@ public struct DiscoveryView: View {
 
             // Scan button
             Button {
-                showScanner = true
+                handleScanTap()
             } label: {
                 HStack {
                     Image(systemName: "camera.fill")
@@ -150,6 +175,7 @@ public struct DiscoveryView: View {
                 .background(Color.blue)
                 .cornerRadius(12)
             }
+            .accessibilityIdentifier("scan.button")
             .padding(.horizontal)
         }
         .padding(.vertical, 20)
@@ -315,11 +341,25 @@ public struct DiscoveryView: View {
 
     private var scanButton: some View {
         Button {
-            showScanner = true
+            handleScanTap()
         } label: {
             Image(systemName: "qrcode.viewfinder")
                 .font(.title2)
         }
+    }
+
+    private func handleScanTap() {
+#if DEBUG
+        let env = ProcessInfo.processInfo.environment
+        if AppConfiguration.isUITest
+            || env["UITEST_MODE"] == "1"
+            || env["SIMULATED_QR"] != nil {
+            appState.setSelectedAsset(DemoData.asset)
+            navigateToPassport = true
+            return
+        }
+#endif
+        showScanner = true
     }
 
     // MARK: - Actions

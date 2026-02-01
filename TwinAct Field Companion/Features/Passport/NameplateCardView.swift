@@ -229,8 +229,13 @@ public struct NameplateCardView: View {
                     Image(systemName: "phone.fill")
                         .font(.caption2)
                         .foregroundColor(.green)
-                    Link(phone, destination: URL(string: "tel:\(phone)")!)
-                        .font(.caption)
+                    if let url = URL(string: "tel:\(phone)") {
+                        Link(phone, destination: url)
+                            .font(.caption)
+                    } else {
+                        Text(phone)
+                            .font(.caption)
+                    }
                 }
             }
 
@@ -239,8 +244,13 @@ public struct NameplateCardView: View {
                     Image(systemName: "envelope.fill")
                         .font(.caption2)
                         .foregroundColor(.blue)
-                    Link(email, destination: URL(string: "mailto:\(email)")!)
-                        .font(.caption)
+                    if let url = URL(string: "mailto:\(email)") {
+                        Link(email, destination: url)
+                            .font(.caption)
+                    } else {
+                        Text(email)
+                            .font(.caption)
+                    }
                 }
             }
         }

@@ -11,20 +11,9 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    @StateObject private var appState = AppState()
-    @StateObject private var syncEngine: SyncEngine
+    @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var syncEngine: SyncEngine
     @State private var showSettings = false
-
-    init() {
-        let persistence = PersistenceService()
-        let repository = RepositoryService()
-        _syncEngine = StateObject(
-            wrappedValue: SyncEngine(
-                persistence: persistence,
-                repositoryService: repository
-            )
-        )
-    }
 
     var body: some View {
         Group {
@@ -118,6 +107,11 @@ private struct SettingsTabView: View {
 
 #Preview("Main App") {
     ContentView()
+        .environmentObject(AppState())
+        .environmentObject(SyncEngine(
+            persistence: PersistenceService(controller: .preview),
+            repositoryService: RepositoryService()
+        ))
 }
 
 #Preview("With Onboarding") {

@@ -259,14 +259,14 @@ public struct IdentificationLinkParser {
             return nil
         }
 
-        // Try URL-based parsing first
-        if let url = URL(string: trimmed), url.scheme != nil {
-            return parseURL(url, originalString: trimmed)
-        }
-
-        // Try URN parsing
+        // Try URN parsing first so we don't treat URNs as generic URLs.
         if trimmed.lowercased().hasPrefix("urn:") {
             return parseURN(trimmed)
+        }
+
+        // Try URL-based parsing
+        if let url = URL(string: trimmed), url.scheme != nil {
+            return parseURL(url, originalString: trimmed)
         }
 
         // Try to detect if it's a known identifier format

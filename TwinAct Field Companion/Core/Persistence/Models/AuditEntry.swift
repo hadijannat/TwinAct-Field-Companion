@@ -67,7 +67,6 @@ public final class AuditEntry {
     public var timestamp: Date
 
     /// Type of action being audited
-    @Attribute(.transformable(by: AuditActionTypeTransformer.self))
     public var actionType: AuditActionType
 
     /// Entity type involved (e.g., "ServiceRequest", "Document")
@@ -175,36 +174,5 @@ public final class AuditEntry {
         self.userId = userId
         self.deviceId = deviceId
         self.sessionId = sessionId
-    }
-}
-
-// MARK: - Value Transformer
-
-/// Transformer for AuditActionType to store in SwiftData
-@objc(AuditActionTypeTransformer)
-final class AuditActionTypeTransformer: ValueTransformer {
-    override class func transformedValueClass() -> AnyClass {
-        NSString.self
-    }
-
-    override class func allowsReverseTransformation() -> Bool {
-        true
-    }
-
-    override func transformedValue(_ value: Any?) -> Any? {
-        guard let actionType = value as? AuditActionType else { return nil }
-        return actionType.rawValue as NSString
-    }
-
-    override func reverseTransformedValue(_ value: Any?) -> Any? {
-        guard let rawValue = value as? String else { return nil }
-        return AuditActionType(rawValue: rawValue)
-    }
-
-    static func register() {
-        ValueTransformer.setValueTransformer(
-            AuditActionTypeTransformer(),
-            forName: NSValueTransformerName("AuditActionTypeTransformer")
-        )
     }
 }

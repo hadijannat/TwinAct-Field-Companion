@@ -23,6 +23,7 @@ final class TwinActUITests: XCTestCase {
 
         // Reset app state for consistent test runs
         app.launchArguments = ["--uitesting"]
+        app.launchEnvironment["UITEST_MODE"] = "1"
 
         // Reset UserDefaults to get fresh state
         app.launchArguments.append(contentsOf: ["-hasCompletedOnboarding", "NO"])
@@ -502,6 +503,36 @@ extension TwinActUITests {
         XCTAssertTrue(app.tabBars.buttons["Passport"].isHittable, "Passport tab should be hittable")
         XCTAssertTrue(app.tabBars.buttons["Technician"].isHittable, "Technician tab should be hittable")
         XCTAssertTrue(app.tabBars.buttons["Settings"].isHittable, "Settings tab should be hittable")
+    }
+}
+
+// MARK: - End-to-End Flow Tests
+
+extension TwinActUITests {
+
+    /// Tests scan -> passport end-to-end flow using simulated QR input.
+    func testScanToPassportFlow() throws {
+        app.launchArguments = ["--uitesting"]
+        app.launchArguments.append(contentsOf: ["-hasCompletedOnboarding", "YES"])
+        app.launchArguments.append(contentsOf: ["-com.twinact.fieldcompanion.demoModeEnabled", "YES"])
+        app.launchEnvironment["SIMULATED_QR"] = "https://id.twinact.example/asset/QR/SP500-2025-0042"
+        app.launchEnvironment["SIMULATED_QR_DELAY_SECONDS"] = "0.2"
+        app.launch()
+
+        let discoverTab = app.tabBars.buttons["Discover"]
+        if discoverTab.exists {
+            discoverTab.tap()
+        }
+
+        let scanButton = app.buttons["scan.button"]
+        XCTAssertTrue(waitForElement(scanButton), "Scan button should be visible")
+        scanButton.tap()
+
+        let passportScrollView = app.scrollViews["passport.view"]
+        let passportOther = app.otherElements["passport.view"]
+        let didAppear = waitForElement(passportScrollView, timeout: 10)
+            || waitForElement(passportOther, timeout: 2)
+        XCTAssertTrue(didAppear, "Passport view should appear after simulated scan")
     }
 }
 

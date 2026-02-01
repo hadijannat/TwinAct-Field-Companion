@@ -105,6 +105,7 @@ public struct PassportView: View {
                 loadingOverlay
             }
         }
+        .accessibilityIdentifier("passport.view")
         .navigationTitle("Asset Passport")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

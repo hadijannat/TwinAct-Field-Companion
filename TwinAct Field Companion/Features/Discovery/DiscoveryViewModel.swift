@@ -158,6 +158,14 @@ public final class DiscoveryViewModel: ObservableObject {
 
     /// Initialize with default services.
     public convenience init(tokenProvider: TokenProvider? = nil) {
+        if AppConfiguration.isDemoMode {
+            self.init(
+                discoveryService: MockDiscoveryService(),
+                registryService: MockRegistryService(),
+                submodelService: MockSubmodelService()
+            )
+            return
+        }
         if let tokenProvider = tokenProvider {
             self.init(
                 discoveryService: DiscoveryService(tokenProvider: tokenProvider),

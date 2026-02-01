@@ -383,6 +383,10 @@ struct BreakdownBar: View {
     let color: Color
 
     @State private var animatedPercentage: Double = 0
+    private var safePercentage: Double {
+        guard percentage.isFinite else { return 0 }
+        return min(max(percentage, 0), 100)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -399,6 +403,8 @@ struct BreakdownBar: View {
             }
 
             GeometryReader { geometry in
+                let clampedWidth = max(0, geometry.size.width)
+                let progress = max(0, min(animatedPercentage, 100)) / 100
                 ZStack(alignment: .leading) {
                     // Background
                     RoundedRectangle(cornerRadius: 4)
@@ -407,14 +413,14 @@ struct BreakdownBar: View {
                     // Progress
                     RoundedRectangle(cornerRadius: 4)
                         .fill(color)
-                        .frame(width: geometry.size.width * (animatedPercentage / 100))
+                        .frame(width: clampedWidth * progress)
                 }
             }
             .frame(height: 8)
         }
         .onAppear {
             withAnimation(.easeOut(duration: 0.6)) {
-                animatedPercentage = percentage
+                animatedPercentage = safePercentage
             }
         }
     }

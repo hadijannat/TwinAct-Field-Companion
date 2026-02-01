@@ -43,7 +43,6 @@ public final class OutboxOperation {
     public var id: UUID
 
     /// Type of operation (create, update, delete)
-    @Attribute(.transformable(by: OutboxOperationTypeTransformer.self))
     public var operationType: OutboxOperationType
 
     /// Entity type being operated on (e.g., "ServiceRequest")
@@ -71,7 +70,6 @@ public final class OutboxOperation {
     public var errorMessage: String?
 
     /// Current status of the operation
-    @Attribute(.transformable(by: OutboxStatusTransformer.self))
     public var status: OutboxStatus
 
     /// Priority for retry ordering (higher = more important)
@@ -138,65 +136,5 @@ public final class OutboxOperation {
     /// Reset to pending for retry
     public func resetForRetry() {
         status = .pending
-    }
-}
-
-// MARK: - Value Transformers
-
-/// Transformer for OutboxOperationType to store in SwiftData
-@objc(OutboxOperationTypeTransformer)
-final class OutboxOperationTypeTransformer: ValueTransformer {
-    override class func transformedValueClass() -> AnyClass {
-        NSString.self
-    }
-
-    override class func allowsReverseTransformation() -> Bool {
-        true
-    }
-
-    override func transformedValue(_ value: Any?) -> Any? {
-        guard let operationType = value as? OutboxOperationType else { return nil }
-        return operationType.rawValue as NSString
-    }
-
-    override func reverseTransformedValue(_ value: Any?) -> Any? {
-        guard let rawValue = value as? String else { return nil }
-        return OutboxOperationType(rawValue: rawValue)
-    }
-
-    static func register() {
-        ValueTransformer.setValueTransformer(
-            OutboxOperationTypeTransformer(),
-            forName: NSValueTransformerName("OutboxOperationTypeTransformer")
-        )
-    }
-}
-
-/// Transformer for OutboxStatus to store in SwiftData
-@objc(OutboxStatusTransformer)
-final class OutboxStatusTransformer: ValueTransformer {
-    override class func transformedValueClass() -> AnyClass {
-        NSString.self
-    }
-
-    override class func allowsReverseTransformation() -> Bool {
-        true
-    }
-
-    override func transformedValue(_ value: Any?) -> Any? {
-        guard let status = value as? OutboxStatus else { return nil }
-        return status.rawValue as NSString
-    }
-
-    override func reverseTransformedValue(_ value: Any?) -> Any? {
-        guard let rawValue = value as? String else { return nil }
-        return OutboxStatus(rawValue: rawValue)
-    }
-
-    static func register() {
-        ValueTransformer.setValueTransformer(
-            OutboxStatusTransformer(),
-            forName: NSValueTransformerName("OutboxStatusTransformer")
-        )
     }
 }
