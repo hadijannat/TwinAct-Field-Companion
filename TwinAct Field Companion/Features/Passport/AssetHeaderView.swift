@@ -55,7 +55,7 @@ public struct AssetHeaderView: View {
 
     private var productImage: some View {
         Group {
-            if let imageURL = asset?.thumbnailURL {
+            if let imageURL = asset?.resolvedThumbnailURL {
                 AsyncImage(url: imageURL) { phase in
                     switch phase {
                     case .empty:
@@ -218,8 +218,9 @@ public struct LargeAssetHeaderView: View {
 
     public var body: some View {
         VStack(spacing: 20) {
-            // Large product image
-            if let imageURL = nameplate?.productImage ?? asset?.thumbnailURL {
+            // Large product image - prefer local AASX content
+            if let asset = asset,
+               let imageURL = nameplate?.resolvedProductImage(for: asset.id) ?? asset.resolvedThumbnailURL {
                 AsyncImage(url: imageURL) { phase in
                     switch phase {
                     case .success(let image):
@@ -246,8 +247,9 @@ public struct LargeAssetHeaderView: View {
 
                 if let manufacturer = nameplate?.manufacturerName ?? asset?.manufacturer {
                     HStack(spacing: 8) {
-                        // Manufacturer logo
-                        if let logoURL = nameplate?.manufacturerLogo {
+                        // Manufacturer logo - prefer local AASX content
+                        if let asset = asset,
+                           let logoURL = nameplate?.resolvedManufacturerLogo(for: asset.id) {
                             AsyncImage(url: logoURL) { image in
                                 image
                                     .resizable()
