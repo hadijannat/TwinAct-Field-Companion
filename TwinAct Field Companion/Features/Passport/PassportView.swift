@@ -153,6 +153,14 @@ public struct PassportView: View {
                     } label: {
                         Label("Import from URL", systemImage: "link")
                     }
+
+                    Button {
+                        Task {
+                            await scanDocumentsForAASX()
+                        }
+                    } label: {
+                        Label("Scan Documents Folder", systemImage: "doc.viewfinder")
+                    }
                 } label: {
                     Image(systemName: "square.and.arrow.down")
                 }
@@ -362,6 +370,36 @@ public struct PassportView: View {
         .frame(maxWidth: .infinity)
         .background(Color(.secondarySystemBackground))
         .cornerRadius(12)
+    }
+
+    // MARK: - Documents Folder Scanning
+
+    /// Scan the app's Documents folder for AASX files and import them
+    private func scanDocumentsForAASX() async {
+        let fileManager = FileManager.default
+        guard let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            print("Could not access Documents directory")
+            return
+        }
+
+        do {
+            let contents = try fileManager.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil)
+            let aasxFiles = contents.filter { $0.pathExtension.lowercased() == "aasx" }
+
+            if aasxFiles.isEmpty {
+                print("No AASX files found in Documents folder")
+                return
+            }
+
+            print("Found \(aasxFiles.count) AASX file(s) in Documents folder")
+
+            for fileURL in aasxFiles {
+                print("Importing: \(fileURL.lastPathComponent)")
+                await aasxImportManager.importFromFile(fileURL)
+            }
+        } catch {
+            print("Error scanning Documents folder: \(error.localizedDescription)")
+        }
     }
 }
 
