@@ -36,9 +36,7 @@ public struct QRScannerView: View {
     @State private var showPermissionAlert = false
     @State private var showErrorAlert = false
     @State private var showManualEntry = false
-#if DEBUG
     @State private var didSimulateDetection = false
-#endif
 
     // MARK: - Initialization
 
@@ -110,8 +108,8 @@ public struct QRScannerView: View {
         .onDisappear {
             viewModel.stopScanning()
         }
-#if DEBUG
         .task {
+            // Only run simulated scan when appropriate (demo mode on simulator, UI tests, etc.)
             guard shouldUseSimulatedScanner, !didSimulateDetection else {
                 return
             }
@@ -145,7 +143,6 @@ public struct QRScannerView: View {
 
             handleDetection(link: link)
         }
-#endif
         .onChange(of: viewModel.parsedAssetLink) { _, link in
             guard !shouldUseSimulatedScanner else { return }
             handleDetection(link: link)
@@ -164,20 +161,45 @@ public struct QRScannerView: View {
         }
     }
 
-#if DEBUG
+    /// Determines if simulated scanner should be used.
+    /// Enabled in: UI tests, demo GIF recording, demo mode (for simulator), or when camera unavailable.
     private var shouldUseSimulatedScanner: Bool {
+        #if DEBUG
         let env = ProcessInfo.processInfo.environment
         if env["DEMO_GIF"] == "1" {
             return true
         }
-        return AppConfiguration.isUITest
+        if AppConfiguration.isUITest {
+            return true
+        }
+        #endif
+
+        // Use simulated scanner in demo mode when on simulator (no camera)
+        #if targetEnvironment(simulator)
+        if AppConfiguration.isDemoMode {
+            return true
+        }
+        #endif
+
+        return false
     }
 
     private var simulatedQRCode: String? {
-        AppConfiguration.simulatedQRCode
+        // Use configured QR code if available, otherwise use demo asset
+        if let configured = AppConfiguration.simulatedQRCode {
+            return configured
+        }
+
+        // In demo mode, use the demo asset's identification link
+        if AppConfiguration.isDemoMode {
+            return "https://id.twinact.example/asset/QR/\(DemoData.serialNumber)"
+        }
+
+        return nil
     }
 
     private var simulatedScanDelaySeconds: Double {
+        #if DEBUG
         let env = ProcessInfo.processInfo.environment
         if let raw = env["SIMULATED_QR_DELAY_SECONDS"],
            let value = Double(raw) {
@@ -186,11 +208,18 @@ public struct QRScannerView: View {
         if env["DEMO_GIF"] == "1" {
             return 0.9
         }
-        return AppConfiguration.isUITest ? 0.4 : 0.0
+        if AppConfiguration.isUITest {
+            return 0.4
+        }
+        #endif
+
+        // Demo mode uses a natural-feeling delay
+        if AppConfiguration.isDemoMode {
+            return 1.2
+        }
+
+        return 0.0
     }
-#else
-    private var shouldUseSimulatedScanner: Bool { false }
-#endif
 
     // MARK: - Camera Preview
 

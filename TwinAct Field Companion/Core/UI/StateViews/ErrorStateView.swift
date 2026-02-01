@@ -98,6 +98,10 @@ public struct ErrorStateView: View {
     let retryAction: (() -> Void)?
     let secondaryAction: (() -> Void)?
     let secondaryActionTitle: String?
+    let showDemoModeFallback: Bool
+    let demoModeAction: (() -> Void)?
+
+    @State private var isRetrying = false
 
     // MARK: - Initialization
 
@@ -109,13 +113,17 @@ public struct ErrorStateView: View {
     ///   - retryAction: Optional retry action
     ///   - secondaryAction: Optional secondary action
     ///   - secondaryActionTitle: Title for secondary action button
+    ///   - showDemoModeFallback: Whether to show "Try Demo Mode" option for network errors
+    ///   - demoModeAction: Action to enable demo mode
     public init(
         errorType: AppErrorType,
         title: String? = nil,
         message: String? = nil,
         retryAction: (() -> Void)? = nil,
         secondaryAction: (() -> Void)? = nil,
-        secondaryActionTitle: String? = nil
+        secondaryActionTitle: String? = nil,
+        showDemoModeFallback: Bool = false,
+        demoModeAction: (() -> Void)? = nil
     ) {
         self.errorType = errorType
         self.title = title
@@ -123,6 +131,8 @@ public struct ErrorStateView: View {
         self.retryAction = retryAction
         self.secondaryAction = secondaryAction
         self.secondaryActionTitle = secondaryActionTitle
+        self.showDemoModeFallback = showDemoModeFallback
+        self.demoModeAction = demoModeAction
     }
 
     // MARK: - Body
@@ -155,30 +165,78 @@ public struct ErrorStateView: View {
             }
 
             // Actions
-            if retryAction != nil || secondaryAction != nil {
-                VStack(spacing: 12) {
-                    if let retryAction = retryAction {
-                        Button(action: retryAction) {
-                            HStack {
+            VStack(spacing: 12) {
+                if let retryAction = retryAction {
+                    Button {
+                        isRetrying = true
+                        retryAction()
+                        // Reset after a delay to allow UI update
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            isRetrying = false
+                        }
+                    } label: {
+                        HStack {
+                            if isRetrying {
+                                ProgressView()
+                                    .progressViewStyle(.circular)
+                                    .controlSize(.small)
+                            } else {
                                 Image(systemName: "arrow.clockwise")
-                                Text("Try Again")
                             }
-                            .frame(minWidth: 120)
+                            Text(isRetrying ? "Retrying..." : "Try Again")
                         }
-                        .buttonStyle(.borderedProminent)
+                        .frame(minWidth: 120)
                     }
-
-                    if let secondaryAction = secondaryAction {
-                        Button(action: secondaryAction) {
-                            Text(secondaryActionTitle ?? "Cancel")
-                        }
-                        .buttonStyle(.bordered)
-                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(isRetrying)
                 }
+
+                // Demo mode fallback for network errors
+                if shouldShowDemoFallback, let demoAction = demoModeAction {
+                    Button {
+                        demoAction()
+                    } label: {
+                        HStack {
+                            Image(systemName: "play.circle")
+                            Text("Try Demo Mode")
+                        }
+                    }
+                    .buttonStyle(.bordered)
+                }
+
+                if let secondaryAction = secondaryAction {
+                    Button(action: secondaryAction) {
+                        Text(secondaryActionTitle ?? "Cancel")
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+
+            // Help text for network errors
+            if shouldShowDemoFallback {
+                Text("Demo mode lets you explore the app with sample data while offline.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
             }
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityDescription)
+    }
+
+    // MARK: - Helpers
+
+    private var shouldShowDemoFallback: Bool {
+        showDemoModeFallback && (errorType == .network || errorType == .offline) && !AppConfiguration.isDemoMode
+    }
+
+    private var accessibilityDescription: String {
+        let titleText = title ?? errorType.defaultTitle
+        let messageText = message ?? errorType.defaultMessage
+        return "Error: \(titleText). \(messageText)"
     }
 }
 
@@ -305,18 +363,22 @@ public struct OfflineBannerView: View {
 public struct ErrorStateModifier: ViewModifier {
 
     let error: Error?
-    let errorType: AppErrorType
     let retryAction: (() -> Void)?
+    let showDemoModeFallback: Bool
+    let demoModeAction: (() -> Void)?
 
     public func body(content: Content) -> some View {
         ZStack {
             content
 
-            if error != nil {
+            if let error = error {
+                let errorType = ErrorMessageCatalog.classify(error)
                 ErrorStateView(
                     errorType: errorType,
-                    message: error?.localizedDescription,
-                    retryAction: retryAction
+                    message: error.friendlyMessage,
+                    retryAction: retryAction,
+                    showDemoModeFallback: showDemoModeFallback,
+                    demoModeAction: demoModeAction
                 )
                 .background(Color(.systemBackground))
             }
@@ -326,12 +388,23 @@ public struct ErrorStateModifier: ViewModifier {
 
 extension View {
     /// Add an error state overlay when an error is present.
+    /// - Parameters:
+    ///   - error: The error to display (nil hides the overlay)
+    ///   - retryAction: Optional retry action
+    ///   - showDemoModeFallback: Whether to show demo mode option for network errors
+    ///   - demoModeAction: Action to enable demo mode
     public func errorState(
         _ error: Error?,
-        type: AppErrorType = .generic,
-        retryAction: (() -> Void)? = nil
+        retryAction: (() -> Void)? = nil,
+        showDemoModeFallback: Bool = false,
+        demoModeAction: (() -> Void)? = nil
     ) -> some View {
-        modifier(ErrorStateModifier(error: error, errorType: type, retryAction: retryAction))
+        modifier(ErrorStateModifier(
+            error: error,
+            retryAction: retryAction,
+            showDemoModeFallback: showDemoModeFallback,
+            demoModeAction: demoModeAction
+        ))
     }
 }
 

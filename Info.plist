@@ -2,105 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Bundle Identity -->
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
-	<key>CFBundleDisplayName</key>
-	<string>TwinAct Field</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>$(MARKETING_VERSION)</string>
-	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
-
-	<!-- Launch Screen -->
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
-
-	<!-- Supported Interface Orientations -->
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-
-	<!-- URL Types for OAuth callback -->
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>twinact</string>
-			</array>
-			<key>CFBundleURLName</key>
-			<string>com.twinact.fieldcompanion.oauth</string>
-		</dict>
-	</array>
-
-	<!-- Privacy Usage Descriptions -->
-
-	<!-- Camera Access - Required for QR code scanning and AR overlays -->
-	<key>NSCameraUsageDescription</key>
-	<string>TwinAct needs camera access to scan QR codes on assets and enable AR overlays</string>
-
-	<!-- Microphone Access - Required for voice commands -->
-	<key>NSMicrophoneUsageDescription</key>
-	<string>TwinAct needs microphone access for voice commands</string>
-
-	<!-- Speech Recognition - Required for processing voice commands -->
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>TwinAct uses speech recognition to process voice commands</string>
-
-	<!-- Local Network Access - Required for connecting to AAS servers -->
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>TwinAct needs local network access to connect to AAS servers</string>
-
-	<!-- Bonjour Services for AAS server discovery -->
-	<key>NSBonjourServices</key>
-	<array>
-		<string>_aas._tcp</string>
-		<string>_http._tcp</string>
-	</array>
-
-	<!-- Background Modes -->
-	<key>UIBackgroundModes</key>
-	<array>
-		<!-- Background fetch for offline sync -->
-		<string>fetch</string>
-		<!-- Background processing for longer sync operations -->
-		<string>processing</string>
-	</array>
-
-	<!-- Background Task Identifiers -->
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.twinact.fieldcompanion.sync</string>
 		<string>com.twinact.fieldcompanion.refresh</string>
 	</array>
-
-	<!-- App Transport Security Settings (for development with local servers) -->
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<!-- Allow localhost connections for development -->
-		<key>NSAllowsLocalNetworking</key>
-		<true/>
-		<!-- Note: For production, configure specific exception domains or use HTTPS -->
-	</dict>
-
-	<!-- AASX Document Types -->
+	<key>CFBundleDisplayName</key>
+	<string>TwinAct Field</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -116,8 +24,69 @@
 			</array>
 		</dict>
 	</array>
-
-	<!-- AASX UTType Declaration -->
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.twinact.fieldcompanion.oauth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>twinact</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_aas._tcp</string>
+		<string>_http._tcp</string>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>TwinAct needs camera access to scan QR codes on assets and enable AR overlays</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>TwinAct needs local network access to connect to AAS servers</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>TwinAct needs microphone access for voice commands</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>TwinAct uses speech recognition to process voice commands</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
 	<key>UTImportedTypeDeclarations</key>
 	<array>
 		<dict>

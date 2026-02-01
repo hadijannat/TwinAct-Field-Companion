@@ -158,6 +158,7 @@ public struct EmptyStateView: View {
                 Image(systemName: type.icon)
                     .font(.system(size: 44))
                     .foregroundColor(type.iconColor)
+                    .accessibilityHidden(true)
             }
 
             // Text content
@@ -207,6 +208,16 @@ public struct EmptyStateView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityDescription)
+    }
+
+    // MARK: - Accessibility
+
+    private var accessibilityDescription: String {
+        let titleText = title ?? type.defaultTitle
+        let descriptionText = description ?? type.defaultDescription
+        return "\(titleText). \(descriptionText)"
     }
 }
 
@@ -254,12 +265,16 @@ public struct LoadingStateView: View {
         VStack(spacing: 16) {
             ProgressView()
                 .scaleEffect(1.2)
+                .accessibilityHidden(true)
 
             Text(message)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(message)
+        .accessibilityAddTraits(.updatesFrequently)
     }
 }
 

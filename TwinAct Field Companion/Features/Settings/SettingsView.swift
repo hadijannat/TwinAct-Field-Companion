@@ -191,6 +191,23 @@ public struct SettingsView: View {
                     Text(cacheErrorMessage)
                 }
 
+                // MARK: - Help & Support Section
+                Section("Help & Support") {
+                    Link(destination: URL(string: "https://twinact.example/help")!) {
+                        Label("Help Center", systemImage: "questionmark.circle")
+                    }
+
+                    Link(destination: URL(string: "mailto:support@twinact.example?subject=TwinAct%20Field%20Companion%20Support")!) {
+                        Label("Contact Support", systemImage: "envelope")
+                    }
+
+                    NavigationLink {
+                        GlossaryBrowserView(glossaryService: DependencyContainer.shared.glossaryService)
+                    } label: {
+                        Label("Jargon Buster Glossary", systemImage: "book.closed")
+                    }
+                }
+
                 // MARK: - About Section
                 Section("About") {
                     HStack {
@@ -217,6 +234,12 @@ public struct SettingsView: View {
                         PrivacyPolicyView()
                     } label: {
                         Label("Privacy Policy", systemImage: "hand.raised")
+                    }
+
+                    NavigationLink {
+                        CreditsView()
+                    } label: {
+                        Label("Credits", systemImage: "person.2")
                     }
                 }
 
@@ -579,6 +602,104 @@ struct DemoDataInfoView: View {
     }
 }
 
+// MARK: - Credits View
+
+/// Displays credits and acknowledgements.
+struct CreditsView: View {
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                // App header
+                VStack(spacing: 8) {
+                    Image(systemName: "cube.transparent.fill")
+                        .font(.system(size: 50))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.blue, .cyan],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+
+                    Text("TwinAct Field Companion")
+                        .font(.title2)
+                        .fontWeight(.bold)
+
+                    Text("Version \(AppConfiguration.AppInfo.version)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical)
+
+                // Credits sections
+                Group {
+                    creditSection(
+                        title: "Development",
+                        items: [
+                            "Built with Swift and SwiftUI",
+                            "Powered by Asset Administration Shell standards"
+                        ]
+                    )
+
+                    creditSection(
+                        title: "Standards & Specifications",
+                        items: [
+                            "IEC 61406 - Identification Link",
+                            "IDTA Asset Administration Shell",
+                            "Digital Product Passport (DPP)"
+                        ]
+                    )
+
+                    creditSection(
+                        title: "Open Source",
+                        items: [
+                            "ZIPFoundation - AASX extraction",
+                            "XMLCoder - OPC relationship parsing"
+                        ]
+                    )
+
+                    creditSection(
+                        title: "Special Thanks",
+                        items: [
+                            "Industrial Digital Twin Association (IDTA)",
+                            "The open-source community"
+                        ]
+                    )
+                }
+
+                Spacer(minLength: 24)
+
+                // Copyright
+                Text("© 2025 TwinAct. All rights reserved.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+            .padding()
+        }
+        .navigationTitle("Credits")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func creditSection(title: String, items: [String]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+
+            ForEach(items, id: \.self) { item in
+                HStack(alignment: .top, spacing: 8) {
+                    Text("•")
+                        .foregroundColor(.secondary)
+                    Text(item)
+                        .foregroundColor(.secondary)
+                }
+                .font(.subheadline)
+            }
+        }
+    }
+}
+
 // MARK: - Preview
 
 #if DEBUG
@@ -589,6 +710,9 @@ struct SettingsView_Previews: PreviewProvider {
 
         DemoDataInfoView()
             .previewDisplayName("Demo Data Info")
+
+        CreditsView()
+            .previewDisplayName("Credits")
     }
 }
 #endif
