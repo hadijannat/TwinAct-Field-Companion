@@ -1,12 +1,12 @@
 {
   "pcfCO2eq": 285.5,
-  "pcfReferenceUnitForCalculation": "1 pump unit",
-  "pcfCalculationMethod": "ISO 14067:2018",
+  "pcfReferenceUnitForCalculation": "1 pump unit (CRE 95-3-2)",
+  "pcfCalculationMethod": "ISO 14067:2018 / EN 15804:2012+A2:2019",
   "pcfLifeCyclePhase": ["A1-A3", "A4"],
   "pcfGeographicalRegion": "EU-27",
   "pcfCalculationDate": "2024-11-15T00:00:00Z",
   "tcfCO2eq": 18.7,
-  "tcfCalculationMethod": "EN 16258",
+  "tcfCalculationMethod": "EN 16258:2012",
   "tcfTransportDistance": 850.0,
   "tcfTransportMode": "road",
   "ucfCO2eq": 1250.0,
@@ -16,12 +16,168 @@
   "eolCO2eq": -45.2,
   "recyclabilityPercentage": 92.0,
   "recycledContentPercentage": 35.0,
-  "verificationStatement": "https://example.com/verify/pcf/SP500-2025-0042",
+  "verificationStatement": "https://example.com/verify/pcf/CRE95-3-2-96516050",
   "validityPeriodStart": "2025-01-01T00:00:00Z",
   "validityPeriodEnd": "2027-12-31T23:59:59Z",
-  "verifierName": "TUV Rheinland",
+  "verifierName": "TÜV Rheinland",
   "verificationStandard": "ISO 14064-3:2019",
   "waterFootprint": 2850.0,
   "energyEfficiencyClass": "A+",
-  "circularEconomyScore": 78.5
+  "circularEconomyScore": 78.5,
+  "lifecycleStages": {
+    "A1_rawMaterialExtraction": {
+      "co2eq": 125.3,
+      "percentage": 43.9,
+      "description": "Extraction and processing of raw materials (iron ore, chromite, copper ore, bauxite)",
+      "dataQuality": "primary"
+    },
+    "A2_transportToManufacturer": {
+      "co2eq": 8.5,
+      "percentage": 3.0,
+      "description": "Transport of raw materials to component suppliers and assembly plant",
+      "dataQuality": "secondary"
+    },
+    "A3_manufacturing": {
+      "co2eq": 95.2,
+      "percentage": 33.4,
+      "description": "Component manufacturing, machining, surface treatment, motor winding, assembly",
+      "dataQuality": "primary"
+    },
+    "A4_transportToCustomer": {
+      "co2eq": 18.7,
+      "percentage": 6.5,
+      "description": "Distribution from Bjerringbro to customer site (850km average EU)",
+      "dataQuality": "secondary"
+    },
+    "A5_installation": {
+      "co2eq": 12.3,
+      "percentage": 4.3,
+      "description": "Site preparation, installation, commissioning, initial testing",
+      "dataQuality": "generic"
+    },
+    "B6_operationalEnergy": {
+      "co2eq": 1250.0,
+      "unit": "per 15 years",
+      "description": "Electricity consumption during 15-year service life (EU grid mix 2024)",
+      "dataQuality": "calculated"
+    },
+    "C1_deconstruction": {
+      "co2eq": 5.2,
+      "percentage": 1.8,
+      "description": "Dismantling, draining, disconnection from system",
+      "dataQuality": "generic"
+    },
+    "C2_transportToEoL": {
+      "co2eq": 8.5,
+      "percentage": 3.0,
+      "description": "Transport to recycling facility",
+      "dataQuality": "generic"
+    },
+    "C3_wasteProcessing": {
+      "co2eq": 12.0,
+      "percentage": 4.2,
+      "description": "Shredding, sorting, material separation",
+      "dataQuality": "secondary"
+    },
+    "D_recyclingBenefits": {
+      "co2eq": -45.2,
+      "percentage": -15.8,
+      "description": "Credits from recycled steel, copper, aluminum (92% recyclability)",
+      "dataQuality": "secondary"
+    }
+  },
+  "materialBreakdown": {
+    "castIron": {
+      "weight": 85.2,
+      "unit": "kg",
+      "percentage": 45.4,
+      "co2eq": 127.8,
+      "grade": "EN-GJL-250",
+      "recycledContent": 40,
+      "description": "Pump housing, motor frame, base plate"
+    },
+    "stainlessSteel": {
+      "weight": 38.5,
+      "unit": "kg",
+      "percentage": 20.5,
+      "co2eq": 173.3,
+      "grade": "1.4408 (AISI 316)",
+      "recycledContent": 25,
+      "description": "Impellers, shaft, wear components"
+    },
+    "carbonSteel": {
+      "weight": 28.2,
+      "unit": "kg",
+      "percentage": 15.0,
+      "co2eq": 50.8,
+      "grade": "S235JR",
+      "recycledContent": 45,
+      "description": "Baseplate, mounting hardware"
+    },
+    "copper": {
+      "weight": 18.5,
+      "unit": "kg",
+      "percentage": 9.9,
+      "co2eq": 92.5,
+      "recycledContent": 30,
+      "description": "Motor windings, electrical connections"
+    },
+    "aluminum": {
+      "weight": 8.2,
+      "unit": "kg",
+      "percentage": 4.4,
+      "co2eq": 65.6,
+      "grade": "EN AC-44300",
+      "recycledContent": 35,
+      "description": "Motor housing, cooling fins"
+    },
+    "elastomers": {
+      "weight": 4.8,
+      "unit": "kg",
+      "percentage": 2.6,
+      "co2eq": 14.4,
+      "description": "O-rings (EPDM), gaskets, vibration isolators"
+    },
+    "ceramics": {
+      "weight": 2.1,
+      "unit": "kg",
+      "percentage": 1.1,
+      "co2eq": 8.4,
+      "description": "Mechanical seal faces (SiC)"
+    },
+    "plastics": {
+      "weight": 2.0,
+      "unit": "kg",
+      "percentage": 1.1,
+      "co2eq": 6.0,
+      "description": "Cable glands, terminal box components"
+    }
+  },
+  "environmentalProductDeclaration": {
+    "epd_number": "EPD-HFS-20250115-CAB1-EN",
+    "programOperator": "IBU - Institut Bauen und Umwelt e.V.",
+    "registrationNumber": "EPD-HFS-20250115-CAB1-EN",
+    "validFrom": "2025-01-15",
+    "validUntil": "2030-01-14",
+    "pcr": "PCR Pumps 2021:05 Version 1.1",
+    "lciDatabase": "ecoinvent 3.9.1",
+    "functionalUnit": "1 pump unit, 15-year reference service life, 95 m³/h @ 125m head",
+    "declaredUnit": "1 piece"
+  },
+  "additionalEnvironmentalIndicators": {
+    "primaryEnergyRenewable": 285.5,
+    "primaryEnergyRenewableUnit": "MJ",
+    "primaryEnergyNonRenewable": 4125.8,
+    "primaryEnergyNonRenewableUnit": "MJ",
+    "waterUseFreshwater": 2850.0,
+    "waterUseFreshwaterUnit": "liters",
+    "acidificationPotential": 0.82,
+    "acidificationPotentialUnit": "kg SO2-eq",
+    "eutrophicationPotential": 0.045,
+    "eutrophicationPotentialUnit": "kg PO4-eq",
+    "ozoneDepletionPotential": 0.0000012,
+    "ozoneDepletionPotentialUnit": "kg CFC-11-eq",
+    "photochemicalOzoneCreation": 0.15,
+    "photochemicalOzoneCreationUnit": "kg C2H4-eq"
+  }
 }

@@ -1,0 +1,77 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-30",
+  "description": "Bundled knowledge base for AI Chat domain expertise",
+  "documents": [
+    {
+      "id": "aas-overview",
+      "title": "Asset Administration Shell Overview",
+      "path": "aas/aas-overview.md",
+      "category": "aas",
+      "keywords": ["aas", "digital twin", "industry 4.0", "idta"]
+    },
+    {
+      "id": "aas-metamodel",
+      "title": "AAS Metamodel and Structure",
+      "path": "aas/aas-metamodel.md",
+      "category": "aas",
+      "keywords": ["metamodel", "submodel", "submodel element", "semantic id"]
+    },
+    {
+      "id": "aas-submodels",
+      "title": "Standard AAS Submodel Templates",
+      "path": "aas/aas-submodels.md",
+      "category": "aas",
+      "keywords": ["nameplate", "carbon footprint", "handover", "technical data"]
+    },
+    {
+      "id": "dpp-overview",
+      "title": "Digital Product Passport Overview",
+      "path": "dpp/dpp-overview.md",
+      "category": "dpp",
+      "keywords": ["dpp", "product passport", "espr", "sustainability"]
+    },
+    {
+      "id": "dpp-data-carriers",
+      "title": "DPP Data Carriers and Identifiers",
+      "path": "dpp/dpp-data-carriers.md",
+      "category": "dpp",
+      "keywords": ["qr code", "data carrier", "unique identifier", "interoperability"]
+    },
+    {
+      "id": "espr",
+      "title": "ESPR - Ecodesign for Sustainable Products Regulation",
+      "path": "regulations/espr.md",
+      "category": "regulations",
+      "keywords": ["espr", "ecodesign", "sustainability", "repair", "recycling"]
+    },
+    {
+      "id": "eu-ai-act",
+      "title": "EU AI Act - Artificial Intelligence Regulation",
+      "path": "regulations/eu-ai-act.md",
+      "category": "regulations",
+      "keywords": ["ai act", "high-risk", "artificial intelligence", "conformity"]
+    },
+    {
+      "id": "battery-regulation",
+      "title": "EU Battery Regulation",
+      "path": "regulations/battery-regulation.md",
+      "category": "regulations",
+      "keywords": ["battery", "battery passport", "recycling", "carbon footprint"]
+    },
+    {
+      "id": "machinery-regulation",
+      "title": "EU Machinery Regulation",
+      "path": "regulations/machinery-regulation.md",
+      "category": "regulations",
+      "keywords": ["machinery", "safety", "ce marking", "ai in machinery"]
+    },
+    {
+      "id": "idta-standards",
+      "title": "IDTA Standards and Specifications",
+      "path": "standards/idta-standards.md",
+      "category": "standards",
+      "keywords": ["idta", "specification", "api", "aasx"]
+    }
+  ]
+}

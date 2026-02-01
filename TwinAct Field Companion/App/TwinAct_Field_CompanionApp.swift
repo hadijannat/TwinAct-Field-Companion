@@ -65,6 +65,13 @@ struct TwinAct_Field_CompanionApp: App {
                 handleAppWillEnterForeground()
             }
 
+            // Index knowledge on first activation (cold start)
+            if oldPhase == .background {
+                Task {
+                    await indexKnowledgeIfNeeded()
+                }
+            }
+
         case .inactive:
             // App is transitioning (e.g., entering/leaving foreground)
             break
@@ -83,7 +90,21 @@ struct TwinAct_Field_CompanionApp: App {
         // Trigger sync when app comes to foreground
         dependencyContainer.handleAppWillEnterForeground()
 
+        // Index knowledge on first foreground entry
+        Task {
+            await indexKnowledgeIfNeeded()
+        }
+
         appLogger.info("App entering foreground - triggering sync check")
+    }
+
+    /// Index bundled knowledge documents if not already indexed
+    private func indexKnowledgeIfNeeded() async {
+        let indexer = dependencyContainer.knowledgeIndexer
+        if await !indexer.hasIndexedKnowledge() {
+            appLogger.info("Indexing bundled knowledge documents...")
+            await dependencyContainer.indexBundledKnowledge()
+        }
     }
 
     /// Called when the app has entered the background

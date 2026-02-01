@@ -237,14 +237,30 @@ public final class InferenceRouter: @unchecked Sendable {
     ) async throws -> GenerationResult {
         // Adaptive routing based on:
         // 1. Prompt complexity (length, technical terms)
-        // 2. Network availability
-        // 3. Battery level (future enhancement)
+        // 2. Regulatory/domain expertise requirements
+        // 3. Network availability
+        // 4. Battery level (future enhancement)
 
         let complexity = estimatePromptComplexity(prompt)
+        let isRegulatoryQuery = detectRegulatoryIntent(prompt)
         let onDeviceAvailable = await onDevice.isAvailable
         let cloudAvailable = await cloud.isAvailable
 
-        logger.info("Adaptive routing - complexity: \(complexity), onDevice: \(onDeviceAvailable), cloud: \(cloudAvailable)")
+        logger.info("Adaptive routing - complexity: \(complexity), regulatory: \(isRegulatoryQuery), onDevice: \(onDeviceAvailable), cloud: \(cloudAvailable)")
+
+        // For regulatory/domain questions, prefer cloud (larger context window, better reasoning)
+        if isRegulatoryQuery && cloudAvailable {
+            logger.info("Routing regulatory query to cloud for enhanced reasoning")
+            do {
+                return try await cloud.generate(prompt: prompt, options: options)
+            } catch {
+                if onDeviceAvailable {
+                    logger.info("Cloud failed, falling back to on-device for regulatory query")
+                    return try await onDevice.generate(prompt: prompt, options: options)
+                }
+                throw error
+            }
+        }
 
         // For complex queries, prefer cloud if available
         if complexity == .high && cloudAvailable {
@@ -312,6 +328,41 @@ public final class InferenceRouter: @unchecked Sendable {
         } else {
             return .low
         }
+    }
+
+    // MARK: - Regulatory Intent Detection
+
+    /// Detect if the query is about regulations, standards, or compliance
+    /// - Parameter prompt: The user's prompt
+    /// - Returns: True if the query requires domain expertise about regulations
+    private func detectRegulatoryIntent(_ prompt: String) -> Bool {
+        let lowercased = prompt.lowercased()
+
+        // Regulatory terms that benefit from cloud inference
+        let regulatoryKeywords = [
+            // EU Regulations
+            "espr", "ecodesign", "eu ai act", "ai act", "gdpr",
+            "battery regulation", "machinery regulation",
+            "rohs", "weee", "reach", "ce marking",
+
+            // Regulatory concepts
+            "regulation", "directive", "compliance", "conformity",
+            "mandatory", "requirement", "article", "annex",
+            "effective date", "transition period", "enforcement",
+            "high-risk", "prohibited", "delegated act",
+
+            // DPP specific
+            "digital product passport", "dpp", "right to repair",
+
+            // Battery specific
+            "battery passport", "state of health", "recycled content",
+
+            // AAS/Standards (complex technical questions)
+            "metamodel", "idta", "semantic id", "submodel template",
+            "aasx format", "api specification"
+        ]
+
+        return regulatoryKeywords.contains { lowercased.contains($0) }
     }
 
     // MARK: - Status

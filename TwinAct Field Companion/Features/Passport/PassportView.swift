@@ -32,6 +32,9 @@ public struct PassportView: View {
     @State private var selectedGlossaryTerm: GlossaryEntry?
     @State private var showingGlossaryBrowser = false
 
+    // AI Chat
+    @State private var showChatSheet = false
+
     let assetId: String
     let glossaryService: GlossaryService?
 
@@ -167,6 +170,17 @@ public struct PassportView: View {
                 .accessibilityHint("Open the DPP term glossary")
             }
 
+            // AI Chat button
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showChatSheet = true
+                } label: {
+                    Image(systemName: "bubble.left.and.bubble.right")
+                }
+                .accessibilityLabel("Chat with AI")
+                .accessibilityHint("Ask questions about this asset")
+            }
+
             ToolbarItem(placement: .topBarTrailing) {
                 if let asset = viewModel.asset {
                     ShareButton(asset: asset)
@@ -212,6 +226,24 @@ public struct PassportView: View {
                 GlossaryBrowserView(glossaryService: service) { entry in
                     showingGlossaryBrowser = false
                     selectedGlossaryTerm = entry
+                }
+            }
+        }
+        // AI Chat sheet
+        .sheet(isPresented: $showChatSheet) {
+            NavigationStack {
+                ChatView(
+                    assetId: assetId,
+                    assetName: viewModel.asset?.name
+                )
+                .navigationTitle("Chat with Asset")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Done") {
+                            showChatSheet = false
+                        }
+                    }
                 }
             }
         }

@@ -1,59 +1,87 @@
 {
-  "id": "urn:demo:aas:smartpump001",
-  "idShort": "SmartPump001",
+  "id": "urn:hydraflow:aas:cre95-3-2-96516050",
+  "idShort": "CRE95-3-2-96516050",
   "assetKind": "Instance",
-  "globalAssetId": "urn:demo:asset:pump:serial:SP500-2025-0042",
+  "globalAssetId": "urn:hydraflow:asset:pump:serial:P25A-96516050-0042",
   "specificAssetIds": [
     {
       "name": "serialNumber",
-      "value": "SP500-2025-0042"
+      "value": "P25A-96516050-0042"
     },
     {
       "name": "manufacturerPartId",
-      "value": "SP-500-INDUSTRIAL"
+      "value": "CRE95-3-2-A-F-A-E-HQQE"
+    },
+    {
+      "name": "orderCode",
+      "value": "96516050"
     },
     {
       "name": "batchId",
-      "value": "BATCH-2025-Q1-042"
+      "value": "LOT-2025-CRE95-W03"
+    },
+    {
+      "name": "equipmentTag",
+      "value": "P-2501A"
     }
   ],
   "displayName": [
     {
       "language": "en",
-      "text": "Smart Industrial Pump SP-500"
+      "text": "CRE 95-3-2 Multi-Stage Inline Pump"
     },
     {
       "language": "de",
-      "text": "Intelligente Industriepumpe SP-500"
+      "text": "CRE 95-3-2 Mehrstufige Inline-Pumpe"
+    },
+    {
+      "language": "da",
+      "text": "CRE 95-3-2 Flertrinspumpe"
     }
   ],
   "description": [
     {
       "language": "en",
-      "text": "High-efficiency centrifugal pump for industrial applications with integrated IoT sensors and predictive maintenance capabilities."
+      "text": "IE5 Ultra Premium Efficiency multi-stage centrifugal pump with integrated MGE motor and variable frequency drive. Designed for HVAC, water treatment, pressure boosting, and industrial process applications. Features HQQE mechanical seal (SiC/SiC/EPDM), 316SS impellers, and ISO 10816-7 compliant vibration monitoring. ATEX Zone 1/2 certified (II 2G Ex eb IIC T4 Gb)."
     },
     {
       "language": "de",
-      "text": "Hocheffiziente Kreiselpumpe fuer industrielle Anwendungen mit integrierten IoT-Sensoren und vorausschauenden Wartungsfunktionen."
+      "text": "Mehrstufige Kreiselpumpe mit IE5 Ultra Premium Efficiency, integriertem MGE-Motor und Frequenzumrichter. Konzipiert für HLK, Wasseraufbereitung, Druckerhöhung und industrielle Prozessanwendungen. Mit HQQE-Gleitringdichtung (SiC/SiC/EPDM), Laufrädern aus 316SS und Vibrationsüberwachung nach ISO 10816-7. ATEX Zone 1/2 zertifiziert (II 2G Ex eb IIC T4 Gb)."
     }
   ],
   "administration": {
-    "version": "1.0",
-    "revision": "2"
+    "version": "2.0",
+    "revision": "1"
   },
   "endpoints": [
     {
       "interface": "AAS-3.0",
       "protocolInformation": {
-        "href": "https://demo.twinact.example/aas/smartpump001",
+        "href": "https://aas.hydraflow-precision.example/shells/cre95-3-2-96516050",
         "endpointProtocol": "HTTPS",
         "endpointProtocolVersion": ["1.1"]
+      }
+    },
+    {
+      "interface": "OPC-UA",
+      "protocolInformation": {
+        "href": "opc.tcp://192.168.1.150:4840/hydraflow/pumps/cre95",
+        "endpointProtocol": "OPC-UA",
+        "endpointProtocolVersion": ["1.04"]
+      }
+    },
+    {
+      "interface": "MQTT",
+      "protocolInformation": {
+        "href": "mqtt://iot.hydraflow-precision.example:8883/pumps/cre95-3-2-96516050",
+        "endpointProtocol": "MQTT",
+        "endpointProtocolVersion": ["5.0"]
       }
     }
   ],
   "submodelDescriptors": [
     {
-      "id": "urn:demo:submodel:nameplate:smartpump001",
+      "id": "urn:hydraflow:submodel:nameplate:cre95-3-2-96516050",
       "idShort": "DigitalNameplate",
       "semanticId": {
         "type": "ExternalReference",
@@ -66,7 +94,7 @@
       }
     },
     {
-      "id": "urn:demo:submodel:documentation:smartpump001",
+      "id": "urn:hydraflow:submodel:documentation:cre95-3-2-96516050",
       "idShort": "HandoverDocumentation",
       "semanticId": {
         "type": "ExternalReference",
@@ -79,7 +107,7 @@
       }
     },
     {
-      "id": "urn:demo:submodel:maintenance:smartpump001",
+      "id": "urn:hydraflow:submodel:maintenance:cre95-3-2-96516050",
       "idShort": "MaintenanceInstructions",
       "semanticId": {
         "type": "ExternalReference",
@@ -92,7 +120,7 @@
       }
     },
     {
-      "id": "urn:demo:submodel:servicerequest:smartpump001",
+      "id": "urn:hydraflow:submodel:servicerequest:cre95-3-2-96516050",
       "idShort": "ServiceRequest",
       "semanticId": {
         "type": "ExternalReference",
@@ -105,7 +133,7 @@
       }
     },
     {
-      "id": "urn:demo:submodel:timeseries:smartpump001",
+      "id": "urn:hydraflow:submodel:timeseries:cre95-3-2-96516050",
       "idShort": "TimeSeriesData",
       "semanticId": {
         "type": "ExternalReference",
@@ -118,7 +146,7 @@
       }
     },
     {
-      "id": "urn:demo:submodel:carbonfootprint:smartpump001",
+      "id": "urn:hydraflow:submodel:carbonfootprint:cre95-3-2-96516050",
       "idShort": "CarbonFootprint",
       "semanticId": {
         "type": "ExternalReference",
@@ -131,7 +159,7 @@
       }
     },
     {
-      "id": "urn:demo:submodel:technicaldata:smartpump001",
+      "id": "urn:hydraflow:submodel:technicaldata:cre95-3-2-96516050",
       "idShort": "TechnicalData",
       "semanticId": {
         "type": "ExternalReference",
@@ -139,6 +167,19 @@
           {
             "type": "GlobalReference",
             "value": "https://admin-shell.io/ZVEI/TechnicalData/1/2/Submodel"
+          }
+        ]
+      }
+    },
+    {
+      "id": "urn:hydraflow:submodel:conditionmonitoring:cre95-3-2-96516050",
+      "idShort": "ConditionMonitoring",
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "https://admin-shell.io/idta/ConditionMonitoring/1/0/Submodel"
           }
         ]
       }

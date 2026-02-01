@@ -59,7 +59,7 @@ public final class ChatViewModel: ObservableObject {
     /// - Parameters:
     ///   - assetId: Optional asset ID for context
     ///   - assetName: Optional asset name for display
-    ///   - vectorStore: Shared vector store (optional)
+    ///   - vectorStore: Shared vector store (optional - defaults to DependencyContainer.shared.vectorStore)
     public init(
         assetId: String? = nil,
         assetName: String? = nil,
@@ -68,8 +68,9 @@ public final class ChatViewModel: ObservableObject {
         self.assetId = assetId
         self.assetName = assetName
 
-        // Initialize components
-        let store = vectorStore ?? VectorStore()
+        // Use shared vector store from DependencyContainer by default
+        // This ensures knowledge documents are available for RAG
+        let store = vectorStore ?? DependencyContainer.shared.vectorStore
         self.vectorStore = store
         self.embeddingModel = EmbeddingModel()
         self.chunkEmbedder = ChunkEmbedder(embeddingModel: embeddingModel)
@@ -317,14 +318,14 @@ public final class ChatViewModel: ObservableObject {
     private func addWelcomeMessage() {
         let assetContext = assetName.map { " for \($0)" } ?? ""
         let welcomeText = """
-        Hello! I'm your AI assistant\(assetContext). I can help answer questions about:
+        Hello! I'm your AI assistant\(assetContext) with expertise in:
 
-        - Operating procedures and maintenance
-        - Troubleshooting and error codes
-        - Technical specifications
-        - Safety guidelines
+        - Asset documentation, procedures, and troubleshooting
+        - Asset Administration Shell (AAS) and digital twins
+        - Digital Product Passports (DPP) and EU regulations
+        - ESPR, EU AI Act, Battery Regulation, and compliance
 
-        Ask me anything about the asset documentation.
+        Ask me about this asset's documentation or any questions about industrial standards and regulations.
         """
         messages.append(.assistant(welcomeText))
     }

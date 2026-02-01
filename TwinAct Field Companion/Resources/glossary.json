@@ -572,6 +572,146 @@
       "category": "sustainability",
       "relatedTerms": ["repairability", "espr"],
       "source": {"type": "local"}
+    },
+    {
+      "id": "eu_ai_act",
+      "title": "EU AI Act",
+      "simpleText": "The world's first comprehensive AI law, classifying AI systems by risk level and setting requirements for high-risk AI.",
+      "analogy": "Like traffic rules for AI - some AI gets a green light, some needs safety checks, some is banned.",
+      "icon": "brain.head.profile",
+      "category": "compliance",
+      "relatedTerms": ["high_risk_ai", "conformity_assessment", "compliance"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "high_risk_ai",
+      "title": "High-Risk AI System",
+      "simpleText": "AI systems that can significantly impact people's safety or rights, requiring strict compliance and testing.",
+      "analogy": "Like how a passenger airplane needs more safety checks than a paper airplane.",
+      "icon": "exclamationmark.triangle.fill",
+      "category": "compliance",
+      "relatedTerms": ["eu_ai_act", "conformity_assessment"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "delegated_acts",
+      "title": "Delegated Acts",
+      "simpleText": "Detailed EU rules that specify exactly which products need DPPs and what information they must contain.",
+      "analogy": "Like the detailed instructions that come after the main rulebook is published.",
+      "icon": "doc.text.fill",
+      "category": "compliance",
+      "relatedTerms": ["espr", "digital_product_passport"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "right_to_repair",
+      "title": "Right to Repair",
+      "simpleText": "EU rules requiring manufacturers to provide spare parts and repair information so products can be fixed.",
+      "analogy": "Like laws saying car makers can't stop independent mechanics from fixing your car.",
+      "icon": "wrench.and.screwdriver.fill",
+      "category": "compliance",
+      "relatedTerms": ["espr", "repairability", "spare_parts"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "battery_passport",
+      "title": "Battery Passport",
+      "simpleText": "A digital record for industrial and EV batteries containing performance, carbon footprint, and recycling data.",
+      "analogy": "Like a health record for your battery showing its history and how much life it has left.",
+      "icon": "battery.100.bolt",
+      "category": "compliance",
+      "relatedTerms": ["digital_product_passport", "state_of_health", "carbon_footprint"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "conformity_assessment",
+      "title": "Conformity Assessment",
+      "simpleText": "The process of verifying that a product meets all applicable legal requirements before being sold.",
+      "analogy": "Like a final exam that products must pass before they can graduate to store shelves.",
+      "icon": "checkmark.seal.fill",
+      "category": "compliance",
+      "relatedTerms": ["ce_marking", "certification", "compliance"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "machinery_regulation",
+      "title": "Machinery Regulation 2023/1230",
+      "simpleText": "EU rules for machinery safety, including new requirements for AI in machines and digital instructions.",
+      "analogy": "Like updated building codes for machines that now cover smart robots and AI.",
+      "icon": "gearshape.2.fill",
+      "category": "compliance",
+      "relatedTerms": ["ce_marking", "eu_ai_act", "conformity_assessment"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "reach_regulation",
+      "title": "REACH",
+      "simpleText": "EU law requiring registration of chemicals and restricting dangerous substances in products.",
+      "analogy": "Like a passport system for chemicals - they can't enter products without proper documentation.",
+      "icon": "flask.fill",
+      "category": "compliance",
+      "relatedTerms": ["hazardous_substances", "compliance", "material_composition"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "aas_metamodel",
+      "title": "AAS Metamodel",
+      "simpleText": "The standard structure that defines how digital twin information is organized: Asset, Shell, Submodels, and Elements.",
+      "analogy": "Like the blueprint showing how to build a digital twin's filing system.",
+      "icon": "cube.transparent.fill",
+      "category": "technical",
+      "relatedTerms": ["aas", "submodel", "semantic_id", "idta"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "svhc",
+      "title": "Substances of Very High Concern (SVHC)",
+      "simpleText": "Chemicals that are especially dangerous to health or environment and require special reporting under REACH.",
+      "analogy": "Like the 'most wanted' list of chemicals that companies must report if they use.",
+      "icon": "exclamationmark.octagon.fill",
+      "category": "compliance",
+      "relatedTerms": ["reach_regulation", "hazardous_substances", "material_composition"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "unique_product_identifier",
+      "title": "Unique Product Identifier",
+      "simpleText": "A globally unique code that identifies one specific product instance, linking it to its Digital Product Passport.",
+      "analogy": "Like a fingerprint that connects each physical product to its digital twin.",
+      "icon": "barcode",
+      "category": "technical",
+      "relatedTerms": ["digital_product_passport", "serial_number", "qr_code"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "market_surveillance",
+      "title": "Market Surveillance",
+      "simpleText": "Government checks to ensure products sold in the EU meet safety and compliance requirements.",
+      "analogy": "Like health inspectors visiting restaurants, but for products on store shelves.",
+      "icon": "eye.fill",
+      "category": "compliance",
+      "relatedTerms": ["ce_marking", "compliance", "conformity_assessment"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "aasx_package",
+      "title": "AASX Package",
+      "simpleText": "A ZIP file format for sharing complete AAS data with embedded documents, images, and relationships.",
+      "analogy": "Like a digital suitcase containing everything about a product's digital twin.",
+      "icon": "doc.zipper",
+      "category": "technical",
+      "relatedTerms": ["aas", "aas_metamodel", "handover_documentation"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "handover_documentation",
+      "title": "Handover Documentation",
+      "simpleText": "All technical documents provided with a product: manuals, certificates, drawings, and safety sheets.",
+      "analogy": "Like the stack of papers you get when buying a new car - warranty, manual, service book.",
+      "icon": "doc.on.doc.fill",
+      "category": "technical",
+      "relatedTerms": ["submodel", "aas", "digital_product_passport"],
+      "source": {"type": "local"}
     }
   ]
 }

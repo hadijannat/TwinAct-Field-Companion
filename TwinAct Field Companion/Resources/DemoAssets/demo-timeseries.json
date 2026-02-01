@@ -1,26 +1,73 @@
 {
   "metadata": {
-    "name": "SP-500 Operational Data",
+    "name": "CRE 95-3-2 Operational Telemetry",
     "description": [
-      {"language": "en", "text": "Real-time sensor data from SP-500 Smart Industrial Pump including temperature, pressure, flow rate, and vibration measurements."}
+      {"language": "en", "text": "Real-time condition monitoring data from CRE 95-3-2 pump including multi-axis vibration analysis, bearing temperatures, motor diagnostics, and hydraulic performance metrics per ISO 10816-7 and ISO 13373-1."},
+      {"language": "de", "text": "Echtzeit-Zustandsüberwachungsdaten der CRE 95-3-2 Pumpe einschließlich Mehrachsen-Vibrationsanalyse, Lagertemperaturen, Motordiagnose und hydraulischer Leistungsmetriken gemäß ISO 10816-7 und ISO 13373-1."}
     ],
     "startTime": "2025-01-01T00:00:00Z",
     "endTime": "2025-01-19T23:59:59Z",
     "samplingInterval": 60.0,
     "unit": "mixed",
-    "source": "IoT Gateway SP500-GW-001",
+    "source": "MGE Motor Integrated Drive - CRE-GW-96516050",
+    "standards": ["ISO 10816-7:2009", "ISO 13373-1:2002", "ISO 14414:2019"],
     "properties": [
       {
-        "name": "temperature",
-        "description": [{"language": "en", "text": "Pump bearing temperature"}],
-        "unit": "C",
+        "name": "bearingDE_temp",
+        "description": [{"language": "en", "text": "Drive End (DE) Bearing Temperature - SKF 6209-2RS1"}],
+        "unit": "°C",
         "dataType": "double",
-        "minValue": 20.0,
-        "maxValue": 85.0
+        "minValue": 15.0,
+        "maxValue": 95.0,
+        "alarmLow": 20.0,
+        "warningHigh": 75.0,
+        "alarmHigh": 85.0
       },
       {
-        "name": "pressure",
-        "description": [{"language": "en", "text": "Discharge pressure"}],
+        "name": "bearingNDE_temp",
+        "description": [{"language": "en", "text": "Non-Drive End (NDE) Bearing Temperature - SKF 6207-2RS1"}],
+        "unit": "°C",
+        "dataType": "double",
+        "minValue": 15.0,
+        "maxValue": 95.0,
+        "alarmLow": 20.0,
+        "warningHigh": 70.0,
+        "alarmHigh": 80.0
+      },
+      {
+        "name": "motorWinding_temp",
+        "description": [{"language": "en", "text": "Motor Stator Winding Temperature (PTC Thermistor)"}],
+        "unit": "°C",
+        "dataType": "double",
+        "minValue": 15.0,
+        "maxValue": 155.0,
+        "alarmLow": 20.0,
+        "warningHigh": 130.0,
+        "alarmHigh": 145.0
+      },
+      {
+        "name": "suctionPressure",
+        "description": [{"language": "en", "text": "Suction Side Pressure (PT-001)"}],
+        "unit": "bar",
+        "dataType": "double",
+        "minValue": -0.9,
+        "maxValue": 10.0,
+        "alarmLow": 0.5,
+        "warningLow": 1.0
+      },
+      {
+        "name": "dischargePressure",
+        "description": [{"language": "en", "text": "Discharge Side Pressure (PT-002)"}],
+        "unit": "bar",
+        "dataType": "double",
+        "minValue": 0.0,
+        "maxValue": 25.0,
+        "warningHigh": 22.0,
+        "alarmHigh": 24.0
+      },
+      {
+        "name": "differentialPressure",
+        "description": [{"language": "en", "text": "Differential Pressure (ΔP = Discharge - Suction)"}],
         "unit": "bar",
         "dataType": "double",
         "minValue": 0.0,
@@ -28,151 +75,224 @@
       },
       {
         "name": "flowRate",
-        "description": [{"language": "en", "text": "Volumetric flow rate"}],
-        "unit": "m3/h",
+        "description": [{"language": "en", "text": "Volumetric Flow Rate (Electromagnetic Flow Meter FT-001)"}],
+        "unit": "m³/h",
         "dataType": "double",
         "minValue": 0.0,
-        "maxValue": 150.0
+        "maxValue": 150.0,
+        "alarmLow": 15.0,
+        "warningHigh": 110.0,
+        "alarmHigh": 120.0
       },
       {
-        "name": "vibration",
-        "description": [{"language": "en", "text": "Vibration velocity (RMS)"}],
-        "unit": "mm/s",
+        "name": "vibrationX",
+        "description": [{"language": "en", "text": "Vibration X-axis (Radial Horizontal) - ISO 10816-7 Zone A/B"}],
+        "unit": "mm/s RMS",
         "dataType": "double",
         "minValue": 0.0,
-        "maxValue": 15.0
+        "maxValue": 15.0,
+        "warningHigh": 4.5,
+        "alarmHigh": 7.1
       },
       {
-        "name": "power",
-        "description": [{"language": "en", "text": "Motor power consumption"}],
+        "name": "vibrationY",
+        "description": [{"language": "en", "text": "Vibration Y-axis (Radial Vertical) - ISO 10816-7 Zone A/B"}],
+        "unit": "mm/s RMS",
+        "dataType": "double",
+        "minValue": 0.0,
+        "maxValue": 15.0,
+        "warningHigh": 4.5,
+        "alarmHigh": 7.1
+      },
+      {
+        "name": "vibrationZ",
+        "description": [{"language": "en", "text": "Vibration Z-axis (Axial) - ISO 10816-7 Zone A/B"}],
+        "unit": "mm/s RMS",
+        "dataType": "double",
+        "minValue": 0.0,
+        "maxValue": 15.0,
+        "warningHigh": 4.5,
+        "alarmHigh": 7.1
+      },
+      {
+        "name": "motorCurrent",
+        "description": [{"language": "en", "text": "Motor Current Draw (3-Phase Average)"}],
+        "unit": "A",
+        "dataType": "double",
+        "minValue": 0.0,
+        "maxValue": 120.0,
+        "warningHigh": 95.0,
+        "alarmHigh": 105.0
+      },
+      {
+        "name": "motorPowerFactor",
+        "description": [{"language": "en", "text": "Power Factor (cos φ)"}],
+        "unit": "-",
+        "dataType": "double",
+        "minValue": 0.0,
+        "maxValue": 1.0,
+        "warningLow": 0.80
+      },
+      {
+        "name": "motorPower",
+        "description": [{"language": "en", "text": "Motor Shaft Power (P2)"}],
         "unit": "kW",
         "dataType": "double",
         "minValue": 0.0,
-        "maxValue": 25.0
+        "maxValue": 55.0
+      },
+      {
+        "name": "runningHours",
+        "description": [{"language": "en", "text": "Total Running Hours (Cumulative)"}],
+        "unit": "h",
+        "dataType": "double",
+        "minValue": 0.0,
+        "maxValue": 999999.0
+      },
+      {
+        "name": "numberOfStarts",
+        "description": [{"language": "en", "text": "Cumulative Motor Start Count"}],
+        "unit": "-",
+        "dataType": "integer",
+        "minValue": 0,
+        "maxValue": 999999
+      },
+      {
+        "name": "driveFrequency",
+        "description": [{"language": "en", "text": "Variable Frequency Drive Output (VFD)"}],
+        "unit": "Hz",
+        "dataType": "double",
+        "minValue": 0.0,
+        "maxValue": 60.0
       }
     ],
     "segments": [
       {
         "name": "Normal Operation",
-        "description": [{"language": "en", "text": "Standard operating conditions"}],
+        "description": [{"language": "en", "text": "Steady-state operation within design envelope"}],
         "state": "running"
       },
       {
-        "name": "Startup",
-        "description": [{"language": "en", "text": "Pump startup sequence"}],
+        "name": "Soft Start Ramp",
+        "description": [{"language": "en", "text": "VFD-controlled startup sequence (0-50Hz over 30s)"}],
         "state": "starting"
       },
       {
-        "name": "Idle",
-        "description": [{"language": "en", "text": "Pump idle/standby"}],
+        "name": "Standby",
+        "description": [{"language": "en", "text": "Pump primed, VFD energized, awaiting start signal"}],
         "state": "idle"
+      },
+      {
+        "name": "Minimum Flow Recirculation",
+        "description": [{"language": "en", "text": "Operating below 16% BEP - recirculation valve open"}],
+        "state": "recirculating"
       }
     ]
   },
   "records": [
     {
       "timestamp": "2025-01-19T08:00:00Z",
-      "values": {"temperature": 42.3, "pressure": 8.5, "flowRate": 95.2, "vibration": 3.2, "power": 15.8},
+      "values": {"bearingDE_temp": 48.3, "bearingNDE_temp": 45.1, "motorWinding_temp": 72.5, "suctionPressure": 2.8, "dischargePressure": 14.2, "differentialPressure": 11.4, "flowRate": 92.5, "vibrationX": 2.1, "vibrationY": 1.8, "vibrationZ": 1.5, "motorCurrent": 78.5, "motorPowerFactor": 0.92, "motorPower": 42.3, "runningHours": 8547.2, "numberOfStarts": 1842, "driveFrequency": 49.2},
       "quality": "good"
     },
     {
       "timestamp": "2025-01-19T08:01:00Z",
-      "values": {"temperature": 42.5, "pressure": 8.6, "flowRate": 96.1, "vibration": 3.1, "power": 15.9},
+      "values": {"bearingDE_temp": 48.5, "bearingNDE_temp": 45.3, "motorWinding_temp": 72.8, "suctionPressure": 2.7, "dischargePressure": 14.3, "differentialPressure": 11.6, "flowRate": 93.2, "vibrationX": 2.2, "vibrationY": 1.9, "vibrationZ": 1.4, "motorCurrent": 79.1, "motorPowerFactor": 0.92, "motorPower": 42.6, "runningHours": 8547.22, "numberOfStarts": 1842, "driveFrequency": 49.4},
       "quality": "good"
     },
     {
       "timestamp": "2025-01-19T08:02:00Z",
-      "values": {"temperature": 42.8, "pressure": 8.5, "flowRate": 95.8, "vibration": 3.3, "power": 16.0},
+      "values": {"bearingDE_temp": 48.8, "bearingNDE_temp": 45.5, "motorWinding_temp": 73.1, "suctionPressure": 2.8, "dischargePressure": 14.2, "differentialPressure": 11.4, "flowRate": 92.8, "vibrationX": 2.3, "vibrationY": 2.0, "vibrationZ": 1.6, "motorCurrent": 78.8, "motorPowerFactor": 0.91, "motorPower": 42.4, "runningHours": 8547.23, "numberOfStarts": 1842, "driveFrequency": 49.3},
       "quality": "good"
     },
     {
       "timestamp": "2025-01-19T08:03:00Z",
-      "values": {"temperature": 43.1, "pressure": 8.7, "flowRate": 97.2, "vibration": 3.4, "power": 16.2},
+      "values": {"bearingDE_temp": 49.1, "bearingNDE_temp": 45.8, "motorWinding_temp": 73.5, "suctionPressure": 2.6, "dischargePressure": 14.4, "differentialPressure": 11.8, "flowRate": 94.5, "vibrationX": 2.4, "vibrationY": 2.1, "vibrationZ": 1.5, "motorCurrent": 79.8, "motorPowerFactor": 0.92, "motorPower": 43.1, "runningHours": 8547.25, "numberOfStarts": 1842, "driveFrequency": 49.6},
       "quality": "good"
     },
     {
       "timestamp": "2025-01-19T08:04:00Z",
-      "values": {"temperature": 43.4, "pressure": 8.6, "flowRate": 96.5, "vibration": 3.2, "power": 16.1},
+      "values": {"bearingDE_temp": 49.4, "bearingNDE_temp": 46.1, "motorWinding_temp": 73.8, "suctionPressure": 2.7, "dischargePressure": 14.3, "differentialPressure": 11.6, "flowRate": 93.8, "vibrationX": 2.3, "vibrationY": 2.0, "vibrationZ": 1.6, "motorCurrent": 79.2, "motorPowerFactor": 0.91, "motorPower": 42.8, "runningHours": 8547.27, "numberOfStarts": 1842, "driveFrequency": 49.4},
       "quality": "good"
     },
     {
       "timestamp": "2025-01-19T08:05:00Z",
-      "values": {"temperature": 43.2, "pressure": 8.8, "flowRate": 98.1, "vibration": 3.5, "power": 16.4},
+      "values": {"bearingDE_temp": 49.2, "bearingNDE_temp": 46.3, "motorWinding_temp": 74.2, "suctionPressure": 2.8, "dischargePressure": 14.5, "differentialPressure": 11.7, "flowRate": 95.2, "vibrationX": 2.5, "vibrationY": 2.2, "vibrationZ": 1.7, "motorCurrent": 80.1, "motorPowerFactor": 0.92, "motorPower": 43.5, "runningHours": 8547.28, "numberOfStarts": 1842, "driveFrequency": 49.8},
       "quality": "good"
     },
     {
       "timestamp": "2025-01-19T08:06:00Z",
-      "values": {"temperature": 43.6, "pressure": 8.7, "flowRate": 97.8, "vibration": 4.1, "power": 16.3},
+      "values": {"bearingDE_temp": 49.6, "bearingNDE_temp": 46.5, "motorWinding_temp": 74.5, "suctionPressure": 2.7, "dischargePressure": 14.4, "differentialPressure": 11.7, "flowRate": 94.8, "vibrationX": 3.2, "vibrationY": 2.8, "vibrationZ": 2.1, "motorCurrent": 79.8, "motorPowerFactor": 0.91, "motorPower": 43.2, "runningHours": 8547.30, "numberOfStarts": 1842, "driveFrequency": 49.5},
       "quality": "good"
     },
     {
       "timestamp": "2025-01-19T08:07:00Z",
-      "values": {"temperature": 44.0, "pressure": 8.9, "flowRate": 99.2, "vibration": 4.5, "power": 16.6},
+      "values": {"bearingDE_temp": 50.2, "bearingNDE_temp": 47.1, "motorWinding_temp": 75.2, "suctionPressure": 2.6, "dischargePressure": 14.6, "differentialPressure": 12.0, "flowRate": 96.5, "vibrationX": 3.8, "vibrationY": 3.2, "vibrationZ": 2.5, "motorCurrent": 81.2, "motorPowerFactor": 0.92, "motorPower": 44.1, "runningHours": 8547.32, "numberOfStarts": 1842, "driveFrequency": 50.0},
       "quality": "good"
     },
     {
       "timestamp": "2025-01-19T08:08:00Z",
-      "values": {"temperature": 44.5, "pressure": 8.8, "flowRate": 98.5, "vibration": 5.2, "power": 16.5},
+      "values": {"bearingDE_temp": 51.5, "bearingNDE_temp": 48.2, "motorWinding_temp": 76.8, "suctionPressure": 2.5, "dischargePressure": 14.5, "differentialPressure": 12.0, "flowRate": 95.8, "vibrationX": 4.5, "vibrationY": 3.9, "vibrationZ": 3.2, "motorCurrent": 80.8, "motorPowerFactor": 0.90, "motorPower": 43.8, "runningHours": 8547.33, "numberOfStarts": 1842, "driveFrequency": 49.8},
       "quality": "uncertain"
     },
     {
       "timestamp": "2025-01-19T08:09:00Z",
-      "values": {"temperature": 45.2, "pressure": 8.7, "flowRate": 97.1, "vibration": 6.8, "power": 16.8},
+      "values": {"bearingDE_temp": 53.2, "bearingNDE_temp": 49.5, "motorWinding_temp": 78.5, "suctionPressure": 2.4, "dischargePressure": 14.4, "differentialPressure": 12.0, "flowRate": 94.2, "vibrationX": 5.8, "vibrationY": 5.1, "vibrationZ": 4.2, "motorCurrent": 82.5, "motorPowerFactor": 0.89, "motorPower": 44.5, "runningHours": 8547.35, "numberOfStarts": 1842, "driveFrequency": 49.5},
       "quality": "uncertain"
     },
     {
       "timestamp": "2025-01-19T08:10:00Z",
-      "values": {"temperature": 46.1, "pressure": 8.5, "flowRate": 95.3, "vibration": 8.5, "power": 17.2},
+      "values": {"bearingDE_temp": 55.1, "bearingNDE_temp": 51.2, "motorWinding_temp": 81.2, "suctionPressure": 2.3, "dischargePressure": 14.2, "differentialPressure": 11.9, "flowRate": 92.5, "vibrationX": 6.8, "vibrationY": 6.2, "vibrationZ": 5.1, "motorCurrent": 84.2, "motorPowerFactor": 0.88, "motorPower": 45.2, "runningHours": 8547.37, "numberOfStarts": 1842, "driveFrequency": 49.2},
       "quality": "uncertain"
     },
     {
       "timestamp": "2025-01-19T08:11:00Z",
-      "values": {"temperature": 47.3, "pressure": 8.3, "flowRate": 93.8, "vibration": 10.2, "power": 17.5},
+      "values": {"bearingDE_temp": 57.3, "bearingNDE_temp": 53.1, "motorWinding_temp": 84.5, "suctionPressure": 2.2, "dischargePressure": 14.0, "differentialPressure": 11.8, "flowRate": 90.8, "vibrationX": 7.5, "vibrationY": 6.9, "vibrationZ": 5.8, "motorCurrent": 86.1, "motorPowerFactor": 0.87, "motorPower": 46.1, "runningHours": 8547.38, "numberOfStarts": 1842, "driveFrequency": 48.8},
       "quality": "uncertain"
     },
     {
       "timestamp": "2025-01-19T08:12:00Z",
-      "values": {"temperature": 48.2, "pressure": 8.1, "flowRate": 91.5, "vibration": 11.8, "power": 17.8},
+      "values": {"bearingDE_temp": 59.2, "bearingNDE_temp": 54.8, "motorWinding_temp": 87.2, "suctionPressure": 2.1, "dischargePressure": 13.8, "differentialPressure": 11.7, "flowRate": 88.5, "vibrationX": 8.2, "vibrationY": 7.5, "vibrationZ": 6.2, "motorCurrent": 87.8, "motorPowerFactor": 0.86, "motorPower": 46.8, "runningHours": 8547.40, "numberOfStarts": 1842, "driveFrequency": 48.5},
       "quality": "uncertain"
     },
     {
       "timestamp": "2025-01-19T08:13:00Z",
-      "values": {"temperature": 48.8, "pressure": 8.0, "flowRate": 90.2, "vibration": 12.1, "power": 18.0},
+      "values": {"bearingDE_temp": 60.8, "bearingNDE_temp": 56.2, "motorWinding_temp": 89.5, "suctionPressure": 2.0, "dischargePressure": 13.6, "differentialPressure": 11.6, "flowRate": 86.2, "vibrationX": 8.8, "vibrationY": 8.1, "vibrationZ": 6.8, "motorCurrent": 89.2, "motorPowerFactor": 0.85, "motorPower": 47.2, "runningHours": 8547.42, "numberOfStarts": 1842, "driveFrequency": 48.2},
       "quality": "bad"
     },
     {
       "timestamp": "2025-01-19T08:14:00Z",
-      "values": {"temperature": 47.5, "pressure": 8.2, "flowRate": 92.1, "vibration": 9.5, "power": 17.2},
+      "values": {"bearingDE_temp": 58.5, "bearingNDE_temp": 54.5, "motorWinding_temp": 86.8, "suctionPressure": 2.2, "dischargePressure": 13.9, "differentialPressure": 11.7, "flowRate": 89.2, "vibrationX": 7.2, "vibrationY": 6.5, "vibrationZ": 5.5, "motorCurrent": 85.5, "motorPowerFactor": 0.87, "motorPower": 45.5, "runningHours": 8547.43, "numberOfStarts": 1842, "driveFrequency": 48.5},
       "quality": "uncertain"
     },
     {
       "timestamp": "2025-01-19T08:15:00Z",
-      "values": {"temperature": 46.2, "pressure": 8.4, "flowRate": 94.5, "vibration": 7.2, "power": 16.8},
+      "values": {"bearingDE_temp": 56.2, "bearingNDE_temp": 52.1, "motorWinding_temp": 83.5, "suctionPressure": 2.5, "dischargePressure": 14.1, "differentialPressure": 11.6, "flowRate": 91.5, "vibrationX": 5.5, "vibrationY": 4.8, "vibrationZ": 4.0, "motorCurrent": 82.2, "motorPowerFactor": 0.89, "motorPower": 44.2, "runningHours": 8547.45, "numberOfStarts": 1842, "driveFrequency": 49.0},
       "quality": "good"
     },
     {
       "timestamp": "2025-01-19T08:16:00Z",
-      "values": {"temperature": 45.1, "pressure": 8.5, "flowRate": 95.8, "vibration": 5.5, "power": 16.4},
+      "values": {"bearingDE_temp": 53.8, "bearingNDE_temp": 50.2, "motorWinding_temp": 80.2, "suctionPressure": 2.7, "dischargePressure": 14.3, "differentialPressure": 11.6, "flowRate": 93.2, "vibrationX": 4.2, "vibrationY": 3.6, "vibrationZ": 3.0, "motorCurrent": 79.8, "motorPowerFactor": 0.90, "motorPower": 43.2, "runningHours": 8547.47, "numberOfStarts": 1842, "driveFrequency": 49.3},
       "quality": "good"
     },
     {
       "timestamp": "2025-01-19T08:17:00Z",
-      "values": {"temperature": 44.2, "pressure": 8.6, "flowRate": 96.5, "vibration": 4.2, "power": 16.1},
+      "values": {"bearingDE_temp": 51.5, "bearingNDE_temp": 48.5, "motorWinding_temp": 77.5, "suctionPressure": 2.8, "dischargePressure": 14.4, "differentialPressure": 11.6, "flowRate": 94.5, "vibrationX": 3.2, "vibrationY": 2.8, "vibrationZ": 2.3, "motorCurrent": 78.5, "motorPowerFactor": 0.91, "motorPower": 42.5, "runningHours": 8547.48, "numberOfStarts": 1842, "driveFrequency": 49.5},
       "quality": "good"
     },
     {
       "timestamp": "2025-01-19T08:18:00Z",
-      "values": {"temperature": 43.5, "pressure": 8.7, "flowRate": 97.2, "vibration": 3.5, "power": 15.9},
+      "values": {"bearingDE_temp": 50.2, "bearingNDE_temp": 47.2, "motorWinding_temp": 75.8, "suctionPressure": 2.8, "dischargePressure": 14.3, "differentialPressure": 11.5, "flowRate": 93.8, "vibrationX": 2.6, "vibrationY": 2.2, "vibrationZ": 1.8, "motorCurrent": 78.2, "motorPowerFactor": 0.91, "motorPower": 42.2, "runningHours": 8547.50, "numberOfStarts": 1842, "driveFrequency": 49.4},
       "quality": "good"
     },
     {
       "timestamp": "2025-01-19T08:19:00Z",
-      "values": {"temperature": 43.0, "pressure": 8.6, "flowRate": 96.8, "vibration": 3.2, "power": 15.8},
+      "values": {"bearingDE_temp": 49.5, "bearingNDE_temp": 46.5, "motorWinding_temp": 74.5, "suctionPressure": 2.7, "dischargePressure": 14.2, "differentialPressure": 11.5, "flowRate": 93.2, "vibrationX": 2.3, "vibrationY": 2.0, "vibrationZ": 1.6, "motorCurrent": 78.5, "motorPowerFactor": 0.92, "motorPower": 42.4, "runningHours": 8547.52, "numberOfStarts": 1842, "driveFrequency": 49.3},
       "quality": "good"
     },
     {
       "timestamp": "2025-01-19T08:20:00Z",
-      "values": {"temperature": 42.8, "pressure": 8.5, "flowRate": 96.2, "vibration": 3.1, "power": 15.7},
+      "values": {"bearingDE_temp": 48.8, "bearingNDE_temp": 45.8, "motorWinding_temp": 73.8, "suctionPressure": 2.8, "dischargePressure": 14.2, "differentialPressure": 11.4, "flowRate": 92.8, "vibrationX": 2.1, "vibrationY": 1.9, "vibrationZ": 1.5, "motorCurrent": 78.2, "motorPowerFactor": 0.92, "motorPower": 42.2, "runningHours": 8547.53, "numberOfStarts": 1842, "driveFrequency": 49.2},
       "quality": "good"
     }
   ]

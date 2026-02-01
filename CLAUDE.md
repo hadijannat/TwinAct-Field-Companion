@@ -41,6 +41,8 @@ TwinAct Field Companion/
 
 - **SwiftUI** + Swift Concurrency (async/await)
 - **SwiftData** for persistence
+- **CoreML** for on-device LLM inference
+- **NaturalLanguage** framework for embeddings (RAG)
 - **ZIPFoundation** for AASX extraction
 - **XMLCoder** for OPC relationship parsing
 - **ARKit** for augmented reality
@@ -100,6 +102,68 @@ let documents = AASXContentStore.shared.documents(for: assetId)
 - Certification markings (CE, UL, etc.)
 - PDF documentation
 - Technical data sheets
+
+## AI Chat Module
+
+The AI Chat feature provides natural language queries about assets with a hybrid inference approach and RAG support.
+
+### Architecture
+
+```
+Features/Chat/
+├── ChatView.swift              # SwiftUI interface
+├── ChatViewModel.swift         # State management
+├── Inference/
+│   ├── InferenceRouter.swift   # Routing strategy selection
+│   ├── OnDeviceInference.swift # Core ML model inference
+│   └── CloudInference.swift    # Cloud API client
+├── RAG/
+│   ├── DocumentIndexer.swift   # PDF text extraction & chunking
+│   ├── EmbeddingModel.swift    # Apple NLEmbedding wrapper
+│   ├── VectorStore.swift       # In-memory cosine similarity
+│   └── ContextRetriever.swift  # Semantic search
+└── Safety/
+    └── SafetyPolicy.swift      # PII filtering, validation
+```
+
+### Inference Modes
+
+| Mode | Description |
+|------|-------------|
+| `preferOnDevice` | Default. Core ML first, cloud fallback |
+| `preferCloud` | Cloud first, on-device fallback |
+| `onDeviceOnly` | Offline mode (no network) |
+| `cloudOnly` | Cloud-only (requires API) |
+| `adaptive` | Auto-selects based on query complexity |
+
+### Configuration
+
+**Environment Variables:**
+- `TWINACT_GENAI_URL` - Override GenAI endpoint
+- `GENAI_API_KEY` - API key for cloud inference
+
+**Generation Options:**
+```swift
+GenerationOptions(
+    maxTokens: 512,        // Max response length
+    temperature: 0.7,      // 0.3 for factual, 0.7 for explanatory
+    systemPrompt: "..."    // Custom system prompt
+)
+```
+
+### RAG Pipeline
+
+1. **Indexing**: PDFs extracted via `DocumentIndexer`, chunked into ~512 token segments
+2. **Embedding**: Sentences vectorized via `NLEmbedding.sentenceEmbedding()`
+3. **Retrieval**: Top-K chunks retrieved by cosine similarity (default K=5, threshold=0.3)
+4. **Generation**: Context injected into prompt with source citations
+
+### Safety Features
+
+- **PII Filtering**: Redacts emails, phones, SSN, credit cards, API keys before cloud requests
+- **Prompt Validation**: Detects injection attempts, dangerous instructions
+- **Response Validation**: Blocks dangerous commands, industrial safety violations
+- **Audit Trail**: `SafetyAudit` logs all safety events
 
 ## Coding Conventions
 

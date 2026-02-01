@@ -1,44 +1,148 @@
 {
-  "manufacturerName": "PumpTech Industrial Solutions GmbH",
-  "manufacturerProductDesignation": "Smart Industrial Pump SP-500",
-  "manufacturerProductFamily": "Industrial Centrifugal Pumps",
-  "manufacturerProductType": "SP-500",
-  "orderCode": "SP500-IND-2025-EU",
-  "serialNumber": "SP500-2025-0042",
-  "batchNumber": "BATCH-2025-Q1-042",
+  "manufacturerName": "HydraFlow Precision Systems AG",
+  "manufacturerProductDesignation": "CRE 95-3-2 A-F-A-E-HQQE Multi-Stage Inline Centrifugal Pump",
+  "manufacturerProductFamily": "CRE Series - High-Pressure Vertical Inline Pumps",
+  "manufacturerProductType": "CRE 95-3-2",
+  "orderCode": "CRE95-3-2-A-F-A-E-HQQE-96516050",
+  "serialNumber": "P25A-96516050-0042",
+  "batchNumber": "LOT-2025-CRE95-W03",
   "productionDate": "2025-01-15T08:30:00Z",
-  "countryOfOrigin": "DE",
+  "countryOfOrigin": "DK",
   "yearOfConstruction": 2025,
-  "hardwareVersion": "HW-3.2",
-  "firmwareVersion": "FW-5.1.0",
-  "softwareVersion": "SW-2.8.3",
+  "hardwareVersion": "HW-4.2.1",
+  "firmwareVersion": "FW-7.3.2-MGE",
+  "softwareVersion": "SW-3.1.0-SMART",
   "manufacturerAddress": {
-    "street": "Industriestrasse 42",
-    "zipCode": "70469",
-    "city": "Stuttgart",
-    "stateCounty": "Baden-Wuerttemberg",
-    "country": "Germany",
-    "phone": "+49 711 123 4567",
-    "email": "support@pumptech-industrial.example"
+    "street": "Poul Due Jensens Vej 7",
+    "zipCode": "8850",
+    "city": "Bjerringbro",
+    "stateCounty": "Central Jutland",
+    "country": "Denmark",
+    "phone": "+45 87 50 14 00",
+    "email": "techsupport@hydraflow-precision.example"
   },
-  "manufacturerLogo": "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=200",
-  "productImage": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400",
+  "manufacturerLogo": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=200",
+  "productImage": "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=400",
   "markings": [
     {
       "name": "CE",
-      "additionalText": "Conformite Europeenne - meets EU safety standards"
+      "certificateNumber": "CE-2025-MACH-00542",
+      "issuingBody": "TÜV SÜD Product Service GmbH",
+      "additionalText": "Conformité Européenne - EU Machinery Directive 2006/42/EC"
     },
     {
       "name": "ATEX",
-      "additionalText": "Zone 2 rated for hazardous environments"
+      "certificateNumber": "SIRA 25ATEX2156X",
+      "classification": "II 2G Ex eb IIC T4 Gb",
+      "additionalText": "ATEX Directive 2014/34/EU - Zone 1/2 Gas Environments"
     },
     {
-      "name": "ISO 9001",
-      "additionalText": "Quality Management System certified"
+      "name": "IECEx",
+      "certificateNumber": "IECEx SIR 25.0042X",
+      "standard": "IEC 60079-7:2015",
+      "additionalText": "International Electrotechnical Commission Explosive Atmospheres"
     },
     {
-      "name": "ISO 14001",
-      "additionalText": "Environmental Management System certified"
+      "name": "UL Listed",
+      "certificateNumber": "E485321",
+      "standard": "UL 778 / CSA C22.2 No. 108",
+      "additionalText": "Motor-Operated Water Pumps - USA & Canada"
+    },
+    {
+      "name": "EAC",
+      "certificateNumber": "EAЭС RU C-DK.AД07.B.00542/25",
+      "additionalText": "Eurasian Conformity - Russia, Belarus, Kazakhstan, Armenia, Kyrgyzstan"
+    },
+    {
+      "name": "ISO 9001:2015",
+      "certificateNumber": "FM 12345",
+      "issuingBody": "Lloyd's Register Quality Assurance",
+      "additionalText": "Quality Management System - Design & Manufacturing"
+    },
+    {
+      "name": "ISO 14001:2015",
+      "certificateNumber": "EMS 567890",
+      "issuingBody": "Lloyd's Register Quality Assurance",
+      "additionalText": "Environmental Management System"
+    },
+    {
+      "name": "WRAS",
+      "certificateNumber": "2512345",
+      "standard": "BS 6920-1:2014",
+      "additionalText": "Water Regulations Advisory Scheme - UK Drinking Water Approval"
+    },
+    {
+      "name": "NSF/ANSI 61",
+      "certificateNumber": "NSF-C0123456-01",
+      "standard": "NSF/ANSI 61-2020",
+      "additionalText": "Drinking Water System Components - Health Effects"
+    },
+    {
+      "name": "ErP Compliant",
+      "standard": "EU 547/2012",
+      "additionalText": "Energy-related Products Directive - MEI ≥ 0.70"
     }
-  ]
+  ],
+  "technicalSpecifications": {
+    "pumpType": "Multi-stage centrifugal, vertical inline",
+    "impellerDesign": "Enclosed radial impellers, laser-welded",
+    "impellerMaterial": "1.4408 (ASTM CF8M / AISI 316 SS)",
+    "numberOfStages": 3,
+    "shaftSealType": "HQQE - Cartridge mechanical seal",
+    "shaftSealMaterial": "SiC/SiC/EPDM (Silicon Carbide faces)",
+    "motorType": "MGE Motor - IE5 Ultra Premium Efficiency",
+    "motorFrame": "IEC 100L",
+    "voltageFrequency": "3 × 380-500V 50Hz / 3 × 380-480V 60Hz",
+    "insulationClass": "F (155°C)",
+    "ipRating": "IP55 (IP56 with optional rain cover)",
+    "atexClassification": "II 2G Ex eb IIC T4 Gb",
+    "maxAmbientTemperature": 40,
+    "minFluidTemperature": -30,
+    "maxFluidTemperature": 120,
+    "maxWorkingPressure": 25,
+    "pressureUnit": "bar",
+    "flangeStandard": "EN 1092-1 PN16/PN25, DN80 Suction / DN65 Discharge"
+  },
+  "performanceData": {
+    "ratedFlow": 95.0,
+    "ratedFlowUnit": "m³/h",
+    "ratedHead": 125.0,
+    "ratedHeadUnit": "m",
+    "ratedSpeed": 2950,
+    "speedUnit": "rpm",
+    "ratedPower": 45.0,
+    "powerUnit": "kW",
+    "motorEfficiency": 95.8,
+    "hydraulicEfficiency": 84.2,
+    "specificSpeed": 32,
+    "npshRequired": 4.2,
+    "npshUnit": "m",
+    "suctionSpecificSpeed": 2800,
+    "minimumFlow": 15.0,
+    "minimumFlowPercentage": 16,
+    "bestEfficiencyFlow": 85.0,
+    "bestEfficiencyHead": 130.0,
+    "pumpCurveDesignation": "CRE95-3-2/Q85H130"
+  },
+  "materialSpecifications": {
+    "pumpHousing": "EN-GJL-250 (Cast Iron) with Cataphoresis coating",
+    "impellers": "1.4408 (CF8M / AISI 316 SS) - Laser welded",
+    "shaft": "1.4057 (AISI 431 SS)",
+    "wearRings": "PTFE/Bronze composite (Thordon SXL)",
+    "oRings": "EPDM (Ethylene Propylene Diene Monomer)",
+    "baseplate": "S235JR Hot-dip galvanized steel",
+    "motorHousing": "Cast aluminum alloy EN AC-44300",
+    "connectionPorts": "1.4301 (AISI 304 SS) threaded inserts"
+  },
+  "dimensionsWeight": {
+    "overallLength": 685,
+    "overallWidth": 320,
+    "overallHeight": 892,
+    "dimensionUnit": "mm",
+    "dryWeight": 187.5,
+    "operatingWeight": 215.0,
+    "weightUnit": "kg",
+    "suctionFlangeDiameter": 80,
+    "dischargeFlangeDiameter": 65
+  }
 }

@@ -470,6 +470,44 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
         return router
     }
 
+    // MARK: - RAG Services
+
+    /// Shared vector store for document embeddings (singleton for app-wide use)
+    private var _vectorStore: VectorStore?
+
+    /// Shared vector store - used by both KnowledgeIndexer and ChatViewModel
+    var vectorStore: VectorStore {
+        if let store = _vectorStore {
+            return store
+        }
+        let store = VectorStore()
+        _vectorStore = store
+        return store
+    }
+
+    /// Cached knowledge indexer
+    private var _knowledgeIndexer: KnowledgeIndexer?
+
+    /// Knowledge indexer for bundled domain expertise
+    var knowledgeIndexer: KnowledgeIndexer {
+        if let indexer = _knowledgeIndexer {
+            return indexer
+        }
+        let indexer = KnowledgeIndexer(vectorStore: vectorStore)
+        _knowledgeIndexer = indexer
+        return indexer
+    }
+
+    /// Index bundled knowledge documents (call at app startup)
+    func indexBundledKnowledge() async {
+        do {
+            let chunkCount = try await knowledgeIndexer.indexBundledKnowledge()
+            dependencyLogger.info("Indexed \(chunkCount) knowledge chunks at startup")
+        } catch {
+            dependencyLogger.error("Failed to index knowledge: \(error.localizedDescription)")
+        }
+    }
+
     // MARK: - Glossary Service
 
     /// Cached glossary service
@@ -608,6 +646,8 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
         _syncEngine = nil
         _inferenceRouter = nil
         _glossaryService = nil
+        _vectorStore = nil
+        _knowledgeIndexer = nil
         invalidateAASServices()
         isSyncInProgress = false
         lastSyncTimestamp = nil

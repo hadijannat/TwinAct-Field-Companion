@@ -251,7 +251,24 @@ public final class ContextRetriever: Sendable {
     ) -> String {
         let assetContext = assetName.map { "for asset \"\($0)\"" } ?? ""
 
+        // Use domain-aware system prompt for regulatory/AAS questions
+        let systemPrompt = DomainPrompts.buildSystemPrompt(for: question)
+
         if context.isEmpty {
+            // For regulatory questions, still provide expertise even without docs
+            if DomainPrompts.isRegulatoryQuestion(question) || DomainPrompts.isAASQuestion(question) {
+                return """
+                \(systemPrompt)
+
+                The user has asked a question about regulations or standards. Use your expertise to answer.
+                If you're uncertain about specific details, acknowledge that and suggest consulting official sources.
+
+                Question: \(question)
+
+                Answer:
+                """
+            }
+
             return """
             You are an assistant helping a technician \(assetContext).
             The user has asked a question, but no relevant documentation was found.
@@ -264,22 +281,27 @@ public final class ContextRetriever: Sendable {
             """
         }
 
+        // Format context with source attribution
         let contextText: String
         if config.includeCitations {
             contextText = context.chunks.enumerated().map { index, chunk in
-                let citation = "[Source \(index + 1): \(chunk.documentTitle)"
-                let pageInfo = chunk.pageNumber.map { ", Page \($0)" } ?? ""
-                return "\(citation)\(pageInfo)]\n\(chunk.text)"
+                // Use different labels for knowledge vs asset documents
+                let sourceLabel = chunk.isKnowledgeChunk
+                    ? "[Reference \(index + 1): \(chunk.documentTitle)]"
+                    : "[Asset Doc \(index + 1): \(chunk.documentTitle)\(chunk.pageNumber.map { ", Page \($0)" } ?? "")]"
+                return "\(sourceLabel)\n\(chunk.text)"
             }.joined(separator: "\n\n---\n\n")
         } else {
             contextText = context.combinedText
         }
 
         return """
-        You are an assistant helping a technician with an industrial asset \(assetContext).
-        Use the following documentation excerpts to answer the question.
+        \(systemPrompt)
+
+        Use the following documentation excerpts to answer the question \(assetContext).
         If the answer is not clearly stated in the documentation, say so.
         Be concise and technical. Reference specific procedures or warnings when relevant.
+        When citing regulations, include article numbers where known.
 
         Documentation:
         \(contextText)
