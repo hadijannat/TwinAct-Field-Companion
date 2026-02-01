@@ -226,3 +226,42 @@ extension DigitalNameplate {
     /// Alternative semantic ID (version 1.0)
     public static let semanticIdV1 = "https://admin-shell.io/zvei/nameplate/1/0/Nameplate"
 }
+
+// MARK: - AASX Content Integration
+
+extension DigitalNameplate {
+    /// Resolved product image URL (local AASX content preferred)
+    public func resolvedProductImage(for assetId: String) -> URL? {
+        if let localURL = AASXContentStore.shared.thumbnailURL(for: assetId) {
+            return localURL
+        }
+        if let localImages = AASXContentStore.shared.productImages(for: assetId).first {
+            return localImages
+        }
+        return productImage
+    }
+
+    /// Resolved manufacturer logo URL (local AASX content preferred)
+    public func resolvedManufacturerLogo(for assetId: String) -> URL? {
+        if let localURL = AASXContentStore.shared.logoURL(for: assetId) {
+            return localURL
+        }
+        return manufacturerLogo
+    }
+
+    /// Resolved certification markings (local AASX content preferred)
+    public func resolvedMarkings(for assetId: String) -> [Marking] {
+        let localMarkingURLs = AASXContentStore.shared.markingURLs(for: assetId)
+
+        if !localMarkingURLs.isEmpty {
+            return localMarkingURLs.map { url in
+                Marking(
+                    name: (url.lastPathComponent as NSString).deletingPathExtension.uppercased(),
+                    file: url
+                )
+            }
+        }
+
+        return markings ?? []
+    }
+}

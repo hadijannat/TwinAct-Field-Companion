@@ -374,3 +374,32 @@ public enum AssetSort: String, CaseIterable, Sendable {
         }
     }
 }
+
+// MARK: - AASX Content Integration
+
+extension Asset {
+    /// Returns local AASX content URL if available, otherwise remote URL
+    public var resolvedThumbnailURL: URL? {
+        if let localURL = AASXContentStore.shared.thumbnailURL(for: id) {
+            return localURL
+        }
+        return thumbnailURL
+    }
+
+    /// Whether this asset has locally stored AASX content
+    public var hasLocalContent: Bool {
+        AASXContentStore.shared.hasContent(for: id)
+    }
+
+    /// Get all product images (local + remote)
+    public var resolvedProductImages: [URL] {
+        let local = AASXContentStore.shared.productImages(for: id)
+        if !local.isEmpty {
+            return local
+        }
+        if let thumbnail = thumbnailURL {
+            return [thumbnail]
+        }
+        return []
+    }
+}
