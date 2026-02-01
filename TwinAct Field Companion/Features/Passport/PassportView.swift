@@ -95,7 +95,12 @@ public struct PassportView: View {
                 ScrollView {
                     VStack(spacing: 20) {
                         // Asset header (shown on all tabs)
-                        AssetHeaderView(asset: viewModel.asset)
+                        // Prefer AASX-extracted nameplate for header display
+                        AssetHeaderView(
+                            asset: viewModel.asset,
+                            nameplate: aasxPassportData?.nameplate,
+                            assetIdForImages: effectiveAASXAssetId
+                        )
 
                         // Cache indicator
                         if viewModel.isFromCache {

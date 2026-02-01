@@ -12,11 +12,47 @@ import SwiftUI
 
 /// Asset header with product image and basic info.
 /// Displays prominently at the top of the Passport view.
+/// When AASX-extracted nameplate is provided, it takes precedence over asset data.
 public struct AssetHeaderView: View {
 
     // MARK: - Properties
 
     let asset: Asset?
+    let nameplate: DigitalNameplate?
+    let assetIdForImages: String?
+
+    // MARK: - Initialization
+
+    /// Initialize with asset and optional nameplate override.
+    /// - Parameters:
+    ///   - asset: The asset model (from API/demo)
+    ///   - nameplate: Optional AASX-extracted nameplate (takes precedence)
+    ///   - assetIdForImages: Asset ID for resolving local AASX images
+    public init(asset: Asset?, nameplate: DigitalNameplate? = nil, assetIdForImages: String? = nil) {
+        self.asset = asset
+        self.nameplate = nameplate
+        self.assetIdForImages = assetIdForImages
+    }
+
+    // MARK: - Computed Properties
+
+    /// Display name - prefer nameplate, fall back to asset
+    private var displayName: String {
+        nameplate?.manufacturerProductDesignation ?? asset?.name ?? "Unknown Asset"
+    }
+
+    /// Manufacturer name - prefer nameplate, fall back to asset
+    private var manufacturerName: String? {
+        nameplate?.manufacturerName ?? asset?.manufacturer
+    }
+
+    /// Display ID - prefer nameplate asset ID, fall back to asset
+    private var displayId: String? {
+        if let assetId = assetIdForImages, nameplate != nil {
+            return assetId
+        }
+        return asset?.displayId
+    }
 
     // MARK: - Body
 
@@ -26,26 +62,24 @@ public struct AssetHeaderView: View {
             productImage
 
             // Asset name
-            Text(asset?.name ?? "Unknown Asset")
+            Text(displayName)
                 .font(.title2.bold())
                 .multilineTextAlignment(.center)
 
             // Manufacturer and model
-            if let manufacturer = asset?.manufacturer {
+            if let manufacturer = manufacturerName {
                 Text(manufacturer)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
 
             // Asset ID badge
-            if let asset = asset {
-                AssetIdBadge(id: asset.displayId)
+            if let id = displayId {
+                AssetIdBadge(id: id)
             }
 
             // Quick info pills
-            if asset != nil {
-                quickInfoPills
-            }
+            quickInfoPills
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
@@ -53,9 +87,20 @@ public struct AssetHeaderView: View {
 
     // MARK: - Product Image
 
+    /// Resolved image URL - prefer AASX-extracted image, fall back to asset thumbnail
+    private var resolvedImageURL: URL? {
+        // First try AASX-extracted product image
+        if let assetId = assetIdForImages,
+           let localImage = nameplate?.resolvedProductImage(for: assetId) {
+            return localImage
+        }
+        // Fall back to asset thumbnail
+        return asset?.resolvedThumbnailURL
+    }
+
     private var productImage: some View {
         Group {
-            if let imageURL = asset?.resolvedThumbnailURL {
+            if let imageURL = resolvedImageURL {
                 AsyncImage(url: imageURL) { phase in
                     switch phase {
                     case .empty:
@@ -111,15 +156,20 @@ public struct AssetHeaderView: View {
 
     private var quickInfoPills: some View {
         HStack(spacing: 8) {
-            if let serial = asset?.serialNumber {
+            // Serial number - prefer nameplate
+            if let serial = nameplate?.serialNumber ?? asset?.serialNumber {
                 InfoPill(icon: "number", text: serial, color: .blue)
             }
 
-            if let model = asset?.model {
+            // Model/product type - prefer nameplate
+            if let model = nameplate?.manufacturerProductType ?? asset?.model {
                 InfoPill(icon: "cpu", text: model, color: .purple)
             }
 
-            if let assetType = asset?.assetType {
+            // Product family or asset type
+            if let productFamily = nameplate?.manufacturerProductFamily {
+                InfoPill(icon: "tag", text: productFamily, color: .orange)
+            } else if let assetType = asset?.assetType {
                 InfoPill(icon: "tag", text: assetType, color: .orange)
             }
         }
