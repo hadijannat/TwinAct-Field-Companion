@@ -211,7 +211,8 @@ public actor OpenRouterProvider: CloudAIProvider {
             maxTokens: options.maxTokens,
             temperature: options.temperature,
             topP: options.topP,
-            stop: options.stopSequences
+            stop: options.stopSequences,
+            stream: false  // Disable streaming - we don't support SSE parsing yet
         )
 
         let prefix = apiVersionPathPrefix
@@ -318,6 +319,7 @@ private struct OpenRouterRequest: Codable, Sendable {
     let temperature: Double?
     let topP: Double?
     let stop: [String]?
+    let stream: Bool
 
     enum CodingKeys: String, CodingKey {
         case model, messages
@@ -325,6 +327,7 @@ private struct OpenRouterRequest: Codable, Sendable {
         case temperature
         case topP = "top_p"
         case stop
+        case stream
     }
 }
 
