@@ -28,6 +28,11 @@ public struct PassportView: View {
     @State private var showFileImporter = false
     @State private var showURLImporter = false
 
+    // AASX Content viewing - tracks which AASX package to display
+    @State private var effectiveAASXAssetId: String?
+    @State private var availableAASXAssets: [String] = []
+    @State private var showAASXPicker = false
+
     // Jargon Buster support
     @StateObject private var jargonBusterVM: JargonBusterViewModel
     @State private var selectedGlossaryTerm: GlossaryEntry?
@@ -202,6 +207,7 @@ public struct PassportView: View {
         }
         .task {
             await viewModel.loadAsset()
+            refreshAvailableAASXAssets()
         }
         // AASX file importer
         .aasxFileImporter(isPresented: $showFileImporter, importManager: aasxImportManager)
@@ -211,11 +217,18 @@ public struct PassportView: View {
         }
         // Import completion handler
         .onChange(of: aasxImportManager.state) { _, newState in
-            if case .completed = newState {
+            if case .completed(let parseResult) = newState {
+                // Refresh available AASX assets and select the newly imported one
+                refreshAvailableAASXAssets()
+                effectiveAASXAssetId = parseResult.assetId
+
                 // Refresh the view to show new content
                 Task {
                     await viewModel.refresh()
                 }
+
+                // Switch to Content tab to show the imported content
+                selectedTab = .content
             }
         }
         // Jargon Buster sheet for selected term
@@ -301,26 +314,31 @@ public struct PassportView: View {
 
     @ViewBuilder
     private var contentTabContent: some View {
-        // Image gallery
-        AASXImageGalleryView(assetId: assetId)
+        // AASX package selector if multiple are available
+        if availableAASXAssets.count > 1 {
+            aasxPackagePicker
+        }
 
-        // Documents with enhanced view (showing extracted AASX documents)
-        let extractedDocs = AASXContentStore.shared.documents(for: assetId)
-        if !extractedDocs.isEmpty {
-            ExtractedDocumentListView(documents: extractedDocs)
+        if let aasxId = effectiveAASXAssetId {
+            // Image gallery
+            AASXImageGalleryView(assetId: aasxId)
+
+            // Documents with enhanced view (showing extracted AASX documents)
+            let extractedDocs = AASXContentStore.shared.documents(for: aasxId)
+            if !extractedDocs.isEmpty {
+                ExtractedDocumentListView(documents: extractedDocs)
+            }
+
+            // CAD Models
+            let cadFiles = AASXContentStore.shared.cadFiles(for: aasxId)
+            if !cadFiles.isEmpty {
+                CADModelSection(assetId: aasxId)
+            }
         } else if !viewModel.documents.isEmpty {
-            // Fall back to server documents
+            // Fall back to server documents when no AASX
             DocumentListView(documents: viewModel.documents)
-        }
-
-        // CAD Models
-        let cadFiles = AASXContentStore.shared.cadFiles(for: assetId)
-        if !cadFiles.isEmpty {
-            CADModelSection(assetId: assetId)
-        }
-
-        // Empty state if no AASX content
-        if !AASXContentStore.shared.hasContent(for: assetId) && viewModel.documents.isEmpty {
+        } else {
+            // Empty state if no AASX content
             contentEmptyState
         }
     }
@@ -329,20 +347,62 @@ public struct PassportView: View {
 
     @ViewBuilder
     private var structureTabContent: some View {
-        // File browser
-        if AASXContentStore.shared.hasContent(for: assetId) {
-            AASXFileBrowserView(assetId: assetId)
+        // AASX package selector if multiple are available
+        if availableAASXAssets.count > 1 {
+            aasxPackagePicker
         }
 
-        // JSON explorer
-        if AASXContentStore.shared.aasJSON(for: assetId) != nil {
-            AASJSONExplorerView(assetId: assetId)
-        }
+        if let aasxId = effectiveAASXAssetId {
+            // File browser
+            AASXFileBrowserView(assetId: aasxId)
 
-        // Empty state if no AASX package
-        if !AASXContentStore.shared.hasContent(for: assetId) {
+            // JSON explorer
+            if AASXContentStore.shared.aasJSON(for: aasxId) != nil {
+                AASJSONExplorerView(assetId: aasxId)
+            }
+        } else {
+            // Empty state if no AASX package
             structureEmptyState
         }
+    }
+
+    // MARK: - AASX Package Picker
+
+    private var aasxPackagePicker: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("AASX Package")
+                .font(.caption)
+                .foregroundColor(.secondary)
+
+            Menu {
+                ForEach(availableAASXAssets, id: \.self) { aasxId in
+                    Button {
+                        effectiveAASXAssetId = aasxId
+                    } label: {
+                        HStack {
+                            Text(aasxId.count > 30 ? "...\(aasxId.suffix(27))" : aasxId)
+                            if aasxId == effectiveAASXAssetId {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                }
+            } label: {
+                HStack {
+                    Image(systemName: "doc.zipper")
+                    Text(effectiveAASXAssetId.map { $0.count > 25 ? "...\($0.suffix(22))" : $0 } ?? "Select Package")
+                        .lineLimit(1)
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .font(.caption)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color(.tertiarySystemBackground))
+                .cornerRadius(8)
+            }
+        }
+        .padding(.horizontal, 4)
     }
 
     // MARK: - Content Empty State
@@ -545,6 +605,26 @@ public struct PassportView: View {
             }
         } catch {
             print("Error scanning Documents folder: \(error.localizedDescription)")
+        }
+    }
+
+    // MARK: - AASX Asset Management
+
+    /// Refresh the list of available AASX assets and set effective asset ID
+    private func refreshAvailableAASXAssets() {
+        // Get all stored AASX asset IDs
+        availableAASXAssets = AASXContentStore.shared.storedAssetIds()
+
+        // Determine effective AASX asset ID
+        if AASXContentStore.shared.hasContent(for: assetId) {
+            // Current asset has AASX content
+            effectiveAASXAssetId = assetId
+        } else if let firstAvailable = availableAASXAssets.first {
+            // Use first available AASX package
+            effectiveAASXAssetId = firstAvailable
+        } else {
+            // No AASX content available
+            effectiveAASXAssetId = nil
         }
     }
 }
