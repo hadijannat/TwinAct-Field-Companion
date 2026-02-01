@@ -215,6 +215,14 @@ public actor OpenRouterProvider: CloudAIProvider {
             stream: false  // Disable streaming - we don't support SSE parsing yet
         )
 
+        // Debug: log the request body to verify stream=false is included
+        #if DEBUG
+        if let jsonData = try? JSONEncoder().encode(requestBody),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            logger.debug("OpenRouter request body: \(jsonString)")
+        }
+        #endif
+
         let prefix = apiVersionPathPrefix
         let endpoint = try Endpoint.post(
             "\(prefix)/chat/completions",
@@ -223,7 +231,7 @@ public actor OpenRouterProvider: CloudAIProvider {
             timeout: configuration.timeout
         )
 
-        logger.info("Sending request to OpenRouter API")
+        logger.info("Sending request to OpenRouter API (stream=false)")
 
         // Get raw response data first to handle error responses
         let responseData: Data = try await httpClient.request(endpoint)
