@@ -7,6 +7,10 @@
 //
 
 import SwiftUI
+import os.log
+
+/// Logger for voice command events
+private let voiceLogger = Logger(subsystem: "com.twinact.fieldcompanion", category: "Voice")
 
 // MARK: - Voice Command Button
 
@@ -208,7 +212,7 @@ public struct VoiceCommandButton: View {
         do {
             try speechRecognizer.startListening()
         } catch {
-            print("Failed to start listening: \(error)")
+            voiceLogger.error("Failed to start listening: \(error.localizedDescription)")
         }
     }
 

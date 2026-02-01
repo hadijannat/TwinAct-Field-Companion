@@ -8,39 +8,113 @@
 import Foundation
 import SwiftUI
 import Combine
+import os.log
+
+/// Logger for dependency container events
+private let dependencyLogger = Logger(subsystem: "com.twinact.fieldcompanion", category: "Dependencies")
 
 // MARK: - Protocol Abstractions
 
-/// Protocol for the dependency container to enable testing
+/// Protocol for the dependency container to enable testing and mocking.
+///
+/// The dependency container provides centralized access to all app services.
+/// Use this protocol to create mock containers for unit testing.
+///
+/// ## Example
+/// ```swift
+/// class MockDependencyContainer: DependencyContainerProtocol {
+///     var httpClient: HTTPClientProtocol { MockHTTPClient() }
+///     // ...
+/// }
+/// ```
 protocol DependencyContainerProtocol: AnyObject {
+    /// HTTP client for network requests to AAS servers.
     var httpClient: HTTPClientProtocol { get }
+
+    /// Manager for user authentication and token lifecycle.
     var authenticationManager: AuthenticationManagerProtocol { get }
+
+    /// Controller for local data persistence using SwiftData.
     var persistenceController: PersistenceControllerProtocol { get }
+
+    /// Engine for offline-first sync with conflict resolution.
     var syncEngine: SyncEngineProtocol { get }
 }
 
-/// Protocol for authentication management
+/// Protocol for user authentication and session management.
+///
+/// Handles sign-in/sign-out flows and token refresh for authenticated API access.
+/// Implementations should securely store credentials in the Keychain.
 protocol AuthenticationManagerProtocol: Sendable {
+    /// Whether the user is currently authenticated with valid credentials.
     var isAuthenticated: Bool { get async }
+
+    /// Authenticate user with username and password.
+    /// - Parameters:
+    ///   - username: User's email or username.
+    ///   - password: User's password.
+    /// - Throws: Authentication error if credentials are invalid.
     func signIn(username: String, password: String) async throws
+
+    /// Sign out the current user and clear stored credentials.
     func signOut() async
+
+    /// Refresh the access token using the stored refresh token.
+    /// - Throws: Authentication error if refresh fails (user must sign in again).
     func refreshToken() async throws
 }
 
-/// Protocol for data persistence operations
+/// Protocol for key-value persistence operations.
+///
+/// Provides a simple interface for storing and retrieving Codable objects.
+/// Used for caching and offline data storage.
 protocol PersistenceControllerProtocol: Sendable {
+    /// Save an encodable object to persistent storage.
+    /// - Parameters:
+    ///   - object: The object to persist.
+    ///   - key: Unique key for retrieval.
     func save<T: Encodable>(_ object: T, forKey key: String) async throws
+
+    /// Load a previously saved object from storage.
+    /// - Parameter key: The key used when saving.
+    /// - Returns: The decoded object, or nil if not found.
     func load<T: Decodable>(forKey key: String) async throws -> T?
+
+    /// Delete an object from storage.
+    /// - Parameter key: The key of the object to delete.
     func delete(forKey key: String) async throws
+
+    /// Clear all persisted data. Use with caution.
     func clearAll() async throws
 }
 
-/// Protocol for offline sync engine
+/// Protocol for offline-first synchronization between local and server data.
+///
+/// The sync engine manages:
+/// - Outbox queue for pending local changes
+/// - Conflict resolution when server and local data diverge
+/// - Background sync scheduling for iOS
+///
+/// ## Sync Flow
+/// 1. Local changes are queued in the outbox
+/// 2. When online, changes are pushed to server
+/// 3. Server changes are pulled and merged with local data
+/// 4. Conflicts are resolved per configured strategy
 protocol SyncEngineProtocol: Sendable {
+    /// Whether a sync operation is currently in progress.
     var isSyncing: Bool { get async }
+
+    /// Timestamp of the last successful sync, or nil if never synced.
     var lastSyncDate: Date? { get async }
+
+    /// Start a manual sync operation.
+    /// - Throws: SyncError if sync fails.
     func startSync() async throws
+
+    /// Stop any ongoing sync operation.
     func stopSync() async
+
+    /// Schedule background sync using BGTaskScheduler.
     func scheduleBackgroundSync() async
 }
 
@@ -293,7 +367,7 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 self?.invalidateAASServices()
             }
         }
@@ -322,15 +396,15 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
 
     /// Called when the app enters the foreground - triggers sync if needed
     func handleAppWillEnterForeground() {
-        Task {
-            await triggerSyncIfNeeded()
+        Task { @MainActor [weak self] in
+            await self?.triggerSyncIfNeeded()
         }
     }
 
     /// Called when the app enters the background - schedules background sync
     func handleAppDidEnterBackground() {
-        Task {
-            await syncEngine.scheduleBackgroundSync()
+        Task { @MainActor [weak self] in
+            await self?.syncEngine.scheduleBackgroundSync()
         }
     }
 
@@ -364,7 +438,7 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
             lastSyncTimestamp = Date()
         } catch {
             // Log error but don't throw - sync failures should be handled gracefully
-            print("Sync failed: \(error.localizedDescription)")
+            dependencyLogger.error("Sync failed: \(error.localizedDescription)")
         }
     }
 

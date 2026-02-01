@@ -402,10 +402,20 @@ public final class ContextRetriever: Sendable {
                 // Partial inclusion if there's room
                 let remainingSpace = config.maxContextLength - totalLength
                 if remainingSpace > 200 {  // At least 200 chars of useful content
-                    var truncatedChunk = chunk
                     let truncatedText = String(chunk.text.prefix(remainingSpace))
-                    // Note: We'd need to create a new chunk with truncated text
-                    // For simplicity, we'll just stop here
+                    let truncatedChunk = DocumentChunk(
+                        id: chunk.id,
+                        documentId: chunk.documentId,
+                        documentTitle: chunk.documentTitle,
+                        text: truncatedText,
+                        pageNumber: chunk.pageNumber,
+                        sectionTitle: chunk.sectionTitle,
+                        chunkIndex: chunk.chunkIndex,
+                        startOffset: chunk.startOffset,
+                        embedding: chunk.embedding
+                    )
+                    result.append(truncatedChunk)
+                    resultScores.append(scores[index])
                 }
                 break
             }

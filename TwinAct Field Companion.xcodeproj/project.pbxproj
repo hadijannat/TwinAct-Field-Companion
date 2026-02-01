@@ -14,11 +14,19 @@
 			remoteGlobalIDString = 24B644872F1D756D00CA0BC6;
 			remoteInfo = "TwinAct Field Companion";
 		};
+		752329F283056EC63201D2CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 24B644802F1D756D00CA0BC6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 24B644872F1D756D00CA0BC6;
+			remoteInfo = "TwinAct Field Companion";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		24B644882F1D756D00CA0BC6 /* TwinAct Field Companion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TwinAct Field Companion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		24B6449C2F1D800000CA0BC6 /* TwinAct Field CompanionUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "TwinAct Field CompanionUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4AAC0EDBBCB563897DCB0F1 /* TwinAct Field CompanionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "TwinAct Field CompanionTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,9 +40,21 @@
 			path = "TwinAct Field CompanionUITests";
 			sourceTree = "<group>";
 		};
+		FCC3079EC2360FCC4DCF8138 /* TwinAct Field CompanionTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "TwinAct Field CompanionTests";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		1389444434E8C4234E353722 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		24B644852F1D756D00CA0BC6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -57,6 +77,7 @@
 			children = (
 				24B6448A2F1D756D00CA0BC6 /* TwinAct Field Companion */,
 				24B6449D2F1D800000CA0BC6 /* TwinAct Field CompanionUITests */,
+				FCC3079EC2360FCC4DCF8138 /* TwinAct Field CompanionTests */,
 				24B644892F1D756D00CA0BC6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -66,6 +87,7 @@
 			children = (
 				24B644882F1D756D00CA0BC6 /* TwinAct Field Companion.app */,
 				24B6449C2F1D800000CA0BC6 /* TwinAct Field CompanionUITests.xctest */,
+				F4AAC0EDBBCB563897DCB0F1 /* TwinAct Field CompanionTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -118,6 +140,29 @@
 			productReference = 24B6449C2F1D800000CA0BC6 /* TwinAct Field CompanionUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		90B43C6062A7A8591AF02436 /* TwinAct Field CompanionTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 413813D7E6A2CF646843012A /* Build configuration list for PBXNativeTarget "TwinAct Field CompanionTests" */;
+			buildPhases = (
+				3587CE65F6A864AEAE3612C3 /* Sources */,
+				1389444434E8C4234E353722 /* Frameworks */,
+				BEEC6911B86D8E8EAA6E81FA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4170ADF2D954544C22AA456C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				FCC3079EC2360FCC4DCF8138 /* TwinAct Field CompanionTests */,
+			);
+			name = "TwinAct Field CompanionTests";
+			packageProductDependencies = (
+			);
+			productName = "TwinAct Field CompanionTests";
+			productReference = F4AAC0EDBBCB563897DCB0F1 /* TwinAct Field CompanionTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -132,6 +177,10 @@
 						CreatedOnToolsVersion = 26.2;
 					};
 					24B6449B2F1D800000CA0BC6 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 24B644872F1D756D00CA0BC6;
+					};
+					90B43C6062A7A8591AF02436 = {
 						CreatedOnToolsVersion = 26.2;
 						TestTargetID = 24B644872F1D756D00CA0BC6;
 					};
@@ -153,6 +202,7 @@
 			targets = (
 				24B644872F1D756D00CA0BC6 /* TwinAct Field Companion */,
 				24B6449B2F1D800000CA0BC6 /* TwinAct Field CompanionUITests */,
+				90B43C6062A7A8591AF02436 /* TwinAct Field CompanionTests */,
 			);
 		};
 /* End PBXProject section */
@@ -166,6 +216,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		24B6449A2F1D800000CA0BC6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BEEC6911B86D8E8EAA6E81FA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -189,6 +246,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3587CE65F6A864AEAE3612C3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -196,6 +260,11 @@
 			isa = PBXTargetDependency;
 			target = 24B644872F1D756D00CA0BC6 /* TwinAct Field Companion */;
 			targetProxy = 24B644A02F1D800000CA0BC6 /* PBXContainerItemProxy */;
+		};
+		4170ADF2D954544C22AA456C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 24B644872F1D756D00CA0BC6 /* TwinAct Field Companion */;
+			targetProxy = 752329F283056EC63201D2CC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -446,6 +515,58 @@
 			};
 			name = Release;
 		};
+		46BD31F424934AA7C9562552 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "hadi.TwinAct-Field-CompanionTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TwinAct Field Companion.app/TwinAct Field Companion";
+				TEST_TARGET_NAME = "TwinAct Field Companion";
+			};
+			name = Debug;
+		};
+		9D12C22CC6C251A7F73B1D72 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "hadi.TwinAct-Field-CompanionTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TwinAct Field Companion.app/TwinAct Field Companion";
+				TEST_TARGET_NAME = "TwinAct Field Companion";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -472,6 +593,15 @@
 			buildConfigurations = (
 				24B644A42F1D800000CA0BC6 /* Debug */,
 				24B644A52F1D800000CA0BC6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		413813D7E6A2CF646843012A /* Build configuration list for PBXNativeTarget "TwinAct Field CompanionTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				46BD31F424934AA7C9562552 /* Debug */,
+				9D12C22CC6C251A7F73B1D72 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

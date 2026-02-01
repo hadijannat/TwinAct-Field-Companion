@@ -418,7 +418,7 @@ public struct DocumentIndexer: Sendable {
             ))
         } else if !currentChunkSentences.isEmpty && !chunks.isEmpty {
             // Append remaining text to the last chunk
-            var lastChunk = chunks.removeLast()
+            let lastChunk = chunks.removeLast()
             let additionalText = currentChunkSentences.joined(separator: " ")
             chunks.append(DocumentChunk(
                 id: lastChunk.id,

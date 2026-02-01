@@ -131,7 +131,7 @@ public final class ChatViewModel: ObservableObject {
 
         // Add streaming placeholder
         let placeholderId = UUID()
-        var assistantMessage = ChatMessage(
+        let assistantMessage = ChatMessage(
             id: placeholderId,
             role: .assistant,
             content: "",
@@ -240,6 +240,8 @@ public final class ChatViewModel: ObservableObject {
         error = nil
 
         let total = Double(documents.count)
+        var successCount = 0
+        var failedDocuments: [String] = []
 
         for (index, document) in documents.enumerated() {
             do {
@@ -247,7 +249,7 @@ public final class ChatViewModel: ObservableObject {
                 let chunks = try await DocumentIndexer.indexDocument(document)
 
                 // Generate embeddings
-                let embeddedChunks = try await chunkEmbedder.embedChunks(chunks) { progress in
+                let embeddedChunks = try await chunkEmbedder.embedChunks(chunks) { _ in
                     // Sub-progress within document
                 }
 
@@ -256,11 +258,15 @@ public final class ChatViewModel: ObservableObject {
 
                 // Update progress
                 indexingProgress = Double(index + 1) / total
+                successCount += 1
 
                 logger.info("Indexed document: \(document.id) with \(embeddedChunks.count) chunks")
 
             } catch {
                 logger.error("Failed to index document \(document.id): \(error.localizedDescription)")
+                // Prefer English title, fall back to first available or document ID
+                let displayName = document.title.text(for: "en") ?? document.title.first?.text ?? document.id
+                failedDocuments.append(displayName)
                 // Continue with other documents
             }
         }
@@ -268,10 +274,18 @@ public final class ChatViewModel: ObservableObject {
         isIndexed = await vectorStore.chunkCount > 0
         indexingProgress = 1.0
 
-        // Add system message about indexing
+        // Add system message about indexing results
         let chunkCount = await vectorStore.chunkCount
         if chunkCount > 0 {
-            messages.append(.system("Indexed \(documents.count) documents (\(chunkCount) chunks). Ready to answer questions."))
+            if failedDocuments.isEmpty {
+                messages.append(.system("Indexed \(successCount) documents (\(chunkCount) chunks). Ready to answer questions."))
+            } else {
+                messages.append(.system("Indexed \(successCount) of \(documents.count) documents. \(failedDocuments.count) failed to process."))
+            }
+        } else if !failedDocuments.isEmpty {
+            // All documents failed
+            error = ChatError.indexingFailed("All documents failed to index")
+            messages.append(.system("Unable to process documents. Please try again later."))
         }
     }
 
@@ -346,14 +360,14 @@ public enum ChatError: Error, LocalizedError, Identifiable {
 
     public var errorDescription: String? {
         switch self {
-        case .inferenceFailed(let message):
-            return "Generation failed: \(message)"
-        case .indexingFailed(let message):
-            return "Document indexing failed: \(message)"
+        case .inferenceFailed:
+            return "Unable to generate a response. Please try again."
+        case .indexingFailed:
+            return "Unable to process the documents. Please try again later."
         case .noDocumentsIndexed:
-            return "No documents have been indexed. Please add documents first."
+            return "No documents available yet. Please scan an asset to load its documentation."
         case .unknown(let message):
-            return message
+            return message.isEmpty ? "An unexpected error occurred. Please try again." : message
         }
     }
 }

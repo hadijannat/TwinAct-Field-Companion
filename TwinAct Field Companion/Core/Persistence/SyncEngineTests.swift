@@ -2,8 +2,11 @@
 //  SyncEngineTests.swift
 //  TwinAct Field Companion
 //
-//  Unit tests for SyncEngine - testing conflict resolution and sync utilities.
-//  Tests can be run from debug builds via the diagnostics view.
+//  DEBUG-only test runner for SyncEngine validation.
+//  Full XCTest coverage is in TwinAct Field CompanionTests/SyncEngineTests.swift.
+//
+//  This file provides a lightweight test runner for the in-app diagnostics view.
+//  For CI/CD testing, use the XCTest target instead.
 //
 
 import Foundation

@@ -6,6 +6,10 @@
 //
 
 import SwiftUI
+import os.log
+
+/// Logger for chat-related events
+private let chatLogger = Logger(subsystem: "com.twinact.fieldcompanion", category: "Chat")
 
 // MARK: - Chat View
 
@@ -85,7 +89,7 @@ public struct ChatView: View {
         .alert(item: $viewModel.error) { error in
             Alert(
                 title: Text("Error"),
-                message: Text(error.localizedDescription ?? "An error occurred"),
+                message: Text(error.localizedDescription),
                 dismissButton: .default(Text("OK"))
             )
         }
@@ -163,7 +167,7 @@ public struct ChatView: View {
                     ForEach(viewModel.messages) { message in
                         MessageBubble(message: message) { documentId in
                             // Handle source tap - could open document viewer
-                            print("Tapped source: \(documentId)")
+                            chatLogger.debug("Tapped source document: \(documentId)")
                         }
                         .id(message.id)
                     }

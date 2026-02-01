@@ -9,6 +9,10 @@ import Foundation
 import SwiftData
 import SwiftUI
 import Combine
+import os.log
+
+/// Logger for persistence operations
+private let persistenceLogger = Logger(subsystem: "com.twinact.fieldcompanion", category: "Persistence")
 
 // MARK: - Persistence Controller
 
@@ -54,9 +58,6 @@ public final class PersistenceController: ObservableObject {
     /// Initialize the persistence controller
     /// - Parameter inMemory: If true, uses in-memory storage (for testing/previews)
     public init(inMemory: Bool = false) {
-        // Register value transformers
-        Self.registerValueTransformers()
-
         // Define the schema with all models
         let schema = Schema([
             OutboxOperation.self,
@@ -89,15 +90,6 @@ public final class PersistenceController: ObservableObject {
         } catch {
             fatalError("Failed to create ModelContainer: \(error.localizedDescription)")
         }
-    }
-
-    // MARK: - Value Transformer Registration
-
-    /// Register all custom value transformers
-    private static func registerValueTransformers() {
-        OutboxOperationTypeTransformer.register()
-        OutboxStatusTransformer.register()
-        AuditActionTypeTransformer.register()
     }
 
     // MARK: - Sample Data
@@ -175,7 +167,7 @@ public final class PersistenceController: ObservableObject {
         do {
             try context.save()
         } catch {
-            print("Failed to save sample data: \(error)")
+            persistenceLogger.error("Failed to save sample data: \(error.localizedDescription)")
         }
     }
 

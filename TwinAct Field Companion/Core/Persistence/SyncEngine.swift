@@ -58,6 +58,7 @@ public final class SyncEngine: ObservableObject {
 
     /// Background task identifier for BGTaskScheduler
     public static let backgroundTaskIdentifier = "com.twinact.fieldcompanion.sync"
+    private static var isBackgroundTaskRegistered = false
 
     // MARK: - Initialization
 
@@ -209,6 +210,11 @@ public final class SyncEngine: ObservableObject {
 
     /// Schedule background sync using BGTaskScheduler
     public func scheduleBackgroundSync() {
+        guard Self.isBackgroundTaskRegistered else {
+            logger.warning("Background task not registered; skipping schedule")
+            return
+        }
+
         let request = BGProcessingTaskRequest(identifier: Self.backgroundTaskIdentifier)
         request.requiresNetworkConnectivity = true
         request.requiresExternalPower = false
@@ -672,6 +678,8 @@ extension SyncEngine {
 
     /// Register the background task with BGTaskScheduler
     public static func registerBackgroundTask() {
+        guard !isBackgroundTaskRegistered else { return }
+
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: backgroundTaskIdentifier,
             using: nil
@@ -687,6 +695,8 @@ extension SyncEngine {
                 processingTask.setTaskCompleted(success: true)
             }
         }
+
+        isBackgroundTaskRegistered = true
     }
 }
 

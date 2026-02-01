@@ -596,16 +596,17 @@ public enum PassportError: LocalizedError {
 
     public var errorDescription: String? {
         switch self {
-        case .networkError(let message):
-            return "Network error: \(message)"
-        case .parseError(let message):
-            return "Failed to parse data: \(message)"
+        case .networkError:
+            return "Unable to load asset data. Please check your connection and try again."
+        case .parseError:
+            return "The asset data could not be read. Please try again later."
         case .notFound:
-            return "Asset not found"
+            return "This asset could not be found. It may have been removed or the link is invalid."
         case .unauthorized:
-            return "Access denied. Please sign in to view this asset."
+            return "You don't have permission to view this asset. Please sign in or contact your administrator."
         case .unknown(let error):
-            return error.localizedDescription
+            let description = error.localizedDescription
+            return description.isEmpty ? "An unexpected error occurred. Please try again." : description
         }
     }
 

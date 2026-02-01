@@ -2,8 +2,11 @@
 //  SubmodelElementParserTests.swift
 //  TwinAct Field Companion
 //
-//  Unit tests for SubmodelElementParser - parsing SME types into domain models.
-//  Tests can be run from debug builds via the diagnostics view.
+//  DEBUG-only test runner for SubmodelElementParser validation.
+//  Full XCTest coverage is in TwinAct Field CompanionTests/SubmodelElementParserTests.swift.
+//
+//  This file provides a lightweight test runner for the in-app diagnostics view.
+//  For CI/CD testing, use the XCTest target instead.
 //
 
 import Foundation

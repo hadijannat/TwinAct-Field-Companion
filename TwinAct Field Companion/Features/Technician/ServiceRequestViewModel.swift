@@ -224,15 +224,21 @@ public final class ServiceRequestListViewModel: ObservableObject {
 
         for cached in cachedSubmodels {
             if cached.semanticId?.contains("ServiceRequest") == true {
-                if let parsedRequests = try? cached.decode(as: [ServiceRequest].self) {
+                do {
+                    let parsedRequests = try cached.decode(as: [ServiceRequest].self)
                     requests = parsedRequests
+                    logger.debug("Loaded \(parsedRequests.count) requests from cache")
                     return
+                } catch {
+                    logger.warning("Failed to decode cached requests: \(error.localizedDescription)")
+                    // Continue to try other caches or fall back to demo data
                 }
             }
         }
 
         // Fall back to demo data if no cache
         if requests.isEmpty {
+            logger.debug("No cached requests found, using demo data")
             requests = demoRequests
         }
     }
@@ -435,11 +441,13 @@ public final class ServiceRequestDetailViewModel: ObservableObject {
         guard isLoading == false else { return }
 
         isLoading = true
+        errorMessage = nil
 
-        // In a real implementation, load from cache or server
-        // For now, the request is already set in init
+        defer { isLoading = false }
 
-        isLoading = false
+        // Request is already populated from init
+        // Future enhancement: could fetch latest version from cache/server here
+        logger.debug("Using request from initialization: \(self.requestId)")
     }
 
     /// Refresh the request details.

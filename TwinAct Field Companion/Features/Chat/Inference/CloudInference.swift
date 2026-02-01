@@ -12,11 +12,11 @@ import os.log
 
 /// Cloud LLM inference via API
 /// Used as fallback when on-device inference is unavailable or for higher quality responses.
-public final class CloudInference: InferenceProvider, @unchecked Sendable {
+public actor CloudInference: InferenceProvider {
 
     // MARK: - Properties
 
-    public let providerType: InferenceProviderType = .cloud
+    public nonisolated let providerType: InferenceProviderType = .cloud
 
     private let httpClient: HTTPClient
     private let endpoint: URL
@@ -24,8 +24,6 @@ public final class CloudInference: InferenceProvider, @unchecked Sendable {
     private let safetyPolicy: SafetyPolicy
     private var currentTask: Task<GenerationResult, Error>?
     private let logger: Logger
-
-    private let lock = NSLock()
 
     /// Whether cloud inference is available (endpoint configured)
     public var isAvailable: Bool {
@@ -88,18 +86,11 @@ public final class CloudInference: InferenceProvider, @unchecked Sendable {
             )
         }
 
-        lock.lock()
         currentTask = task
-        lock.unlock()
-
-        defer {
-            lock.lock()
-            currentTask = nil
-            lock.unlock()
-        }
+        defer { currentTask = nil }
 
         do {
-            var result = try await task.value
+            let result = try await task.value
             let duration = Date().timeIntervalSince(startTime)
 
             // Validate response safety
@@ -131,11 +122,7 @@ public final class CloudInference: InferenceProvider, @unchecked Sendable {
 
     /// Cancel ongoing generation
     public func cancel() async {
-        lock.lock()
-        let task = currentTask
-        lock.unlock()
-
-        task?.cancel()
+        currentTask?.cancel()
     }
 
     // MARK: - Private Methods
@@ -205,7 +192,7 @@ public final class CloudInference: InferenceProvider, @unchecked Sendable {
         case .unauthorized, .forbidden:
             return .generationFailed(reason: "Authentication failed")
         default:
-            return .generationFailed(reason: error.localizedDescription ?? "Unknown error")
+            return .generationFailed(reason: error.localizedDescription)
         }
     }
 

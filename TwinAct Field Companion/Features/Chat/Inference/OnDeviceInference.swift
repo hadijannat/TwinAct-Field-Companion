@@ -13,11 +13,11 @@ import os.log
 
 /// On-device LLM inference using Core ML
 /// Provides privacy-preserving local inference without network connectivity.
-public final class OnDeviceInference: InferenceProvider, @unchecked Sendable {
+public actor OnDeviceInference: InferenceProvider {
 
     // MARK: - Properties
 
-    public let providerType: InferenceProviderType = .onDevice
+    public nonisolated let providerType: InferenceProviderType = .onDevice
 
     private var model: MLModel?
     private var tokenizer: Tokenizer?
@@ -26,13 +26,9 @@ public final class OnDeviceInference: InferenceProvider, @unchecked Sendable {
     private let modelName: String
     private let logger: Logger
 
-    private let lock = NSLock()
-
     /// Whether the on-device model is available
     public var isAvailable: Bool {
         get async {
-            lock.lock()
-            defer { lock.unlock() }
             return model != nil
         }
     }
@@ -59,19 +55,11 @@ public final class OnDeviceInference: InferenceProvider, @unchecked Sendable {
     /// Load the Core ML model
     @discardableResult
     public func loadModel() async -> Bool {
-        lock.lock()
         guard model == nil && !isModelLoading else {
-            lock.unlock()
             return model != nil
         }
         isModelLoading = true
-        lock.unlock()
-
-        defer {
-            lock.lock()
-            isModelLoading = false
-            lock.unlock()
-        }
+        defer { isModelLoading = false }
 
         logger.info("Loading on-device model: \(self.modelName)")
 
@@ -92,9 +80,7 @@ public final class OnDeviceInference: InferenceProvider, @unchecked Sendable {
             // Load the model
             let loadedModel = try await MLModel.load(contentsOf: modelURL, configuration: config)
 
-            lock.lock()
             self.model = loadedModel
-            lock.unlock()
 
             // Initialize tokenizer
             await loadTokenizer()
@@ -129,9 +115,6 @@ public final class OnDeviceInference: InferenceProvider, @unchecked Sendable {
 
     /// Unload the model to free memory
     public func unloadModel() async {
-        lock.lock()
-        defer { lock.unlock() }
-
         model = nil
         tokenizer = nil
         logger.info("On-device model unloaded")
@@ -159,15 +142,8 @@ public final class OnDeviceInference: InferenceProvider, @unchecked Sendable {
             )
         }
 
-        lock.lock()
         currentTask = task
-        lock.unlock()
-
-        defer {
-            lock.lock()
-            currentTask = nil
-            lock.unlock()
-        }
+        defer { currentTask = nil }
 
         do {
             let result = try await task.value
@@ -189,11 +165,7 @@ public final class OnDeviceInference: InferenceProvider, @unchecked Sendable {
 
     /// Cancel ongoing generation
     public func cancel() async {
-        lock.lock()
-        let task = currentTask
-        lock.unlock()
-
-        task?.cancel()
+        currentTask?.cancel()
     }
 
     // MARK: - Private Generation

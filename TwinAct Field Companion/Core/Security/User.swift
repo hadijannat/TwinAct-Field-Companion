@@ -6,6 +6,10 @@
 //
 
 import Foundation
+import os.log
+
+/// Logger for authentication-related events
+private let authLogger = Logger(subsystem: "com.twinact.fieldcompanion", category: "Authentication")
 
 /// Authenticated user information extracted from OIDC ID token claims
 public struct User: Codable, Sendable, Equatable, Identifiable {
@@ -159,9 +163,7 @@ extension User {
                 authenticatedAt: Date()
             )
         } catch {
-            #if DEBUG
-            print("Failed to decode ID token claims: \(error)")
-            #endif
+            authLogger.warning("Failed to decode ID token claims: \(error.localizedDescription)")
             return nil
         }
     }

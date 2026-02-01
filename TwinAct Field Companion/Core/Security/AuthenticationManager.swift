@@ -528,20 +528,38 @@ extension AuthenticationManager: ASWebAuthenticationPresentationContextProviding
         let scenes = UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
 
+        // Strategy 1: Get key window from foreground active scene
         if let windowScene = scenes.first(where: { $0.activationState == .foregroundActive }),
            let window = windowScene.windows.first(where: { $0.isKeyWindow }) {
             return window
         }
 
+        // Strategy 2: Get any window from any scene
         if let window = scenes.flatMap({ $0.windows }).first {
             return window
         }
 
+        // Strategy 3: Create a new window from any available scene
         if let fallbackScene = scenes.first {
             return UIWindow(windowScene: fallbackScene)
         }
 
-        preconditionFailure("No UIWindowScene available for authentication presentation.")
+        // This should never happen in a normal iOS app lifecycle.
+        // Log detailed diagnostics before failing.
+        let allScenes = UIApplication.shared.connectedScenes
+        logger.fault("No UIWindowScene available for authentication. Total scenes: \(allScenes.count), UIWindowScenes: \(scenes.count)")
+        for (index, scene) in allScenes.enumerated() {
+            logger.fault("Scene \(index): \(type(of: scene)), state: \(scene.activationState.rawValue)")
+        }
+
+        // As a last resort, try to create a window without a scene (iOS 13+)
+        // This may not work correctly but is better than crashing
+        if #available(iOS 15.0, *) {
+            logger.warning("Attempting to create UIWindow without scene as last resort")
+            return UIWindow(frame: UIScreen.main.bounds)
+        }
+
+        preconditionFailure("No UIWindowScene available for authentication presentation. Check logs for diagnostics.")
     }
 }
 

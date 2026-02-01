@@ -66,27 +66,27 @@ public enum HTTPError: Error, LocalizedError, Sendable {
     public var errorDescription: String? {
         switch self {
         case .invalidURL:
-            return "Invalid URL"
-        case .networkError(let underlying):
-            return "Network error: \(underlying.localizedDescription)"
+            return "The request could not be completed due to an invalid address."
+        case .networkError:
+            return "Unable to connect. Please check your internet connection and try again."
         case .httpError(let statusCode, _):
-            return "HTTP error with status code \(statusCode)"
-        case .decodingError(let underlying):
-            return "Failed to decode response: \(underlying.localizedDescription)"
+            return "The server returned an error (code \(statusCode)). Please try again later."
+        case .decodingError:
+            return "The server response could not be understood. Please try again later."
         case .timeout:
-            return "Request timed out"
+            return "The request took too long. Please check your connection and try again."
         case .unauthorized:
-            return "Unauthorized (401) - Authentication required"
+            return "Your session has expired. Please sign in again."
         case .forbidden:
-            return "Forbidden (403) - Access denied"
+            return "You don't have permission to access this resource."
         case .notFound:
-            return "Not found (404) - Resource does not exist"
+            return "The requested item could not be found."
         case .tooManyRequests:
-            return "Too many requests (429) - Rate limited"
-        case .serverError(let statusCode):
-            return "Server error (\(statusCode))"
+            return "Too many requests. Please wait a moment and try again."
+        case .serverError:
+            return "The server encountered an error. Please try again later."
         case .cancelled:
-            return "Request was cancelled"
+            return "The request was cancelled."
         }
     }
 

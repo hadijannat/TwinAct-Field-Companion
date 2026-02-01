@@ -92,6 +92,11 @@ public protocol PersistenceRepositoryProtocol {
     /// Clean up orphaned document files
     func cleanupOrphanedDocuments() async throws
 
+    // MARK: - Service Request Operations
+
+    /// Get a cached service request by ID (if available)
+    func getServiceRequest(id: String) async throws -> ServiceRequest?
+
     // MARK: - Audit Operations
 
     /// Add an audit entry
@@ -128,6 +133,14 @@ public protocol PersistenceRepositoryProtocol {
 
     /// Delete an operation (used for discarding failed operations)
     func deleteOperation(_ id: UUID) async throws
+}
+
+// MARK: - Default Implementations
+
+public extension PersistenceRepositoryProtocol {
+    func getServiceRequest(id: String) async throws -> ServiceRequest? {
+        nil
+    }
 }
 
 // MARK: - Statistics Structs

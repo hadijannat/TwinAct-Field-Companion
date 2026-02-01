@@ -6,21 +6,35 @@
 //
 
 import SwiftUI
+import os.log
+
+/// Logger for app lifecycle events
+private let appLogger = Logger(subsystem: "com.twinact.fieldcompanion", category: "AppLifecycle")
 
 @main
 struct TwinAct_Field_CompanionApp: App {
 
     // MARK: - Dependencies
 
+    @StateObject private var dependencyContainer: DependencyContainer
+    @StateObject private var appState = AppState()
+    @StateObject private var syncEngine: SyncEngine
+
+    init() {
+        AppConfiguration.applyLaunchOverrides()
+        _dependencyContainer = StateObject(wrappedValue: DependencyContainer.shared)
+        _syncEngine = StateObject(
+            wrappedValue: SyncEngine(
+                persistence: PersistenceService(),
+                repositoryService: RepositoryService()
+            )
+        )
+    }
+
     #if os(iOS)
     /// App delegate adapter for UIKit lifecycle events and background tasks
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     #endif
-
-    /// The shared dependency container for the app.
-    /// Using @ObservedObject with the singleton since DependencyContainer.shared
-    /// manages its own lifecycle and is not owned by this App struct.
-    @ObservedObject private var dependencyContainer = DependencyContainer.shared
 
     /// Monitors scene phase changes for lifecycle events
     @Environment(\.scenePhase) private var scenePhase
@@ -31,6 +45,8 @@ struct TwinAct_Field_CompanionApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(dependencyContainer)
+                .environmentObject(appState)
+                .environmentObject(syncEngine)
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
             handleScenePhaseChange(from: oldPhase, to: newPhase)
@@ -66,10 +82,7 @@ struct TwinAct_Field_CompanionApp: App {
         // Trigger sync when app comes to foreground
         dependencyContainer.handleAppWillEnterForeground()
 
-        // TODO: Replace print() with os_log for structured logging
-        #if DEBUG
-        print("[TwinAct] App entering foreground - triggering sync check")
-        #endif
+        appLogger.info("App entering foreground - triggering sync check")
     }
 
     /// Called when the app has entered the background
@@ -77,10 +90,7 @@ struct TwinAct_Field_CompanionApp: App {
         // Schedule background sync tasks
         dependencyContainer.handleAppDidEnterBackground()
 
-        // TODO: Replace print() with os_log for structured logging
-        #if DEBUG
-        print("[TwinAct] App entering background - scheduling background sync")
-        #endif
+        appLogger.info("App entering background - scheduling background sync")
     }
 }
 
@@ -102,12 +112,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
     /// Registers background task identifiers with the system
     private func registerBackgroundTasks() {
-        // Note: Background task registration requires BGTaskScheduler
-        // This will be implemented when the full sync engine is built
-        // TODO: Replace print() with os_log for structured logging
-        #if DEBUG
-        print("[TwinAct] Background tasks registered")
-        #endif
+        SyncEngine.registerBackgroundTask()
+        appLogger.info("Background tasks registered")
     }
 
     func application(
