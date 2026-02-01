@@ -80,6 +80,7 @@ The AASX parser extracts embedded content from AASX packages (ZIP archives follo
 - `Domain/Services/AASX/AASXParser.swift` - Core extraction logic using ZIPFoundation
 - `Domain/Services/AASX/AASXContentStore.swift` - Local storage for extracted content
 - `Domain/Services/AASX/AASXImportManager.swift` - Coordinates file/URL imports
+- `Domain/Services/AASX/AASXPassportExtractor.swift` - Extracts passport data from AAS JSON
 - `Core/UI/Components/AASXImportView.swift` - Import UI components
 
 ### Usage
@@ -102,6 +103,69 @@ let documents = AASXContentStore.shared.documents(for: assetId)
 - Certification markings (CE, UL, etc.)
 - PDF documentation
 - Technical data sheets
+- 3D CAD models (USDZ, OBJ, STL, STEP, IGES)
+- AAS JSON structure
+
+### Passport Data Extraction
+```swift
+// Extract passport data from AASX
+let extractor = AASXPassportExtractor.shared
+if let data = extractor.extractPassportData(for: assetId) {
+    // data.nameplate - DigitalNameplate from AASX
+    // data.carbonFootprint - CarbonFootprint from AASX
+    // data.technicalData - TechnicalDataSummary from AASX
+    // data.documents - [Document] from AASX
+}
+```
+
+## Passport Module
+
+The Passport view displays Digital Product Passport information with three tabs for different content views.
+
+### Architecture
+
+```
+Features/Passport/
+├── PassportView.swift              # Main view with tab navigation
+├── PassportViewModel.swift         # State management, API/demo data
+├── PassportTab.swift               # Tab enum (overview, content, structure)
+├── AssetHeaderView.swift           # Product image, name, manufacturer
+└── Components/
+    ├── NameplateCardView.swift     # Digital nameplate display
+    ├── CarbonFootprintView.swift   # Sustainability data
+    ├── DocumentListView.swift      # Document list with previews
+    ├── TechnicalDataSummaryView.swift  # Technical properties
+    ├── AASXImageGalleryView.swift  # Image grid with categories
+    ├── CADModelSection.swift       # 3D model viewer (QuickLook/SceneKit)
+    ├── ExtractedDocumentListView.swift # PDF thumbnails, page count
+    ├── AASXFileBrowserView.swift   # Package file tree explorer
+    └── AASJSONExplorerView.swift   # Collapsible JSON tree viewer
+```
+
+### Tabs
+
+| Tab | Description |
+|-----|-------------|
+| **Overview** | Nameplate, Carbon Footprint, Documents, Technical Data cards |
+| **Content** | Image gallery, document list with thumbnails, 3D CAD models |
+| **Structure** | AASX file browser, AAS JSON tree explorer |
+
+### Data Precedence
+
+When AASX data is available, it takes precedence over API/demo data:
+```swift
+// AssetHeaderView prefers AASX nameplate
+AssetHeaderView(
+    asset: viewModel.asset,
+    nameplate: aasxPassportData?.nameplate,
+    assetIdForImages: effectiveAASXAssetId
+)
+
+// Cards prefer AASX data, fall back to ViewModel
+if let nameplate = aasxPassportData?.nameplate ?? viewModel.digitalNameplate {
+    NameplateCardView(nameplate: nameplate)
+}
+```
 
 ## AI Chat Module
 
