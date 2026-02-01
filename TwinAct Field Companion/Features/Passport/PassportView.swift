@@ -33,6 +33,9 @@ public struct PassportView: View {
     @State private var availableAASXAssets: [String] = []
     @State private var showAASXPicker = false
 
+    // AASX extracted passport data for Overview tab
+    @State private var aasxPassportData: AASXPassportExtractor.ExtractedPassportData?
+
     // Jargon Buster support
     @StateObject private var jargonBusterVM: JargonBusterViewModel
     @State private var selectedGlossaryTerm: GlossaryEntry?
@@ -222,14 +225,21 @@ public struct PassportView: View {
                 refreshAvailableAASXAssets()
                 effectiveAASXAssetId = parseResult.assetId
 
+                // Load passport data from the newly imported AASX
+                loadAASXPassportData()
+
                 // Refresh the view to show new content
                 Task {
                     await viewModel.refresh()
                 }
 
-                // Switch to Content tab to show the imported content
-                selectedTab = .content
+                // Switch to Overview tab to show the imported passport data
+                selectedTab = .overview
             }
+        }
+        // Reload passport data when AASX package selection changes
+        .onChange(of: effectiveAASXAssetId) { _, _ in
+            loadAASXPassportData()
         }
         // Jargon Buster sheet for selected term
         .sheet(item: $selectedGlossaryTerm) { entry in
@@ -285,29 +295,66 @@ public struct PassportView: View {
 
     @ViewBuilder
     private var overviewTabContent: some View {
-        // Digital Nameplate section
-        if let nameplate = viewModel.digitalNameplate {
+        // Show AASX package picker if multiple packages exist
+        if availableAASXAssets.count > 1 {
+            aasxPackagePicker
+        }
+
+        // Show AASX data source indicator when using AASX content
+        if aasxPassportData?.hasData == true {
+            aasxDataSourceIndicator
+        }
+
+        // Digital Nameplate section - prefer AASX data
+        if let nameplate = aasxPassportData?.nameplate ?? viewModel.digitalNameplate {
             NameplateCardView(nameplate: nameplate)
                 .transition(.opacity.combined(with: .move(edge: .top)))
         }
 
-        // Carbon Footprint section (DPP sustainability)
-        if let carbon = viewModel.carbonFootprint {
+        // Carbon Footprint section (DPP sustainability) - prefer AASX data
+        if let carbon = aasxPassportData?.carbonFootprint ?? viewModel.carbonFootprint {
             CarbonFootprintView(footprint: carbon)
                 .transition(.opacity.combined(with: .move(edge: .top)))
         }
 
-        // Documentation section
-        if !viewModel.documents.isEmpty {
-            DocumentListView(documents: viewModel.documents)
+        // Documentation section - prefer AASX documents
+        let aasxDocs = aasxPassportData?.documents ?? []
+        let docs = aasxDocs.isEmpty ? viewModel.documents : aasxDocs
+        if !docs.isEmpty {
+            DocumentListView(documents: docs)
                 .transition(.opacity.combined(with: .move(edge: .top)))
         }
 
-        // Technical Data summary (if available)
-        if let techData = viewModel.technicalData {
+        // Technical Data summary - prefer AASX data
+        if let techData = aasxPassportData?.technicalData ?? viewModel.technicalData {
             TechnicalDataSummaryView(data: techData)
                 .transition(.opacity.combined(with: .move(edge: .top)))
         }
+    }
+
+    // MARK: - AASX Data Source Indicator
+
+    private var aasxDataSourceIndicator: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "doc.zipper")
+                .font(.caption)
+
+            Text("Showing data from imported AASX package")
+                .font(.caption)
+
+            Spacer()
+
+            if let assetName = aasxPassportData?.assetName {
+                Text(assetName)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .foregroundColor(.blue)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(Color.blue.opacity(0.1))
+        .cornerRadius(8)
     }
 
     // MARK: - Content Tab Content
@@ -626,6 +673,19 @@ public struct PassportView: View {
             // No AASX content available
             effectiveAASXAssetId = nil
         }
+
+        // Load passport data from selected AASX
+        loadAASXPassportData()
+    }
+
+    /// Load passport data extracted from the selected AASX package
+    private func loadAASXPassportData() {
+        guard let aasxId = effectiveAASXAssetId else {
+            aasxPassportData = nil
+            return
+        }
+
+        aasxPassportData = AASXPassportExtractor.shared.extractPassportData(for: aasxId)
     }
 }
 
