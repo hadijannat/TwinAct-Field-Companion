@@ -783,7 +783,14 @@ public struct IdentificationLinkParser {
             return true
         }
 
-        let primaryLink = links.first!
+        guard let primaryLink = links.first else {
+            return AssetIdentificationLink(
+                originalURL: nil,
+                originalString: "",
+                linkType: .unknown,
+                confidence: 0.0
+            )
+        }
 
         return AssetIdentificationLink(
             originalURL: primaryLink.originalURL,

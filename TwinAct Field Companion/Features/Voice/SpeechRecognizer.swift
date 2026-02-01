@@ -358,10 +358,10 @@ public final class SpeechRecognizer: ObservableObject, @unchecked Sendable {
     /// Reset the silence detection timer
     private func resetSilenceTimer() {
         silenceTimer?.invalidate()
-        silenceTimer = Timer.scheduledTimer(withTimeInterval: silenceTimeout, repeats: false) { _ in
-            Task { @MainActor [weak self] in
-                guard let strongSelf = self, !strongSelf.transcript.isEmpty else { return }
-                strongSelf.stopListening()
+        silenceTimer = Timer.scheduledTimer(withTimeInterval: silenceTimeout, repeats: false) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self = self, !self.transcript.isEmpty else { return }
+                self.stopListening()
             }
         }
     }

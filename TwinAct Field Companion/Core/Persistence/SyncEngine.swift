@@ -59,6 +59,7 @@ public final class SyncEngine: ObservableObject {
     /// Background task identifier for BGTaskScheduler
     public static let backgroundTaskIdentifier = "com.twinact.fieldcompanion.sync"
     private static var isBackgroundTaskRegistered = false
+    private static weak var activeInstance: SyncEngine?
 
     // MARK: - Initialization
 
@@ -83,6 +84,8 @@ public final class SyncEngine: ObservableObject {
             subsystem: AppConfiguration.AppInfo.bundleIdentifier,
             category: "SyncEngine"
         )
+
+        Self.activeInstance = self
 
         setupObservers()
         Task { await updatePendingCount() }
@@ -167,7 +170,11 @@ public final class SyncEngine: ObservableObject {
         }
 
         // Start sync
-        let result = await performSync()
+        let task = Task { await performSync() }
+        syncTask = task
+        defer { syncTask = nil }
+
+        let result = await task.value
 
         if result.isSuccess {
             logger.info("Sync completed successfully: \(result.successCount) operations")
@@ -193,7 +200,11 @@ public final class SyncEngine: ObservableObject {
             throw SyncError.networkRequirementsNotMet(reason: reason)
         }
 
-        return await performSync()
+        let task = Task { await performSync() }
+        syncTask = task
+        defer { syncTask = nil }
+
+        return await task.value
     }
 
     /// Stop any in-progress sync
@@ -202,7 +213,6 @@ public final class SyncEngine: ObservableObject {
 
         logger.info("Cancelling sync")
         syncTask?.cancel()
-        syncTask = nil
         isSyncing = false
         statusMessage = "Sync cancelled"
         lastError = .cancelled
@@ -690,13 +700,43 @@ extension SyncEngine {
             }
 
             Task { @MainActor in
-                // Get shared sync engine from DI container or create one
-                // For now, we'll handle this through the app delegate
-                processingTask.setTaskCompleted(success: true)
+                let engine = activeInstance ?? SyncEngine(
+                    persistence: PersistenceService(),
+                    repositoryService: RepositoryService()
+                )
+                engine.handleBackgroundProcessingTask(processingTask)
             }
         }
 
         isBackgroundTaskRegistered = true
+    }
+}
+
+// MARK: - Background Processing Support
+
+extension SyncEngine {
+    /// Handle a BGProcessingTask for background sync.
+    public func handleBackgroundProcessingTask(_ task: BGProcessingTask) {
+        task.expirationHandler = { [weak self] in
+            Task { @MainActor in
+                self?.cancelSync()
+            }
+        }
+
+        Task { @MainActor [weak self] in
+            guard let self else {
+                task.setTaskCompleted(success: false)
+                return
+            }
+
+            do {
+                let result = try await self.forceSync()
+                task.setTaskCompleted(success: result.isSuccess)
+            } catch {
+                self.logger.error("Background sync failed: \(error.localizedDescription)")
+                task.setTaskCompleted(success: false)
+            }
+        }
     }
 }
 

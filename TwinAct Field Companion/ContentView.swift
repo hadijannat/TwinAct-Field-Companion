@@ -68,7 +68,10 @@ private struct PassportTabView: View {
     var body: some View {
         NavigationStack {
             if let asset = appState.selectedAsset {
-                PassportView(assetId: asset.id)
+                PassportView(
+                    assetId: asset.id,
+                    glossaryService: DependencyContainer.shared.glossaryService
+                )
             } else {
                 PassportEmptyStateView()
             }

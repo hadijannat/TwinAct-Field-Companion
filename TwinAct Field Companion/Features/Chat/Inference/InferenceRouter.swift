@@ -337,6 +337,20 @@ public final class InferenceRouter: @unchecked Sendable {
         }
         return await cloud.isAvailable
     }
+
+    // MARK: - Glossary Support
+
+    /// Generate an explanation for a glossary term
+    /// - Parameters:
+    ///   - term: The term to explain
+    ///   - context: Optional context where the term appears
+    /// - Returns: Generation result with the explanation
+    public func explainTerm(_ term: String, context: String? = nil) async throws -> GenerationResult {
+        let prompt = GlossaryPrompts.buildExplanationPrompt(term: term, context: context)
+        let options = GlossaryPrompts.generationOptions
+
+        return try await generate(prompt: prompt, options: options)
+    }
 }
 
 // MARK: - Inference Router Factory

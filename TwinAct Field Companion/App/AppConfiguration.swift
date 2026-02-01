@@ -40,23 +40,41 @@ struct AppConfiguration {
         case production
     }
 
-    static let current: Environment = .development
+    static let current: Environment = {
+        if let rawOverride = ProcessInfo.processInfo.environment["TWINACT_ENV"]
+            ?? Bundle.main.infoDictionary?["AppEnvironment"] as? String {
+            let normalized = rawOverride.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            switch normalized {
+            case "dev", "development":
+                return .development
+            case "staging", "stage":
+                return .staging
+            case "prod", "production":
+                return .production
+            default:
+                break
+            }
+        }
+
+        if isUITest {
+            return .development
+        }
+
+        #if DEBUG
+        return .development
+        #else
+        return .production
+        #endif
+    }()
 
     // MARK: - API Configuration
 
     static var baseURL: URL {
         guard let url = makeURL(for: current) else {
-            configLogger.fault("Invalid base URL for environment '\(current.rawValue)'. This is a configuration error.")
-            fatalError("""
-                AppConfiguration: Invalid base URL for environment '\(current.rawValue)'.
-
-                To fix this:
-                1. Check that URL strings are valid URLs (no spaces, proper scheme)
-                2. For staging/production, set environment variables:
-                   - TWINACT_STAGING_API_URL
-                   - TWINACT_PRODUCTION_API_URL
-                   or add StagingAPIURL/ProductionAPIURL to Info.plist
-                """)
+            let fallback = URL(string: defaultAPIBaseURL(for: current)) ?? URL(string: "https://api.twinact.example.com")!
+            configLogger.fault("Invalid base URL for environment '\(current.rawValue)'. Falling back to \(fallback.absoluteString, privacy: .public)")
+            assertionFailure("AppConfiguration: Invalid base URL for environment '\(current.rawValue)'.")
+            return fallback
         }
         return url
     }
@@ -66,19 +84,19 @@ struct AppConfiguration {
         switch environment {
         case .development:
             // Check for environment variable override (useful for local testing against different servers)
-            urlString = ProcessInfo.processInfo.environment["TWINACT_API_URL"] ?? "http://localhost:8080"
+            urlString = ProcessInfo.processInfo.environment["TWINACT_API_URL"] ?? defaultAPIBaseURL(for: .development)
         case .staging:
             // Configure via TWINACT_STAGING_API_URL environment variable or Info.plist
             // Set this in your CI/CD pipeline or Xcode scheme for staging builds
             urlString = ProcessInfo.processInfo.environment["TWINACT_STAGING_API_URL"]
                 ?? Bundle.main.infoDictionary?["StagingAPIURL"] as? String
-                ?? "https://staging-api.twinact.example.com"
+                ?? defaultAPIBaseURL(for: .staging)
         case .production:
             // Configure via TWINACT_PRODUCTION_API_URL environment variable or Info.plist
             // Production URL should be set in the release build configuration
             urlString = ProcessInfo.processInfo.environment["TWINACT_PRODUCTION_API_URL"]
                 ?? Bundle.main.infoDictionary?["ProductionAPIURL"] as? String
-                ?? "https://api.twinact.example.com"
+                ?? defaultAPIBaseURL(for: .production)
         }
         configLogger.debug("Base URL for \(environment.rawValue): \(urlString)")
         return URL(string: urlString)
@@ -89,45 +107,43 @@ struct AppConfiguration {
     struct AASServer {
         /// URL for the AAS Registry (discovery of Asset Administration Shells)
         static var registryURL: URL {
-            guard let url = URL(string: registryURLString) else {
-                configLogger.fault("Invalid AAS registry URL: '\(registryURLString)'")
-                fatalError("AppConfiguration.AASServer: Invalid registry URL. Set TWINACT_AAS_URL or check StagingAASURL/ProductionAASURL in Info.plist.")
-            }
-            return url
+            makeAASURL(from: registryURLString, component: "registry", label: "registry")
         }
 
         /// URL for the AAS Repository (CRUD operations on shells and submodels)
         static var repositoryURL: URL {
-            guard let url = URL(string: repositoryURLString) else {
-                configLogger.fault("Invalid AAS repository URL: '\(repositoryURLString)'")
-                fatalError("AppConfiguration.AASServer: Invalid repository URL. Set TWINACT_AAS_URL or check StagingAASURL/ProductionAASURL in Info.plist.")
-            }
-            return url
+            makeAASURL(from: repositoryURLString, component: "repository", label: "repository")
         }
 
         /// URL for the AAS Discovery Service (asset ID to AAS ID mapping)
         static var discoveryURL: URL {
-            guard let url = URL(string: discoveryURLString) else {
-                configLogger.fault("Invalid AAS discovery URL: '\(discoveryURLString)'")
-                fatalError("AppConfiguration.AASServer: Invalid discovery URL. Set TWINACT_AAS_URL or check StagingAASURL/ProductionAASURL in Info.plist.")
-            }
-            return url
+            makeAASURL(from: discoveryURLString, component: "discovery", label: "discovery")
         }
 
         /// Base URL for AAS services, configurable via environment variable or Info.plist
         private static var aasBaseURL: String {
+            let raw: String
             switch current {
             case .development:
-                return ProcessInfo.processInfo.environment["TWINACT_AAS_URL"] ?? "http://localhost:8081"
+                raw = ProcessInfo.processInfo.environment["TWINACT_AAS_URL"] ?? defaultAASBaseURL(for: .development)
             case .staging:
-                return ProcessInfo.processInfo.environment["TWINACT_STAGING_AAS_URL"]
+                raw = ProcessInfo.processInfo.environment["TWINACT_STAGING_AAS_URL"]
                     ?? Bundle.main.infoDictionary?["StagingAASURL"] as? String
-                    ?? "https://staging-aas.twinact.example.com"
+                    ?? defaultAASBaseURL(for: .staging)
             case .production:
-                return ProcessInfo.processInfo.environment["TWINACT_PRODUCTION_AAS_URL"]
+                raw = ProcessInfo.processInfo.environment["TWINACT_PRODUCTION_AAS_URL"]
                     ?? Bundle.main.infoDictionary?["ProductionAASURL"] as? String
-                    ?? "https://aas.twinact.example.com"
+                    ?? defaultAASBaseURL(for: .production)
             }
+
+            guard URL(string: raw) != nil else {
+                let fallback = defaultAASBaseURL(for: current)
+                configLogger.fault("Invalid AAS base URL '\(raw, privacy: .public)'. Falling back to \(fallback, privacy: .public)")
+                assertionFailure("AppConfiguration.AASServer: Invalid AAS base URL '\(raw)'.")
+                return fallback
+            }
+
+            return raw
         }
 
         private static var registryURLString: String {
@@ -153,6 +169,19 @@ struct AppConfiguration {
 
         /// Maximum concurrent connections to AAS servers
         static let maxConcurrentConnections: Int = 4
+
+        private static func makeAASURL(from raw: String, component: String, label: String) -> URL {
+            if let url = URL(string: raw) {
+                return url
+            }
+
+            let fallbackBase = defaultAASBaseURL(for: current)
+            let fallback = URL(string: fallbackBase)?.appendingPathComponent(component)
+                ?? URL(string: "https://aas.twinact.example.com/\(component)")!
+            configLogger.fault("Invalid AAS \(label) URL: '\(raw, privacy: .public)'. Falling back to \(fallback.absoluteString, privacy: .public)")
+            assertionFailure("AppConfiguration.AASServer: Invalid \(label) URL.")
+            return fallback
+        }
     }
 
     // MARK: - GenAI Configuration
@@ -171,8 +200,10 @@ struct AppConfiguration {
         /// Cloud API endpoint for GenAI services (used when useOnDeviceInference is false)
         static var cloudAPIEndpoint: URL {
             guard let url = URL(string: cloudAPIEndpointString) else {
-                configLogger.fault("Invalid GenAI cloud API endpoint: '\(cloudAPIEndpointString)'")
-                fatalError("AppConfiguration.GenAI: Invalid cloud API endpoint. Set TWINACT_GENAI_URL or check StagingGenAIURL/ProductionGenAIURL in Info.plist.")
+                let fallback = URL(string: defaultGenAIBaseURL(for: current)) ?? URL(string: "https://genai.twinact.example.com/v1")!
+                configLogger.fault("Invalid GenAI cloud API endpoint: '\(cloudAPIEndpointString, privacy: .public)'. Falling back to \(fallback.absoluteString, privacy: .public)")
+                assertionFailure("AppConfiguration.GenAI: Invalid cloud API endpoint.")
+                return fallback
             }
             return url
         }
@@ -181,15 +212,15 @@ struct AppConfiguration {
             let url: String
             switch current {
             case .development:
-                url = ProcessInfo.processInfo.environment["TWINACT_GENAI_URL"] ?? "http://localhost:8082/genai"
+                url = ProcessInfo.processInfo.environment["TWINACT_GENAI_URL"] ?? defaultGenAIBaseURL(for: .development)
             case .staging:
                 url = ProcessInfo.processInfo.environment["TWINACT_STAGING_GENAI_URL"]
                     ?? Bundle.main.infoDictionary?["StagingGenAIURL"] as? String
-                    ?? "https://staging-genai.twinact.example.com/v1"
+                    ?? defaultGenAIBaseURL(for: .staging)
             case .production:
                 url = ProcessInfo.processInfo.environment["TWINACT_PRODUCTION_GENAI_URL"]
                     ?? Bundle.main.infoDictionary?["ProductionGenAIURL"] as? String
-                    ?? "https://genai.twinact.example.com/v1"
+                    ?? defaultGenAIBaseURL(for: .production)
             }
             configLogger.debug("GenAI API URL for \(current.rawValue): \(url)")
             return url
@@ -200,6 +231,17 @@ struct AppConfiguration {
 
         /// Temperature setting for GenAI inference (0.0 = deterministic, 1.0 = creative)
         static let inferenceTemperature: Double = 0.7
+
+        // MARK: - Glossary / Jargon Buster
+
+        /// Whether to enable LLM fallback for unknown glossary terms
+        static let enableGlossaryLLMFallback: Bool = true
+
+        /// Maximum number of cached dynamic glossary entries
+        static let glossaryMaxCachedTerms: Int = 200
+
+        /// Cache expiration for LLM-generated glossary entries (in seconds)
+        static let glossaryCacheExpiration: TimeInterval = 86400 * 7  // 7 days
     }
 
     // MARK: - Offline Sync Configuration
@@ -285,7 +327,7 @@ struct AppConfiguration {
         get {
             // Default to true if key not set (for first launch / App Store review)
             if !UserDefaults.standard.contains(key: demoModeKey) {
-                return true
+                return defaultDemoMode
             }
             return UserDefaults.standard.bool(forKey: demoModeKey)
         }
@@ -336,6 +378,76 @@ private extension AppConfiguration {
             return false
         default:
             return defaultValue
+        }
+    }
+
+    static func envFlagOptional(_ key: String) -> Bool? {
+        guard let raw = ProcessInfo.processInfo.environment[key]?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+              !raw.isEmpty else {
+            return nil
+        }
+
+        switch raw {
+        case "1", "true", "yes", "y":
+            return true
+        case "0", "false", "no", "n":
+            return false
+        default:
+            return nil
+        }
+    }
+
+    static func defaultAPIBaseURL(for environment: Environment) -> String {
+        switch environment {
+        case .development:
+            return "http://localhost:8080"
+        case .staging:
+            return "https://staging-api.twinact.example.com"
+        case .production:
+            return "https://api.twinact.example.com"
+        }
+    }
+
+    static func defaultAASBaseURL(for environment: Environment) -> String {
+        switch environment {
+        case .development:
+            return "http://localhost:8081"
+        case .staging:
+            return "https://staging-aas.twinact.example.com"
+        case .production:
+            return "https://aas.twinact.example.com"
+        }
+    }
+
+    static func defaultGenAIBaseURL(for environment: Environment) -> String {
+        switch environment {
+        case .development:
+            return "http://localhost:8082/genai"
+        case .staging:
+            return "https://staging-genai.twinact.example.com/v1"
+        case .production:
+            return "https://genai.twinact.example.com/v1"
+        }
+    }
+
+    static var defaultDemoMode: Bool {
+        if let override = envFlagOptional("TWINACT_DEMO_MODE_DEFAULT") {
+            return override
+        }
+
+        if let infoValue = Bundle.main.infoDictionary?["DefaultDemoMode"] as? Bool {
+            return infoValue
+        }
+
+        if isUITest {
+            return true
+        }
+
+        switch current {
+        case .development:
+            return true
+        case .staging, .production:
+            return false
         }
     }
 }

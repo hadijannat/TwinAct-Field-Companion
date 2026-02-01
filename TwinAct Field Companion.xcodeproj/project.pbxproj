@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		247D1CFD2F2F66150045A32E /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = AASX00020001 /* ZIPFoundation */; };
+		247D1CFE2F2F66150045A32E /* XMLCoder in Frameworks */ = {isa = PBXBuildFile; productRef = AASX00020002 /* XMLCoder */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		24B644A02F1D800000CA0BC6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -59,6 +64,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				247D1CFE2F2F66150045A32E /* XMLCoder in Frameworks */,
+				247D1CFD2F2F66150045A32E /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -197,14 +204,14 @@
 			);
 			mainGroup = 24B6447F2F1D756D00CA0BC6;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
-			productRefGroup = 24B644892F1D756D00CA0BC6 /* Products */;
-			projectDirPath = "";
-			projectRoot = "";
 			packageReferences = (
 				AASX00010001 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 				AASX00010002 /* XCRemoteSwiftPackageReference "XMLCoder" */,
 			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 24B644892F1D756D00CA0BC6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
 			targets = (
 				24B644872F1D756D00CA0BC6 /* TwinAct Field Companion */,
 				24B6449B2F1D800000CA0BC6 /* TwinAct Field CompanionUITests */,
@@ -476,6 +483,7 @@
 		24B644A42F1D800000CA0BC6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -500,6 +508,7 @@
 		24B644A52F1D800000CA0BC6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;

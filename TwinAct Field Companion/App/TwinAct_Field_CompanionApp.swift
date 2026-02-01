@@ -22,13 +22,14 @@ struct TwinAct_Field_CompanionApp: App {
 
     init() {
         AppConfiguration.applyLaunchOverrides()
-        _dependencyContainer = StateObject(wrappedValue: DependencyContainer.shared)
-        _syncEngine = StateObject(
-            wrappedValue: SyncEngine(
-                persistence: PersistenceService(),
-                repositoryService: RepositoryService()
-            )
+        let container = DependencyContainer.shared
+        let engine = SyncEngine(
+            persistence: PersistenceService(),
+            repositoryService: RepositoryService()
         )
+        _dependencyContainer = StateObject(wrappedValue: container)
+        _syncEngine = StateObject(wrappedValue: engine)
+        container.setSyncEngine(engine)
     }
 
     #if os(iOS)

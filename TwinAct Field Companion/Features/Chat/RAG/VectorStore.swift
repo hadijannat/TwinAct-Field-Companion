@@ -407,7 +407,7 @@ public actor PersistentVectorStore: VectorStoreProtocol {
             let documentsPath = FileManager.default.urls(
                 for: .documentDirectory,
                 in: .userDomainMask
-            ).first!
+            ).first ?? FileManager.default.temporaryDirectory
             self.storageURL = documentsPath.appendingPathComponent("vectorstore.json")
         }
     }

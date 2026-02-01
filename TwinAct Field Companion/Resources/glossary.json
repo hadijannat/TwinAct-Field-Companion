@@ -1,0 +1,577 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-15",
+  "entries": [
+    {
+      "id": "carbon_footprint",
+      "title": "Carbon Footprint",
+      "simpleText": "The total amount of greenhouse gases a product creates from making it to throwing it away, measured in CO2.",
+      "analogy": "Like tracking how many miles your food traveled to reach your plate, but for pollution.",
+      "icon": "leaf.fill",
+      "category": "sustainability",
+      "relatedTerms": ["pcf", "tcf", "ucf", "eolcf", "co2_equivalent"],
+      "semanticId": "https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprint/0/9",
+      "source": {"type": "local"}
+    },
+    {
+      "id": "pcf",
+      "title": "Product Carbon Footprint (PCF)",
+      "simpleText": "The pollution created just from making a product in the factory, before it gets shipped anywhere.",
+      "analogy": "Like the ingredients that go into baking a cake, before you deliver it.",
+      "icon": "hammer.fill",
+      "category": "sustainability",
+      "relatedTerms": ["carbon_footprint", "manufacturing"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "tcf",
+      "title": "Transport Carbon Footprint (TCF)",
+      "simpleText": "The pollution created from shipping a product from the factory to where it's sold or used.",
+      "analogy": "Like the gas used by a delivery truck bringing a package to your house.",
+      "icon": "truck.box.fill",
+      "category": "sustainability",
+      "relatedTerms": ["carbon_footprint", "transport_mode"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "ucf",
+      "title": "Use Phase Carbon Footprint (UCF)",
+      "simpleText": "The pollution created while you actually use a product over its lifetime, like electricity it consumes.",
+      "analogy": "Like the electricity your TV uses every time you watch it.",
+      "icon": "bolt.fill",
+      "category": "sustainability",
+      "relatedTerms": ["carbon_footprint", "energy_consumption"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "eolcf",
+      "title": "End-of-Life Carbon Footprint",
+      "simpleText": "The pollution created when a product is recycled, reused, or thrown away at the end of its life.",
+      "analogy": "Like the energy needed to crush a can at the recycling center.",
+      "icon": "arrow.3.trianglepath",
+      "category": "sustainability",
+      "relatedTerms": ["carbon_footprint", "recyclability"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "co2_equivalent",
+      "title": "CO2 Equivalent (CO2eq)",
+      "simpleText": "A way to measure all greenhouse gases using carbon dioxide as a common unit, like converting currencies.",
+      "analogy": "Like converting euros to dollars so you can compare prices from different countries.",
+      "icon": "scalemass.fill",
+      "category": "sustainability",
+      "relatedTerms": ["carbon_footprint", "greenhouse_gas"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "recyclability",
+      "title": "Recyclability",
+      "simpleText": "How much of a product can be turned into new materials instead of ending up in a landfill.",
+      "analogy": "Like melting down old LEGO bricks to make new ones instead of throwing them away.",
+      "icon": "arrow.3.trianglepath",
+      "category": "sustainability",
+      "relatedTerms": ["recycled_content", "circular_economy"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "recycled_content",
+      "title": "Recycled Content",
+      "simpleText": "The percentage of a product that was made from materials that were previously used in other products.",
+      "analogy": "Like a notebook made from old newspapers instead of fresh trees.",
+      "icon": "arrow.2.squarepath",
+      "category": "sustainability",
+      "relatedTerms": ["recyclability", "circular_economy"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "circular_economy",
+      "title": "Circular Economy",
+      "simpleText": "A system where products are designed to be reused, repaired, and recycled instead of thrown away.",
+      "analogy": "Like a library where books are shared and passed around instead of everyone buying and throwing away their own.",
+      "icon": "arrow.triangle.2.circlepath",
+      "category": "sustainability",
+      "relatedTerms": ["recyclability", "recycled_content", "end_of_life"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "water_footprint",
+      "title": "Water Footprint",
+      "simpleText": "The total amount of fresh water used to make a product, from growing materials to manufacturing.",
+      "analogy": "Like counting every drop of water needed to grow cotton and dye it to make your t-shirt.",
+      "icon": "drop.fill",
+      "category": "sustainability",
+      "relatedTerms": ["carbon_footprint", "sustainability"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "energy_efficiency_class",
+      "title": "Energy Efficiency Class",
+      "simpleText": "A letter grade (A to G) showing how much electricity a product uses, where A is best and G is worst.",
+      "analogy": "Like report card grades, but for how much electricity something wastes.",
+      "icon": "bolt.badge.checkmark.fill",
+      "category": "sustainability",
+      "relatedTerms": ["energy_consumption", "ucf"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "life_cycle_assessment",
+      "title": "Life Cycle Assessment (LCA)",
+      "simpleText": "A complete study of a product's environmental impact from raw materials to disposal.",
+      "analogy": "Like a biography of a product's environmental story from birth to death.",
+      "icon": "arrow.right.arrow.left.circle.fill",
+      "category": "sustainability",
+      "relatedTerms": ["carbon_footprint", "life_cycle_phase"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "life_cycle_phase",
+      "title": "Life Cycle Phase",
+      "simpleText": "A specific stage in a product's life: making it, transporting it, using it, or disposing of it.",
+      "analogy": "Like the chapters in a product's life story: childhood, adulthood, and retirement.",
+      "icon": "arrow.right.circle.fill",
+      "category": "sustainability",
+      "relatedTerms": ["life_cycle_assessment", "pcf", "tcf", "ucf", "eolcf"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "state_of_health",
+      "title": "State of Health (SoH)",
+      "simpleText": "A percentage showing how much life is left in a battery compared to when it was new.",
+      "analogy": "Like a fitness score for your battery - 100% means brand new, 80% means it's getting tired.",
+      "icon": "heart.fill",
+      "category": "battery",
+      "relatedTerms": ["battery_capacity", "cycle_count", "impedance"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "battery_capacity",
+      "title": "Battery Capacity",
+      "simpleText": "How much energy a battery can store, measured in kilowatt-hours, like a fuel tank size.",
+      "analogy": "Like the size of a water bottle - bigger capacity means it holds more.",
+      "icon": "battery.100",
+      "category": "battery",
+      "relatedTerms": ["state_of_health", "energy_consumption"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "cycle_count",
+      "title": "Cycle Count",
+      "simpleText": "The number of times a battery has been fully charged and discharged over its lifetime.",
+      "analogy": "Like counting how many times you've filled up your car's gas tank.",
+      "icon": "arrow.counterclockwise",
+      "category": "battery",
+      "relatedTerms": ["state_of_health", "battery_capacity"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "impedance",
+      "title": "Battery Impedance",
+      "simpleText": "How much a battery resists the flow of electricity - higher means the battery is wearing out.",
+      "analogy": "Like how a clogged pipe makes water flow slower; old batteries resist electricity flow.",
+      "icon": "waveform.path.ecg",
+      "category": "battery",
+      "relatedTerms": ["state_of_health", "battery_degradation"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "battery_degradation",
+      "title": "Battery Degradation",
+      "simpleText": "The gradual loss of a battery's ability to hold a charge over time and use.",
+      "analogy": "Like how a sponge slowly loses its ability to hold water after many uses.",
+      "icon": "chart.line.downtrend.xyaxis",
+      "category": "battery",
+      "relatedTerms": ["state_of_health", "cycle_count"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "kilowatt_hour",
+      "title": "Kilowatt-Hour (kWh)",
+      "simpleText": "A unit of energy that measures how much power is used over one hour.",
+      "analogy": "If a 1000-watt microwave runs for one hour, that's 1 kWh - like fuel for your appliances.",
+      "icon": "bolt.fill",
+      "category": "technical",
+      "relatedTerms": ["energy_consumption", "battery_capacity"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "digital_product_passport",
+      "title": "Digital Product Passport (DPP)",
+      "simpleText": "An electronic ID card for products that stores information about where they came from and how to recycle them.",
+      "analogy": "Like a passport for your phone that tells its complete life story.",
+      "icon": "qrcode",
+      "category": "compliance",
+      "relatedTerms": ["espr", "aas", "qr_code"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "espr",
+      "title": "ESPR (Ecodesign for Sustainable Products Regulation)",
+      "simpleText": "An EU law requiring products to be designed for repair, reuse, and recycling.",
+      "analogy": "Like school rules that say products must be built to last and be recyclable.",
+      "icon": "building.columns.fill",
+      "category": "compliance",
+      "relatedTerms": ["digital_product_passport", "circular_economy"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "epr",
+      "title": "Extended Producer Responsibility (EPR)",
+      "simpleText": "A rule that makes companies responsible for their products even after you buy them, including recycling.",
+      "analogy": "Like if a restaurant had to clean up trash from all the takeout containers they give out.",
+      "icon": "person.badge.shield.checkmark.fill",
+      "category": "compliance",
+      "relatedTerms": ["espr", "end_of_life", "recyclability"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "due_diligence",
+      "title": "Due Diligence",
+      "simpleText": "The careful checking companies must do to make sure their products are made ethically and legally.",
+      "analogy": "Like doing your homework to make sure the ingredients in your lunchbox came from fair sources.",
+      "icon": "magnifyingglass.circle.fill",
+      "category": "compliance",
+      "relatedTerms": ["supply_chain", "compliance"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "supply_chain",
+      "title": "Supply Chain",
+      "simpleText": "All the steps and companies involved in making a product, from raw materials to the store shelf.",
+      "analogy": "Like a relay race where each runner passes materials to the next until the product reaches you.",
+      "icon": "link",
+      "category": "manufacturing",
+      "relatedTerms": ["due_diligence", "traceability"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "traceability",
+      "title": "Traceability",
+      "simpleText": "The ability to track every step of how a product was made and where its parts came from.",
+      "analogy": "Like following breadcrumbs back through a forest to see exactly where you started.",
+      "icon": "point.topleft.down.to.point.bottomright.curvepath.fill",
+      "category": "manufacturing",
+      "relatedTerms": ["supply_chain", "digital_product_passport"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "aas",
+      "title": "Asset Administration Shell (AAS)",
+      "simpleText": "A digital twin standard that stores all information about a physical product in a structured way.",
+      "analogy": "Like a detailed digital profile page for a product that any computer can read.",
+      "icon": "externaldrive.connected.to.line.below.fill",
+      "category": "technical",
+      "relatedTerms": ["digital_product_passport", "submodel", "semantic_id"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "submodel",
+      "title": "Submodel",
+      "simpleText": "A specific category of information about a product, like its nameplate, documentation, or carbon data.",
+      "analogy": "Like different chapters in a product's instruction manual - one for specs, one for safety, etc.",
+      "icon": "doc.on.doc.fill",
+      "category": "technical",
+      "relatedTerms": ["aas", "digital_nameplate"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "semantic_id",
+      "title": "Semantic ID",
+      "simpleText": "A unique web address that defines exactly what a piece of data means, so all computers understand it the same way.",
+      "analogy": "Like a dictionary definition that everyone agrees on, so 'apple' always means the fruit.",
+      "icon": "tag.fill",
+      "category": "technical",
+      "relatedTerms": ["aas", "submodel", "idta"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "idta",
+      "title": "IDTA (Industrial Digital Twin Association)",
+      "simpleText": "The organization that creates standards for digital twins so different companies can share product data.",
+      "analogy": "Like the group that decided what size paper and envelopes should be so mail works everywhere.",
+      "icon": "building.2.fill",
+      "category": "technical",
+      "relatedTerms": ["aas", "semantic_id"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "digital_nameplate",
+      "title": "Digital Nameplate",
+      "simpleText": "Electronic version of the metal plate on machines showing manufacturer, model, and serial number.",
+      "analogy": "Like the sticker on your laptop that shows who made it and its serial number, but digital.",
+      "icon": "tag.fill",
+      "category": "technical",
+      "relatedTerms": ["aas", "submodel", "serial_number"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "serial_number",
+      "title": "Serial Number",
+      "simpleText": "A unique code that identifies one specific product out of all the identical ones made.",
+      "analogy": "Like your social security number, but for a product - no two are the same.",
+      "icon": "number",
+      "category": "manufacturing",
+      "relatedTerms": ["digital_nameplate", "batch_number"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "batch_number",
+      "title": "Batch Number",
+      "simpleText": "A code identifying a group of products made together at the same time in the same way.",
+      "analogy": "Like cookies from the same tray in the oven - they all share the same batch number.",
+      "icon": "square.stack.3d.up.fill",
+      "category": "manufacturing",
+      "relatedTerms": ["serial_number", "traceability"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "firmware",
+      "title": "Firmware",
+      "simpleText": "The permanent software built into a device that controls how it works at the most basic level.",
+      "analogy": "Like the instincts a device is born with - you can update it, but it's always there.",
+      "icon": "cpu.fill",
+      "category": "technical",
+      "relatedTerms": ["software_version", "hardware"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "software_version",
+      "title": "Software Version",
+      "simpleText": "A number showing which update of a program is installed, like 2.0 being newer than 1.0.",
+      "analogy": "Like edition numbers on textbooks - version 2.0 has newer content than version 1.0.",
+      "icon": "arrow.up.circle.fill",
+      "category": "technical",
+      "relatedTerms": ["firmware"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "qr_code",
+      "title": "QR Code",
+      "simpleText": "A square barcode pattern that phones can scan to instantly open websites or product information.",
+      "analogy": "Like a secret door that opens when you point your phone camera at it.",
+      "icon": "qrcode",
+      "category": "technical",
+      "relatedTerms": ["digital_product_passport", "aas"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "verification",
+      "title": "Third-Party Verification",
+      "simpleText": "When an independent company checks that environmental claims are true and accurate.",
+      "analogy": "Like having a referee check the score instead of trusting the players.",
+      "icon": "checkmark.seal.fill",
+      "category": "compliance",
+      "relatedTerms": ["carbon_footprint", "certification"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "certification",
+      "title": "Certification",
+      "simpleText": "An official document proving a product meets certain standards or requirements.",
+      "analogy": "Like a diploma that proves the product graduated from quality school.",
+      "icon": "rosette",
+      "category": "compliance",
+      "relatedTerms": ["verification", "compliance"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "compliance",
+      "title": "Compliance",
+      "simpleText": "Following all the rules and laws that apply to how products are made and sold.",
+      "analogy": "Like following traffic rules - you have to do it to legally drive on the road.",
+      "icon": "checkmark.shield.fill",
+      "category": "compliance",
+      "relatedTerms": ["espr", "epr", "due_diligence"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "greenhouse_gas",
+      "title": "Greenhouse Gas (GHG)",
+      "simpleText": "Gases like CO2 that trap heat in the atmosphere and contribute to climate change.",
+      "analogy": "Like a blanket around Earth that keeps getting thicker and warmer.",
+      "icon": "cloud.fill",
+      "category": "sustainability",
+      "relatedTerms": ["carbon_footprint", "co2_equivalent"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "cradle_to_gate",
+      "title": "Cradle-to-Gate",
+      "simpleText": "Measuring environmental impact from raw materials until the product leaves the factory.",
+      "analogy": "Like tracking a pizza's journey from the farm to when it leaves the restaurant kitchen.",
+      "icon": "arrow.right.to.line",
+      "category": "sustainability",
+      "relatedTerms": ["cradle_to_grave", "pcf", "life_cycle_assessment"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "cradle_to_grave",
+      "title": "Cradle-to-Grave",
+      "simpleText": "Measuring environmental impact from raw materials through the entire product life until disposal.",
+      "analogy": "Like tracking a pizza from the farm all the way to when you throw away the box.",
+      "icon": "arrow.right.arrow.left",
+      "category": "sustainability",
+      "relatedTerms": ["cradle_to_gate", "life_cycle_assessment", "end_of_life"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "end_of_life",
+      "title": "End of Life",
+      "simpleText": "The stage when a product is no longer used and needs to be recycled, reused, or disposed of.",
+      "analogy": "Like retirement for products - what happens after their working days are over.",
+      "icon": "arrow.uturn.backward.circle.fill",
+      "category": "sustainability",
+      "relatedTerms": ["eolcf", "recyclability", "circular_economy"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "transport_mode",
+      "title": "Transport Mode",
+      "simpleText": "How a product gets shipped: by truck, train, ship, or airplane, each with different pollution levels.",
+      "analogy": "Like choosing between walking, biking, or driving - each has a different environmental cost.",
+      "icon": "shippingbox.fill",
+      "category": "sustainability",
+      "relatedTerms": ["tcf", "carbon_footprint"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "energy_consumption",
+      "title": "Energy Consumption",
+      "simpleText": "How much electricity or fuel a product uses while operating.",
+      "analogy": "Like how much food you eat - some products are hungry for energy, others barely snack.",
+      "icon": "bolt.horizontal.fill",
+      "category": "technical",
+      "relatedTerms": ["ucf", "energy_efficiency_class", "kilowatt_hour"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "carbon_intensity",
+      "title": "Carbon Intensity",
+      "simpleText": "How much CO2 is produced for each unit of energy used, varies by power source.",
+      "analogy": "Like comparing how much smoke comes from burning wood versus natural gas.",
+      "icon": "gauge.with.dots.needle.bottom.50percent",
+      "category": "sustainability",
+      "relatedTerms": ["carbon_footprint", "energy_consumption"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "material_composition",
+      "title": "Material Composition",
+      "simpleText": "A list of all the materials used to make a product and how much of each.",
+      "analogy": "Like a recipe showing all ingredients in a product: 50% steel, 30% plastic, 20% copper.",
+      "icon": "chart.pie.fill",
+      "category": "manufacturing",
+      "relatedTerms": ["recycled_content", "recyclability", "hazardous_substances"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "hazardous_substances",
+      "title": "Hazardous Substances",
+      "simpleText": "Dangerous chemicals in products that can harm health or the environment if not handled properly.",
+      "analogy": "Like warning labels on cleaning products - some ingredients need special care.",
+      "icon": "exclamationmark.triangle.fill",
+      "category": "compliance",
+      "relatedTerms": ["material_composition", "end_of_life", "rohs"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "rohs",
+      "title": "RoHS (Restriction of Hazardous Substances)",
+      "simpleText": "An EU rule limiting dangerous chemicals like lead and mercury in electronics.",
+      "analogy": "Like food safety rules that ban certain additives from your snacks.",
+      "icon": "xmark.shield.fill",
+      "category": "compliance",
+      "relatedTerms": ["hazardous_substances", "compliance"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "weee",
+      "title": "WEEE (Waste Electrical and Electronic Equipment)",
+      "simpleText": "EU rules for how old electronics must be collected and recycled properly.",
+      "analogy": "Like special trash pickup rules for electronics so they don't end up polluting landfills.",
+      "icon": "trash.fill",
+      "category": "compliance",
+      "relatedTerms": ["epr", "end_of_life", "recyclability"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "ce_marking",
+      "title": "CE Marking",
+      "simpleText": "A symbol showing a product meets EU safety, health, and environmental requirements.",
+      "analogy": "Like a stamp of approval saying 'this product is safe to sell in Europe'.",
+      "icon": "checkmark.circle.fill",
+      "category": "compliance",
+      "relatedTerms": ["compliance", "certification"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "digital_twin",
+      "title": "Digital Twin",
+      "simpleText": "A virtual copy of a physical product that contains all its information and can be updated in real-time.",
+      "analogy": "Like a video game character that perfectly mirrors a real person's movements.",
+      "icon": "rectangle.on.rectangle.angled",
+      "category": "technical",
+      "relatedTerms": ["aas", "digital_product_passport"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "interoperability",
+      "title": "Interoperability",
+      "simpleText": "The ability of different computer systems and products to work together and share information.",
+      "analogy": "Like LEGO bricks - they all fit together no matter which set they came from.",
+      "icon": "arrow.triangle.2.circlepath.circle.fill",
+      "category": "technical",
+      "relatedTerms": ["aas", "semantic_id", "idta"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "api",
+      "title": "API (Application Programming Interface)",
+      "simpleText": "A set of rules that lets different software programs talk to each other and share data.",
+      "analogy": "Like a restaurant menu - it tells you what you can order and how to ask for it.",
+      "icon": "rectangle.connected.to.line.below",
+      "category": "technical",
+      "relatedTerms": ["interoperability", "aas"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "expected_lifetime",
+      "title": "Expected Lifetime",
+      "simpleText": "How long a product is designed to work properly before it wears out or needs replacement.",
+      "analogy": "Like the 'best before' date on products, but for how long they'll keep working.",
+      "icon": "clock.fill",
+      "category": "sustainability",
+      "relatedTerms": ["ucf", "end_of_life", "durability"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "durability",
+      "title": "Durability",
+      "simpleText": "How well a product holds up over time and resists breaking or wearing out.",
+      "analogy": "Like how some jeans last years while others get holes after a few months.",
+      "icon": "shield.fill",
+      "category": "sustainability",
+      "relatedTerms": ["expected_lifetime", "repairability"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "repairability",
+      "title": "Repairability",
+      "simpleText": "How easy it is to fix a product when something breaks instead of throwing it away.",
+      "analogy": "Like being able to change a bike tire yourself versus needing a special shop.",
+      "icon": "wrench.and.screwdriver.fill",
+      "category": "sustainability",
+      "relatedTerms": ["durability", "circular_economy", "espr"],
+      "source": {"type": "local"}
+    },
+    {
+      "id": "spare_parts",
+      "title": "Spare Parts Availability",
+      "simpleText": "Whether replacement parts can be bought to fix a product instead of replacing the whole thing.",
+      "analogy": "Like being able to buy a new phone screen instead of a whole new phone.",
+      "icon": "shippingbox.and.arrow.backward.fill",
+      "category": "sustainability",
+      "relatedTerms": ["repairability", "espr"],
+      "source": {"type": "local"}
+    }
+  ]
+}

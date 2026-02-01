@@ -27,6 +27,7 @@ private let dependencyLogger = Logger(subsystem: "com.twinact.fieldcompanion", c
 ///     // ...
 /// }
 /// ```
+@MainActor
 protocol DependencyContainerProtocol: AnyObject {
     /// HTTP client for network requests to AAS servers.
     var httpClient: HTTPClientProtocol { get }
@@ -45,6 +46,7 @@ protocol DependencyContainerProtocol: AnyObject {
 ///
 /// Handles sign-in/sign-out flows and token refresh for authenticated API access.
 /// Implementations should securely store credentials in the Keychain.
+@MainActor
 protocol AuthenticationManagerProtocol: Sendable {
     /// Whether the user is currently authenticated with valid credentials.
     var isAuthenticated: Bool { get async }
@@ -68,6 +70,7 @@ protocol AuthenticationManagerProtocol: Sendable {
 ///
 /// Provides a simple interface for storing and retrieving Codable objects.
 /// Used for caching and offline data storage.
+@MainActor
 protocol PersistenceControllerProtocol: Sendable {
     /// Save an encodable object to persistent storage.
     /// - Parameters:
@@ -100,6 +103,7 @@ protocol PersistenceControllerProtocol: Sendable {
 /// 2. When online, changes are pushed to server
 /// 3. Server changes are pulled and merged with local data
 /// 4. Conflicts are resolved per configured strategy
+@MainActor
 protocol SyncEngineProtocol: Sendable {
     /// Whether a sync operation is currently in progress.
     var isSyncing: Bool { get async }
@@ -136,6 +140,7 @@ final class PlaceholderHTTPClient: HTTPClientProtocol, @unchecked Sendable {
 }
 
 /// Placeholder authentication manager - replace with actual implementation
+@MainActor
 final class PlaceholderAuthenticationManager: AuthenticationManagerProtocol, @unchecked Sendable {
     var isAuthenticated: Bool {
         get async { false }
@@ -155,6 +160,7 @@ final class PlaceholderAuthenticationManager: AuthenticationManagerProtocol, @un
 }
 
 /// Placeholder persistence controller - replace with actual implementation
+@MainActor
 final class PlaceholderPersistenceController: PersistenceControllerProtocol, @unchecked Sendable {
     func save<T: Encodable>(_ object: T, forKey key: String) async throws {
         // No-op for placeholder - data is not persisted
@@ -174,6 +180,7 @@ final class PlaceholderPersistenceController: PersistenceControllerProtocol, @un
 }
 
 /// Placeholder sync engine - replace with actual implementation
+@MainActor
 final class PlaceholderSyncEngine: SyncEngineProtocol, @unchecked Sendable {
     var isSyncing: Bool {
         get async { false }
@@ -196,6 +203,107 @@ final class PlaceholderSyncEngine: SyncEngineProtocol, @unchecked Sendable {
     }
 }
 
+// MARK: - Default Implementations
+
+@MainActor
+final class AuthenticationManagerAdapter: AuthenticationManagerProtocol, @unchecked Sendable {
+    private let manager: AuthenticationManager
+
+    init(manager: AuthenticationManager) {
+        self.manager = manager
+    }
+
+    var isAuthenticated: Bool {
+        get async { manager.isAuthenticated }
+    }
+
+    func signIn(username: String, password: String) async throws {
+        // OAuth flow does not use username/password; ignore parameters for now.
+        try await manager.login()
+    }
+
+    func signOut() async {
+        await manager.logout()
+    }
+
+    func refreshToken() async throws {
+        try await manager.refreshTokenIfNeeded()
+    }
+}
+
+@MainActor
+final class KeyValuePersistenceController: PersistenceControllerProtocol, @unchecked Sendable {
+    private let defaults: UserDefaults
+    private let encoder: JSONEncoder
+    private let decoder: JSONDecoder
+    private let keyPrefix: String
+
+    init(
+        defaults: UserDefaults = .standard,
+        keyPrefix: String = "com.twinact.fieldcompanion.kv."
+    ) {
+        self.defaults = defaults
+        self.keyPrefix = keyPrefix
+        self.encoder = JSONEncoder()
+        self.decoder = JSONDecoder()
+    }
+
+    func save<T: Encodable>(_ object: T, forKey key: String) async throws {
+        let data = try encoder.encode(object)
+        defaults.set(data, forKey: namespacedKey(key))
+    }
+
+    func load<T: Decodable>(forKey key: String) async throws -> T? {
+        guard let data = defaults.data(forKey: namespacedKey(key)) else {
+            return nil
+        }
+        return try decoder.decode(T.self, from: data)
+    }
+
+    func delete(forKey key: String) async throws {
+        defaults.removeObject(forKey: namespacedKey(key))
+    }
+
+    func clearAll() async throws {
+        for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(keyPrefix) {
+            defaults.removeObject(forKey: key)
+        }
+    }
+
+    private func namespacedKey(_ key: String) -> String {
+        keyPrefix + key
+    }
+}
+
+@MainActor
+final class SyncEngineAdapter: SyncEngineProtocol, @unchecked Sendable {
+    private let syncEngine: SyncEngine
+
+    init(syncEngine: SyncEngine) {
+        self.syncEngine = syncEngine
+    }
+
+    var isSyncing: Bool {
+        get async { syncEngine.isSyncing }
+    }
+
+    var lastSyncDate: Date? {
+        get async { syncEngine.lastSyncDate }
+    }
+
+    func startSync() async throws {
+        _ = try await syncEngine.forceSync()
+    }
+
+    func stopSync() async {
+        syncEngine.cancelSync()
+    }
+
+    func scheduleBackgroundSync() async {
+        syncEngine.scheduleBackgroundSync()
+    }
+}
+
 // MARK: - Dependency Container
 
 /// Dependency injection container for the app
@@ -209,23 +317,31 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
     // MARK: - Service Factories (for testing)
 
     /// Factory closure for creating HTTP client instances
-    nonisolated(unsafe) static var httpClientFactory: () -> HTTPClientProtocol = {
-        PlaceholderHTTPClient()
+    @MainActor static var httpClientFactory: () -> HTTPClientProtocol = {
+        HTTPClient()
     }
 
     /// Factory closure for creating authentication manager instances
-    nonisolated(unsafe) static var authenticationManagerFactory: () -> AuthenticationManagerProtocol = {
-        PlaceholderAuthenticationManager()
+    @MainActor static var authenticationManagerFactory: () -> AuthenticationManagerProtocol = {
+        AuthenticationManagerAdapter(manager: AuthenticationManager())
     }
 
     /// Factory closure for creating persistence controller instances
-    nonisolated(unsafe) static var persistenceControllerFactory: () -> PersistenceControllerProtocol = {
-        PlaceholderPersistenceController()
+    @MainActor static var persistenceControllerFactory: () -> PersistenceControllerProtocol = {
+        KeyValuePersistenceController()
     }
 
     /// Factory closure for creating sync engine instances
-    nonisolated(unsafe) static var syncEngineFactory: () -> SyncEngineProtocol = {
-        PlaceholderSyncEngine()
+    @MainActor static var syncEngineFactory: () -> SyncEngineProtocol = {
+        let persistence = PersistenceService()
+        let repository: RepositoryServiceProtocol = AppConfiguration.isDemoMode
+            ? MockRepositoryService()
+            : RepositoryService()
+        let engine = SyncEngine(
+            persistence: persistence,
+            repositoryService: repository
+        )
+        return SyncEngineAdapter(syncEngine: engine)
     }
 
     // MARK: - Lazy Services
@@ -339,6 +455,46 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
         _submodelService = nil
     }
 
+    // MARK: - AI/Inference Services
+
+    /// Cached inference router
+    private var _inferenceRouter: InferenceRouter?
+
+    /// Inference router for LLM requests (on-device and cloud)
+    var inferenceRouter: InferenceRouter {
+        if let router = _inferenceRouter {
+            return router
+        }
+        let router = InferenceRouter()
+        _inferenceRouter = router
+        return router
+    }
+
+    // MARK: - Glossary Service
+
+    /// Cached glossary service
+    private var _glossaryService: GlossaryService?
+
+    /// Glossary service for DPP Jargon Buster feature
+    var glossaryService: GlossaryService {
+        if let service = _glossaryService {
+            return service
+        }
+        let service = GlossaryService(
+            inferenceRouter: inferenceRouter,
+            enableLLMFallback: AppConfiguration.GenAI.enableGlossaryLLMFallback,
+            maxCachedTerms: AppConfiguration.GenAI.glossaryMaxCachedTerms
+        )
+        _glossaryService = service
+
+        // Load glossary on first access
+        Task {
+            try? await service.loadGlossary()
+        }
+
+        return service
+    }
+
     // MARK: - Published State
 
     /// Whether the app is currently performing a sync operation
@@ -450,8 +606,15 @@ final class DependencyContainer: ObservableObject, DependencyContainerProtocol {
         _authenticationManager = nil
         _persistenceController = nil
         _syncEngine = nil
+        _inferenceRouter = nil
+        _glossaryService = nil
         invalidateAASServices()
         isSyncInProgress = false
         lastSyncTimestamp = nil
+    }
+
+    /// Inject a shared SyncEngine instance (used to keep UI and background sync in sync).
+    func setSyncEngine(_ engine: SyncEngine) {
+        _syncEngine = SyncEngineAdapter(syncEngine: engine)
     }
 }

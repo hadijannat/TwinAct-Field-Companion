@@ -27,24 +27,46 @@ public struct PassportView: View {
     @State private var showFileImporter = false
     @State private var showURLImporter = false
 
+    // Jargon Buster support
+    @StateObject private var jargonBusterVM: JargonBusterViewModel
+    @State private var selectedGlossaryTerm: GlossaryEntry?
+    @State private var showingGlossaryBrowser = false
+
     let assetId: String
+    let glossaryService: GlossaryService?
 
     // MARK: - Initialization
 
     /// Initialize with asset ID.
     /// - Parameter assetId: The asset/AAS identifier
-    public init(assetId: String) {
+    public init(assetId: String, glossaryService: GlossaryService? = nil) {
         self.assetId = assetId
+        self.glossaryService = glossaryService
         self._viewModel = StateObject(wrappedValue: PassportViewModel(assetId: assetId))
+
+        if let service = glossaryService {
+            self._jargonBusterVM = StateObject(wrappedValue: JargonBusterViewModel(glossaryService: service))
+        } else {
+            // Create a placeholder - will be replaced when DI is set up
+            self._jargonBusterVM = StateObject(wrappedValue: JargonBusterViewModel(glossaryService: DependencyContainer.shared.glossaryService))
+        }
     }
 
     /// Initialize with asset ID and custom services.
     /// - Parameters:
     ///   - assetId: The asset/AAS identifier
     ///   - viewModel: Custom view model with injected dependencies
-    public init(assetId: String, viewModel: PassportViewModel) {
+    ///   - glossaryService: Optional glossary service for Jargon Buster
+    public init(assetId: String, viewModel: PassportViewModel, glossaryService: GlossaryService? = nil) {
         self.assetId = assetId
+        self.glossaryService = glossaryService
         self._viewModel = StateObject(wrappedValue: viewModel)
+
+        if let service = glossaryService {
+            self._jargonBusterVM = StateObject(wrappedValue: JargonBusterViewModel(glossaryService: service))
+        } else {
+            self._jargonBusterVM = StateObject(wrappedValue: JargonBusterViewModel(glossaryService: DependencyContainer.shared.glossaryService))
+        }
     }
 
     // MARK: - Body
@@ -134,6 +156,17 @@ public struct PassportView: View {
                 .accessibilityLabel("Import AASX")
             }
 
+            // Glossary button
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showingGlossaryBrowser = true
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                }
+                .accessibilityLabel("Glossary")
+                .accessibilityHint("Open the DPP term glossary")
+            }
+
             ToolbarItem(placement: .topBarTrailing) {
                 if let asset = viewModel.asset {
                     ShareButton(asset: asset)
@@ -162,6 +195,23 @@ public struct PassportView: View {
                 // Refresh the view to show new content
                 Task {
                     await viewModel.refresh()
+                }
+            }
+        }
+        // Jargon Buster sheet for selected term
+        .sheet(item: $selectedGlossaryTerm) { entry in
+            JargonBusterSheet(
+                entry: entry,
+                viewModel: jargonBusterVM,
+                onDismiss: { selectedGlossaryTerm = nil }
+            )
+        }
+        // Full glossary browser
+        .sheet(isPresented: $showingGlossaryBrowser) {
+            if let service = glossaryService ?? DependencyContainer.shared.glossaryService as GlossaryService? {
+                GlossaryBrowserView(glossaryService: service) { entry in
+                    showingGlossaryBrowser = false
+                    selectedGlossaryTerm = entry
                 }
             }
         }

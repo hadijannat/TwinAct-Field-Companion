@@ -511,7 +511,7 @@ public final class AuthenticationManager: NSObject, ObservableObject {
 
     private func logDebug(_ message: String) {
         #if DEBUG
-        logger.debug("\(message, privacy: .public)")
+        logger.debug("\(message, privacy: .private)")
         #endif
     }
 
@@ -550,13 +550,6 @@ extension AuthenticationManager: ASWebAuthenticationPresentationContextProviding
         logger.fault("No UIWindowScene available for authentication. Total scenes: \(allScenes.count), UIWindowScenes: \(scenes.count)")
         for (index, scene) in allScenes.enumerated() {
             logger.fault("Scene \(index): \(type(of: scene)), state: \(scene.activationState.rawValue)")
-        }
-
-        // As a last resort, try to create a window without a scene (iOS 13+)
-        // This may not work correctly but is better than crashing
-        if #available(iOS 15.0, *) {
-            logger.warning("Attempting to create UIWindow without scene as last resort")
-            return UIWindow(frame: UIScreen.main.bounds)
         }
 
         preconditionFailure("No UIWindowScene available for authentication presentation. Check logs for diagnostics.")
