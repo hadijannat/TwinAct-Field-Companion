@@ -112,6 +112,8 @@
 			);
 			name = "TwinAct Field Companion";
 			packageProductDependencies = (
+				AASX00020001 /* ZIPFoundation */,
+				AASX00020002 /* XMLCoder */,
 			);
 			productName = "TwinAct Field Companion";
 			productReference = 24B644882F1D756D00CA0BC6 /* TwinAct Field Companion.app */;
@@ -199,6 +201,10 @@
 			productRefGroup = 24B644892F1D756D00CA0BC6 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
+			packageReferences = (
+				AASX00010001 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
+				AASX00010002 /* XCRemoteSwiftPackageReference "XMLCoder" */,
+			);
 			targets = (
 				24B644872F1D756D00CA0BC6 /* TwinAct Field Companion */,
 				24B6449B2F1D800000CA0BC6 /* TwinAct Field CompanionUITests */,
@@ -607,6 +613,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		AASX00010001 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.0;
+			};
+		};
+		AASX00010002 /* XCRemoteSwiftPackageReference "XMLCoder" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/CoreOffice/XMLCoder.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.17.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AASX00020001 /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AASX00010001 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
+		};
+		AASX00020002 /* XMLCoder */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AASX00010002 /* XCRemoteSwiftPackageReference "XMLCoder" */;
+			productName = XMLCoder;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 24B644802F1D756D00CA0BC6 /* Project object */;
 }
