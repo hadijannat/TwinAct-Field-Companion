@@ -62,7 +62,13 @@ public actor CloudInference: InferenceProvider {
                 defaultTimeout: 60.0,  // Longer timeout for generation
                 maxRetryAttempts: 2
             )
-            self.httpClient = HTTPClient(configuration: config)
+            let sessionConfig = URLSessionConfiguration.default
+            sessionConfig.timeoutIntervalForRequest = config.defaultTimeout
+            sessionConfig.timeoutIntervalForResource = config.defaultTimeout * 2
+            sessionConfig.waitsForConnectivity = false
+            sessionConfig.httpMaximumConnectionsPerHost = AppConfiguration.AASServer.maxConcurrentConnections
+            let session = URLSession(configuration: sessionConfig)
+            self.httpClient = HTTPClient(configuration: config, session: session)
         }
     }
 

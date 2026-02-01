@@ -283,7 +283,7 @@ public final class InferenceRouter: @unchecked Sendable {
         guard let manager = providerManager else {
             return false
         }
-        return await MainActor.run { manager.activeProvider() != nil }
+        return await MainActor.run { !manager.availableProviders.isEmpty }
     }
 
     /// Try to generate using the configured cloud provider from AIProviderManager
@@ -302,9 +302,13 @@ public final class InferenceRouter: @unchecked Sendable {
 
         do {
             return try await provider.generate(prompt: prompt, options: options)
-        } catch let error as InferenceError where error.isRetryable {
-            logger.warning("Configured provider failed (retryable): \(error.localizedDescription)")
-            return nil  // Allow fallback
+        } catch {
+            logger.warning("Configured provider failed: \(error.localizedDescription)")
+            if await onDevice.isAvailable {
+                logger.info("Falling back to on-device inference after configured provider failure")
+                return try await onDevice.generate(prompt: prompt, options: options)
+            }
+            throw error
         }
     }
 
