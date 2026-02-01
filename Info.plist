@@ -99,5 +99,49 @@
 		<true/>
 		<!-- Note: For production, configure specific exception domains or use HTTPS -->
 	</dict>
+
+	<!-- AASX Document Types -->
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>AASX Package</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.twinact.aasx</string>
+			</array>
+		</dict>
+	</array>
+
+	<!-- AASX UTType Declaration -->
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+				<string>public.archive</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Asset Administration Shell Exchange Package</string>
+			<key>UTTypeIconFiles</key>
+			<array/>
+			<key>UTTypeIdentifier</key>
+			<string>com.twinact.aasx</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>aasx</string>
+				</array>
+				<key>public.mime-type</key>
+				<string>application/asset-administration-shell-package</string>
+			</dict>
+		</dict>
+	</array>
 </dict>
 </plist>
