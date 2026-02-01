@@ -192,6 +192,9 @@ public actor OpenRouterProvider: CloudAIProvider {
         options: GenerationOptions,
         apiKey: String
     ) async throws -> GenerationResult {
+        // Unique build marker - if you see this, the Feb 1 2026 code is running
+        logger.info("🔵 OpenRouterProvider v2.1 - performGeneration called")
+
         let headers = buildHeaders(apiKey: apiKey)
 
         // Build messages array (OpenAI-compatible format)
@@ -215,13 +218,14 @@ public actor OpenRouterProvider: CloudAIProvider {
             stream: false  // Disable streaming - we don't support SSE parsing yet
         )
 
-        // Debug: log the request body to verify stream=false is included
-        #if DEBUG
-        if let jsonData = try? JSONEncoder().encode(requestBody),
+        // Log request body to verify stream=false is included
+        // Using same encoder as Endpoint.post to match actual request
+        let debugEncoder = JSONEncoder()
+        debugEncoder.keyEncodingStrategy = .convertToSnakeCase
+        if let jsonData = try? debugEncoder.encode(requestBody),
            let jsonString = String(data: jsonData, encoding: .utf8) {
-            logger.debug("OpenRouter request body: \(jsonString)")
+            logger.info("OpenRouter request body: \(jsonString)")
         }
-        #endif
 
         let prefix = apiVersionPathPrefix
         let endpoint = try Endpoint.post(
@@ -235,6 +239,19 @@ public actor OpenRouterProvider: CloudAIProvider {
 
         // Get raw response data first to handle error responses
         let responseData: Data = try await httpClient.request(endpoint)
+
+        // Check for SSE streaming response (OpenRouter may ignore stream:false)
+        if let responsePreview = String(data: responseData.prefix(100), encoding: .utf8) {
+            logger.info("Response preview (first 100 chars): \(responsePreview)")
+            if responsePreview.hasPrefix("data:") || responsePreview.contains("\ndata:") {
+                logger.error("OpenRouter returned SSE streaming response despite stream:false")
+                throw InferenceError.providerError(
+                    provider: "OpenRouter",
+                    message: "Server returned streaming response. Please try a different model or contact support.",
+                    code: "streaming_response"
+                )
+            }
+        }
 
         try Task.checkCancellation()
 
