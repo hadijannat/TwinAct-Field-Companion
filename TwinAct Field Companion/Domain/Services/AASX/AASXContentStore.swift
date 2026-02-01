@@ -241,6 +241,169 @@ public final class AASXContentStore: @unchecked Sendable {
         }
     }
 
+    // MARK: - Enhanced Content Access
+
+    /// Get all images for asset, categorized by type.
+    /// - Parameter assetId: Asset identifier
+    /// - Returns: Array of categorized image items
+    public func images(for assetId: String) -> [AASXImageItem] {
+        var items: [AASXImageItem] = []
+
+        // Product images
+        let productImgs = productImages(for: assetId)
+        items += productImgs.map { AASXImageItem(url: $0, category: .product) }
+
+        // Certification markings
+        let markings = markingURLs(for: assetId)
+        items += markings.map { AASXImageItem(url: $0, category: .certification) }
+
+        // Logos
+        if let logo = logoURL(for: assetId) {
+            items.append(AASXImageItem(url: logo, category: .logo))
+        }
+
+        // Thumbnail (if not already included)
+        if let thumb = thumbnailURL(for: assetId), !items.contains(where: { $0.url == thumb }) {
+            items.insert(AASXImageItem(url: thumb, category: .thumbnail), at: 0)
+        }
+
+        return items
+    }
+
+    /// Get CAD files for asset.
+    /// - Parameter assetId: Asset identifier
+    /// - Returns: Array of CAD file items
+    public func cadFiles(for assetId: String) -> [AASXCADFile] {
+        let assetDir = assetDirectory(for: assetId)
+
+        // Check multiple locations for CAD files
+        let directories = [
+            assetDir,
+            assetDir.appendingPathComponent("models"),
+            assetDir.appendingPathComponent("cad"),
+            assetDir.appendingPathComponent("3d")
+        ]
+
+        let cadExtensions = ["usdz", "obj", "stl", "step", "stp", "iges", "igs", "gltf", "glb", "fbx"]
+        var files: [AASXCADFile] = []
+
+        for dir in directories {
+            let found = filesInDirectory(dir, extensions: cadExtensions)
+            files += found.map { url in
+                let ext = url.pathExtension.lowercased()
+                let format = AASXCADFormat.from(extension: ext)
+                let fileSize = try? fileManager.attributesOfItem(atPath: url.path)[.size] as? Int64
+                return AASXCADFile(
+                    url: url,
+                    format: format,
+                    filename: url.lastPathComponent,
+                    fileSize: fileSize
+                )
+            }
+        }
+
+        return files
+    }
+
+    /// Get the package structure for an asset.
+    /// - Parameter assetId: Asset identifier
+    /// - Returns: Root node of the package structure tree
+    public func packageStructure(for assetId: String) -> AASXPackageNode? {
+        let assetDir = assetDirectory(for: assetId)
+        guard fileManager.fileExists(atPath: assetDir.path) else { return nil }
+
+        return buildPackageNode(at: assetDir, name: assetId, isRoot: true)
+    }
+
+    /// Get the AAS JSON content for an asset.
+    /// - Parameter assetId: Asset identifier
+    /// - Returns: Parsed JSON dictionary, or nil if not found
+    public func aasJSON(for assetId: String) -> [String: Any]? {
+        let assetDir = assetDirectory(for: assetId)
+
+        // Common locations for AAS JSON
+        let candidates = [
+            assetDir.appendingPathComponent("aas.json"),
+            assetDir.appendingPathComponent("aasx/aas.json"),
+            assetDir.appendingPathComponent("aas-spec/aas.json"),
+            assetDir.appendingPathComponent("shell.json")
+        ]
+
+        for candidate in candidates {
+            if let data = try? Data(contentsOf: candidate),
+               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                return json
+            }
+        }
+
+        // Try to find any JSON file that looks like AAS content
+        let jsonFiles = filesInDirectory(assetDir, extensions: ["json"])
+        for jsonFile in jsonFiles {
+            if let data = try? Data(contentsOf: jsonFile),
+               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                // Check if it looks like AAS content
+                if json["assetAdministrationShells"] != nil ||
+                   json["submodels"] != nil ||
+                   json["idShort"] != nil {
+                    return json
+                }
+            }
+        }
+
+        return nil
+    }
+
+    /// Get the asset directory URL (for direct access when needed).
+    /// - Parameter assetId: Asset identifier
+    /// - Returns: URL to the asset's content directory
+    public func contentDirectory(for assetId: String) -> URL {
+        return assetDirectory(for: assetId)
+    }
+
+    // MARK: - Private Helper Methods
+
+    /// Recursively build package node tree.
+    private func buildPackageNode(at url: URL, name: String, isRoot: Bool) -> AASXPackageNode {
+        var isDirectory: ObjCBool = false
+        fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory)
+
+        if isDirectory.boolValue {
+            let children: [AASXPackageNode]
+            if let contents = try? fileManager.contentsOfDirectory(
+                at: url,
+                includingPropertiesForKeys: [.isDirectoryKey, .fileSizeKey],
+                options: [.skipsHiddenFiles]
+            ) {
+                children = contents
+                    .sorted { $0.lastPathComponent < $1.lastPathComponent }
+                    .map { buildPackageNode(at: $0, name: $0.lastPathComponent, isRoot: false) }
+            } else {
+                children = []
+            }
+
+            return AASXPackageNode(
+                name: name,
+                path: url.path,
+                isDirectory: true,
+                fileSize: nil,
+                children: children,
+                fileType: .directory
+            )
+        } else {
+            let fileSize = try? fileManager.attributesOfItem(atPath: url.path)[.size] as? Int64
+            let fileType = AASXFileType.from(extension: url.pathExtension.lowercased())
+
+            return AASXPackageNode(
+                name: name,
+                path: url.path,
+                isDirectory: false,
+                fileSize: fileSize,
+                children: nil,
+                fileType: fileType
+            )
+        }
+    }
+
     // MARK: - Internal Methods
 
     /// Get MIME type for a file URL

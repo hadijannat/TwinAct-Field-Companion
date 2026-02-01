@@ -344,3 +344,243 @@ public enum AASXImportIssue: Sendable, Identifiable {
         }
     }
 }
+
+// MARK: - Image Item
+
+/// An image extracted from AASX package with category information.
+public struct AASXImageItem: Sendable, Identifiable, Equatable {
+    public let id: String
+    public let url: URL
+    public let category: AASXImageCategory
+
+    public init(url: URL, category: AASXImageCategory) {
+        self.id = url.absoluteString
+        self.url = url
+        self.category = category
+    }
+
+    /// Filename without path
+    public var filename: String {
+        url.lastPathComponent
+    }
+}
+
+/// Category of image in AASX package.
+public enum AASXImageCategory: String, Sendable, CaseIterable {
+    case product
+    case certification
+    case logo
+    case thumbnail
+    case other
+
+    public var displayName: String {
+        switch self {
+        case .product: return "Product"
+        case .certification: return "Certifications"
+        case .logo: return "Logos"
+        case .thumbnail: return "Thumbnails"
+        case .other: return "Other"
+        }
+    }
+
+    public var icon: String {
+        switch self {
+        case .product: return "photo.fill"
+        case .certification: return "checkmark.seal.fill"
+        case .logo: return "building.2.fill"
+        case .thumbnail: return "photo.on.rectangle"
+        case .other: return "photo"
+        }
+    }
+}
+
+// MARK: - CAD File
+
+/// A CAD file extracted from AASX package.
+public struct AASXCADFile: Sendable, Identifiable {
+    public let id: String
+    public let url: URL
+    public let format: AASXCADFormat
+    public let filename: String
+    public let fileSize: Int64?
+
+    public init(url: URL, format: AASXCADFormat, filename: String, fileSize: Int64? = nil) {
+        self.id = url.absoluteString
+        self.url = url
+        self.format = format
+        self.filename = filename
+        self.fileSize = fileSize
+    }
+
+    /// Formatted file size
+    public var formattedFileSize: String? {
+        guard let size = fileSize else { return nil }
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: size)
+    }
+}
+
+/// CAD file format with support level.
+public enum AASXCADFormat: String, Sendable, CaseIterable {
+    case usdz
+    case obj
+    case stl
+    case gltf
+    case glb
+    case fbx
+    case step
+    case iges
+    case unknown
+
+    /// Display name for the format
+    public var displayName: String {
+        switch self {
+        case .usdz: return "USDZ"
+        case .obj: return "OBJ"
+        case .stl: return "STL"
+        case .gltf: return "glTF"
+        case .glb: return "GLB"
+        case .fbx: return "FBX"
+        case .step: return "STEP"
+        case .iges: return "IGES"
+        case .unknown: return "Unknown"
+        }
+    }
+
+    /// Whether this format is natively supported for viewing
+    public var isNativelySupported: Bool {
+        switch self {
+        case .usdz, .obj, .stl, .gltf, .glb:
+            return true
+        case .fbx, .step, .iges, .unknown:
+            return false
+        }
+    }
+
+    /// SF Symbol icon for the format
+    public var icon: String {
+        switch self {
+        case .usdz, .gltf, .glb:
+            return "arkit"
+        case .obj, .stl, .fbx:
+            return "cube.fill"
+        case .step, .iges:
+            return "cube.transparent"
+        case .unknown:
+            return "doc.questionmark"
+        }
+    }
+
+    /// Create from file extension
+    public static func from(extension ext: String) -> AASXCADFormat {
+        switch ext.lowercased() {
+        case "usdz": return .usdz
+        case "obj": return .obj
+        case "stl": return .stl
+        case "gltf": return .gltf
+        case "glb": return .glb
+        case "fbx": return .fbx
+        case "step", "stp": return .step
+        case "iges", "igs": return .iges
+        default: return .unknown
+        }
+    }
+}
+
+// MARK: - Package Structure
+
+/// A node in the AASX package structure tree.
+public struct AASXPackageNode: Sendable, Identifiable {
+    public let id: String
+    public let name: String
+    public let path: String
+    public let isDirectory: Bool
+    public let fileSize: Int64?
+    public let children: [AASXPackageNode]?
+    public let fileType: AASXFileType
+
+    public init(
+        name: String,
+        path: String,
+        isDirectory: Bool,
+        fileSize: Int64? = nil,
+        children: [AASXPackageNode]? = nil,
+        fileType: AASXFileType = .other
+    ) {
+        self.id = path
+        self.name = name
+        self.path = path
+        self.isDirectory = isDirectory
+        self.fileSize = fileSize
+        self.children = children
+        self.fileType = fileType
+    }
+
+    /// Formatted file size
+    public var formattedFileSize: String? {
+        guard let size = fileSize else { return nil }
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: size)
+    }
+
+    /// Number of children (for directories)
+    public var childCount: Int {
+        children?.count ?? 0
+    }
+}
+
+/// File type classification for package contents.
+public enum AASXFileType: String, Sendable {
+    case directory
+    case json
+    case xml
+    case pdf
+    case image
+    case cad
+    case archive
+    case text
+    case other
+
+    public var icon: String {
+        switch self {
+        case .directory: return "folder.fill"
+        case .json: return "curlybraces"
+        case .xml: return "chevron.left.forwardslash.chevron.right"
+        case .pdf: return "doc.fill"
+        case .image: return "photo.fill"
+        case .cad: return "cube.fill"
+        case .archive: return "doc.zipper"
+        case .text: return "doc.text.fill"
+        case .other: return "doc"
+        }
+    }
+
+    public var color: String {
+        switch self {
+        case .directory: return "blue"
+        case .json: return "orange"
+        case .xml: return "purple"
+        case .pdf: return "red"
+        case .image: return "green"
+        case .cad: return "teal"
+        case .archive: return "brown"
+        case .text: return "gray"
+        case .other: return "secondary"
+        }
+    }
+
+    public static func from(extension ext: String) -> AASXFileType {
+        switch ext.lowercased() {
+        case "json": return .json
+        case "xml", "aml": return .xml
+        case "pdf": return .pdf
+        case "jpg", "jpeg", "png", "gif", "webp", "svg", "bmp", "tiff": return .image
+        case "usdz", "obj", "stl", "step", "stp", "iges", "igs", "gltf", "glb", "fbx": return .cad
+        case "zip", "aasx", "tar", "gz": return .archive
+        case "txt", "md", "csv", "log": return .text
+        default: return .other
+        }
+    }
+}

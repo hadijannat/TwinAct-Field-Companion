@@ -20,6 +20,7 @@ public struct PassportView: View {
 
     @StateObject private var viewModel: PassportViewModel
     @State private var selectedSection: PassportSection?
+    @State private var selectedTab: PassportTab = .overview
     @Environment(\.dismiss) private var dismiss
 
     // AASX Import
@@ -76,58 +77,55 @@ public struct PassportView: View {
 
     public var body: some View {
         ZStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Asset header with image/icon
-                    AssetHeaderView(asset: viewModel.asset)
+            VStack(spacing: 0) {
+                // Tab picker
+                tabPicker
+                    .padding(.horizontal)
+                    .padding(.top, 8)
 
-                    // Cache indicator
-                    if viewModel.isFromCache {
-                        cacheIndicator
+                // Tab content
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Asset header (shown on all tabs)
+                        AssetHeaderView(asset: viewModel.asset)
+
+                        // Cache indicator
+                        if viewModel.isFromCache {
+                            cacheIndicator
+                        }
+
+                        // Tab-specific content
+                        switch selectedTab {
+                        case .overview:
+                            overviewTabContent
+
+                        case .content:
+                            contentTabContent
+
+                        case .structure:
+                            structureTabContent
+                        }
+
+                        // Empty state if no data (only on overview tab)
+                        if selectedTab == .overview && !viewModel.isLoading && viewModel.asset == nil && viewModel.error == nil {
+                            emptyState
+                        }
+
+                        // Error state
+                        if let error = viewModel.error {
+                            errorState(error: error)
+                        }
+
+                        // Bottom spacing
+                        Spacer(minLength: 40)
                     }
-
-                    // Digital Nameplate section
-                    if let nameplate = viewModel.digitalNameplate {
-                        NameplateCardView(nameplate: nameplate)
-                            .transition(.opacity.combined(with: .move(edge: .top)))
-                    }
-
-                    // Carbon Footprint section (DPP sustainability)
-                    if let carbon = viewModel.carbonFootprint {
-                        CarbonFootprintView(footprint: carbon)
-                            .transition(.opacity.combined(with: .move(edge: .top)))
-                    }
-
-                    // Documentation section
-                    if !viewModel.documents.isEmpty {
-                        DocumentListView(documents: viewModel.documents)
-                            .transition(.opacity.combined(with: .move(edge: .top)))
-                    }
-
-                    // Technical Data summary (if available)
-                    if let techData = viewModel.technicalData {
-                        TechnicalDataSummaryView(data: techData)
-                            .transition(.opacity.combined(with: .move(edge: .top)))
-                    }
-
-                    // Empty state if no data
-                    if !viewModel.isLoading && viewModel.asset == nil && viewModel.error == nil {
-                        emptyState
-                    }
-
-                    // Error state
-                    if let error = viewModel.error {
-                        errorState(error: error)
-                    }
-
-                    // Bottom spacing
-                    Spacer(minLength: 40)
+                    .padding()
+                    .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
+                    .animation(.easeInOut(duration: 0.2), value: selectedTab)
                 }
-                .padding()
-                .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
-            }
-            .refreshable {
-                await viewModel.refresh()
+                .refreshable {
+                    await viewModel.refresh()
+                }
             }
 
             // Loading overlay
@@ -255,6 +253,154 @@ public struct PassportView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Tab Picker
+
+    private var tabPicker: some View {
+        Picker("View", selection: $selectedTab) {
+            ForEach(PassportTab.allCases) { tab in
+                Label(tab.title, systemImage: tab.icon)
+                    .tag(tab)
+            }
+        }
+        .pickerStyle(.segmented)
+        .accessibilityLabel("Select passport view tab")
+    }
+
+    // MARK: - Overview Tab Content
+
+    @ViewBuilder
+    private var overviewTabContent: some View {
+        // Digital Nameplate section
+        if let nameplate = viewModel.digitalNameplate {
+            NameplateCardView(nameplate: nameplate)
+                .transition(.opacity.combined(with: .move(edge: .top)))
+        }
+
+        // Carbon Footprint section (DPP sustainability)
+        if let carbon = viewModel.carbonFootprint {
+            CarbonFootprintView(footprint: carbon)
+                .transition(.opacity.combined(with: .move(edge: .top)))
+        }
+
+        // Documentation section
+        if !viewModel.documents.isEmpty {
+            DocumentListView(documents: viewModel.documents)
+                .transition(.opacity.combined(with: .move(edge: .top)))
+        }
+
+        // Technical Data summary (if available)
+        if let techData = viewModel.technicalData {
+            TechnicalDataSummaryView(data: techData)
+                .transition(.opacity.combined(with: .move(edge: .top)))
+        }
+    }
+
+    // MARK: - Content Tab Content
+
+    @ViewBuilder
+    private var contentTabContent: some View {
+        // Image gallery
+        AASXImageGalleryView(assetId: assetId)
+
+        // Documents with enhanced view (showing extracted AASX documents)
+        let extractedDocs = AASXContentStore.shared.documents(for: assetId)
+        if !extractedDocs.isEmpty {
+            ExtractedDocumentListView(documents: extractedDocs)
+        } else if !viewModel.documents.isEmpty {
+            // Fall back to server documents
+            DocumentListView(documents: viewModel.documents)
+        }
+
+        // CAD Models
+        let cadFiles = AASXContentStore.shared.cadFiles(for: assetId)
+        if !cadFiles.isEmpty {
+            CADModelSection(assetId: assetId)
+        }
+
+        // Empty state if no AASX content
+        if !AASXContentStore.shared.hasContent(for: assetId) && viewModel.documents.isEmpty {
+            contentEmptyState
+        }
+    }
+
+    // MARK: - Structure Tab Content
+
+    @ViewBuilder
+    private var structureTabContent: some View {
+        // File browser
+        if AASXContentStore.shared.hasContent(for: assetId) {
+            AASXFileBrowserView(assetId: assetId)
+        }
+
+        // JSON explorer
+        if AASXContentStore.shared.aasJSON(for: assetId) != nil {
+            AASJSONExplorerView(assetId: assetId)
+        }
+
+        // Empty state if no AASX package
+        if !AASXContentStore.shared.hasContent(for: assetId) {
+            structureEmptyState
+        }
+    }
+
+    // MARK: - Content Empty State
+
+    private var contentEmptyState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "photo.on.rectangle.angled")
+                .font(.system(size: 40))
+                .foregroundColor(.secondary)
+
+            Text("No AASX Content")
+                .font(.headline)
+
+            Text("Import an AASX package to view images, documents, and 3D models.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+
+            Button {
+                showFileImporter = true
+            } label: {
+                Label("Import AASX", systemImage: "square.and.arrow.down")
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(12)
+    }
+
+    // MARK: - Structure Empty State
+
+    private var structureEmptyState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "folder.badge.questionmark")
+                .font(.system(size: 40))
+                .foregroundColor(.secondary)
+
+            Text("No Package Structure")
+                .font(.headline)
+
+            Text("Import an AASX package to explore its file structure and AAS JSON content.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+
+            Button {
+                showFileImporter = true
+            } label: {
+                Label("Import AASX", systemImage: "square.and.arrow.down")
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(12)
     }
 
     // MARK: - Cache Indicator
