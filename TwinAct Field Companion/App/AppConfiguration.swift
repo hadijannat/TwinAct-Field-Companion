@@ -314,6 +314,16 @@ struct AppConfiguration {
 
         /// Timeout for provider connection tests (in seconds)
         static let connectionTestTimeout: TimeInterval = 10.0
+
+        /// Maximum time to wait for a chat response before timing out (in seconds)
+        static let chatGenerationTimeoutSeconds: TimeInterval = {
+            if let raw = ProcessInfo.processInfo.environment["TWINACT_CHAT_TIMEOUT"],
+               let value = Double(raw.trimmingCharacters(in: .whitespacesAndNewlines)),
+               value > 0 {
+                return value
+            }
+            return 60.0
+        }()
     }
 
     // MARK: - Offline Sync Configuration

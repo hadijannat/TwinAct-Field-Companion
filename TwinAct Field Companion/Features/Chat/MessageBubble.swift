@@ -189,6 +189,7 @@ public struct MessageBubble: View {
         .padding(.vertical, 10)
         .background(Color.red.opacity(0.1))
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .accessibilityIdentifier("chat.message.error")
     }
 
     private var bubbleBackgroundColor: Color {

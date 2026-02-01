@@ -176,7 +176,7 @@ public final class ChatViewModel: ObservableObject {
                 )
 
                 // 3. Generate response
-                let result = try await inferenceRouter.generate(
+                let result = try await generateWithTimeout(
                     prompt: prompt,
                     options: .factual
                 )
@@ -413,6 +413,31 @@ public final class ChatViewModel: ObservableObject {
 
     private func removeMessage(id: UUID) {
         messages.removeAll { $0.id == id }
+    }
+
+    private func generateWithTimeout(
+        prompt: String,
+        options: GenerationOptions
+    ) async throws -> GenerationResult {
+        let timeoutSeconds = AppConfiguration.GenAI.chatGenerationTimeoutSeconds
+
+        if timeoutSeconds <= 0 {
+            return try await inferenceRouter.generate(prompt: prompt, options: options)
+        }
+
+        return try await withThrowingTaskGroup(of: GenerationResult.self) { group in
+            group.addTask {
+                try await self.inferenceRouter.generate(prompt: prompt, options: options)
+            }
+            group.addTask {
+                try await Task.sleep(nanoseconds: UInt64(timeoutSeconds * 1_000_000_000))
+                throw InferenceError.timeout
+            }
+
+            let result = try await group.next()!
+            group.cancelAll()
+            return result
+        }
     }
 }
 

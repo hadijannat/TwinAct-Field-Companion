@@ -76,6 +76,39 @@ final class ChatAASXFlowUITests: XCTestCase {
         waitForExpectations(timeout: 60)
     }
 
+    func testChatShowsErrorWhenProviderUnavailable() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--uitesting"]
+        app.launchEnvironment["UITEST_MODE"] = "1"
+        app.launchEnvironment["UITEST_DEMO_MODE"] = "1"
+        app.launchEnvironment["TWINACT_CHAT_TIMEOUT"] = "5"
+        app.launch()
+
+        // Open demo asset passport
+        let demoAssetButton = app.buttons["Demo Asset"]
+        XCTAssertTrue(demoAssetButton.waitForExistence(timeout: 8), "Demo Asset card not visible.")
+        demoAssetButton.tap()
+
+        // Open chat
+        let chatButton = app.buttons["Chat with AI"]
+        XCTAssertTrue(chatButton.waitForExistence(timeout: 8), "Chat button not visible.")
+        chatButton.tap()
+
+        // Send a question without configuring a provider
+        let input = app.textFields["chat.input"]
+        XCTAssertTrue(input.waitForExistence(timeout: 8), "Chat input not visible.")
+        input.tap()
+        input.typeText("What does the maintenance document say?")
+
+        let sendButton = app.buttons["chat.sendButton"]
+        XCTAssertTrue(sendButton.waitForExistence(timeout: 8), "Send button not visible.")
+        sendButton.tap()
+
+        // Expect error bubble after timeout
+        let errorBubble = app.otherElements["chat.message.error"]
+        XCTAssertTrue(errorBubble.waitForExistence(timeout: 12), "Error bubble not visible after timeout.")
+    }
+
     private func selectFileNamed(_ filename: String, in app: XCUIApplication) {
         let candidateApps = [
             app,
