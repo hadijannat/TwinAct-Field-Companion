@@ -18,6 +18,8 @@ private let configLogger = Logger(subsystem: "com.twinact.fieldcompanion", categ
 extension Notification.Name {
     /// Posted when demo mode is enabled or disabled.
     static let demoModeDidChange = Notification.Name("com.twinact.fieldcompanion.demoModeDidChange")
+    /// Posted when an AASX import completes.
+    static let aasxImportDidComplete = Notification.Name("com.twinact.fieldcompanion.aasxImportDidComplete")
 }
 
 // MARK: - UserDefaults Extension

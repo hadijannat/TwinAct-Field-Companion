@@ -64,6 +64,7 @@ public struct MessageBubble: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 4)
+        .accessibilityIdentifier("chat.message.\(message.role.rawValue)")
     }
 
     // MARK: - Avatar View

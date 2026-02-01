@@ -101,7 +101,7 @@ public final class AASXParser: @unchecked Sendable {
         // Try to open as ZIP
         let archive: Archive
         do {
-            archive = try Archive(url: url, accessMode: .read)
+            archive = try Archive(url: url, accessMode: .read, pathEncoding: nil)
         } catch {
             throw AASXError.invalidPackage("Not a valid ZIP archive")
         }
@@ -135,7 +135,7 @@ public final class AASXParser: @unchecked Sendable {
     private func extractPackage(from url: URL, to destination: URL) async throws {
         let archive: Archive
         do {
-            archive = try Archive(url: url, accessMode: .read)
+            archive = try Archive(url: url, accessMode: .read, pathEncoding: nil)
         } catch {
             throw AASXError.invalidPackage("Failed to open AASX as ZIP archive")
         }

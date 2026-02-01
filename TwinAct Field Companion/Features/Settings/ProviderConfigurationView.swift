@@ -70,7 +70,7 @@ struct ProviderConfigurationView: View {
 
             // MARK: - Endpoint Section
             Section {
-                if provider == .ollama || provider == .custom {
+                if allowsCustomEndpoint {
                     TextField("Base URL", text: $baseURL)
                         .textContentType(.URL)
                         .autocapitalization(.none)
@@ -90,6 +90,8 @@ struct ProviderConfigurationView: View {
                     Text("Default: http://localhost:11434. Change if running Ollama on a different machine.")
                 } else if provider == .custom {
                     Text("Enter the base URL of your API endpoint (e.g., https://your-server.com/api)")
+                } else if provider == .openRouter {
+                    Text("Default: https://openrouter.ai/api. Do not include /v1 in the base URL.")
                 }
             }
 
@@ -298,9 +300,10 @@ struct ProviderConfigurationView: View {
         }
 
         // Build configuration
+        let resolvedBaseURL = normalizedBaseURL(baseURL, provider: provider) ?? provider.defaultBaseURL
         let config = AIProviderConfiguration(
             providerType: provider,
-            baseURL: URL(string: baseURL) ?? provider.defaultBaseURL,
+            baseURL: resolvedBaseURL,
             modelId: modelId.isEmpty ? AIProviderConfiguration.defaultModel(for: provider) : modelId,
             timeout: timeout,
             maxRetries: maxRetries,
@@ -369,6 +372,61 @@ struct ProviderConfigurationView: View {
         await MainActor.run {
             isLoadingModels = false
         }
+    }
+
+    private var allowsCustomEndpoint: Bool {
+        switch provider {
+        case .ollama, .custom, .openRouter:
+            return true
+        case .anthropic, .openai:
+            return false
+        }
+    }
+
+    private func normalizedBaseURL(_ input: String, provider: AIProviderType) -> URL? {
+        let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            return provider.defaultBaseURL
+        }
+
+        var urlString = trimmed
+        if !urlString.contains("://") {
+            urlString = "https://" + urlString
+        }
+
+        guard var url = URL(string: urlString) else {
+            return nil
+        }
+
+        guard provider == .openRouter else {
+            return url
+        }
+
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            return url
+        }
+
+        var path = components.path
+        if path.isEmpty || path == "/" {
+            path = "/api"
+        }
+
+        if path.hasSuffix("/v1/") {
+            path = String(path.dropLast(4))
+        } else if path.hasSuffix("/v1") {
+            path = String(path.dropLast(3))
+        }
+
+        if path.hasSuffix("/") && path != "/" {
+            path.removeLast()
+        }
+
+        components.path = path
+        if let normalized = components.url {
+            url = normalized
+        }
+
+        return url
     }
 }
 

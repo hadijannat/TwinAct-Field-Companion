@@ -77,7 +77,7 @@ public final class AASXImportManager: ObservableObject {
     // MARK: - Public Methods
 
     /// Import AASX from local file URL
-    public func importFromFile(_ url: URL) async {
+    public func importFromFile(_ url: URL, assetIdOverride: String? = nil) async {
         logger.info("Importing AASX from file: \(url.lastPathComponent)")
 
         // Start accessing security-scoped resource
@@ -102,7 +102,7 @@ public final class AASXImportManager: ObservableObject {
             }
 
             // No issues, proceed with parsing
-            await parseAndStore(url: url)
+            await parseAndStore(url: url, assetIdOverride: assetIdOverride)
 
         } catch {
             logger.error("Import failed: \(error.localizedDescription)")
@@ -111,7 +111,7 @@ public final class AASXImportManager: ObservableObject {
     }
 
     /// Import AASX from remote URL
-    public func importFromURL(_ urlString: String) async {
+    public func importFromURL(_ urlString: String, assetIdOverride: String? = nil) async {
         guard let url = URL(string: urlString) else {
             state = .failed("Invalid URL")
             return
@@ -133,7 +133,7 @@ public final class AASXImportManager: ObservableObject {
                 return
             }
 
-            await parseAndStore(url: localURL)
+            await parseAndStore(url: localURL, assetIdOverride: assetIdOverride)
 
             // Cleanup downloaded file
             try? FileManager.default.removeItem(at: localURL)
@@ -152,7 +152,7 @@ public final class AASXImportManager: ObservableObject {
         }
 
         pendingIssues = []
-        await parseAndStore(url: url)
+        await parseAndStore(url: url, assetIdOverride: nil)
     }
 
     /// User chose to abort due to issues
@@ -198,11 +198,11 @@ public final class AASXImportManager: ObservableObject {
         return destinationURL
     }
 
-    private func parseAndStore(url: URL) async {
+    private func parseAndStore(url: URL, assetIdOverride: String?) async {
         state = .parsing
 
         do {
-            let result = try await parser.parse(url: url)
+            let result = try await parser.parse(url: url, assetId: assetIdOverride)
 
             state = .storingContent
             _ = try contentStore.store(result)
@@ -211,6 +211,11 @@ public final class AASXImportManager: ObservableObject {
             state = .completed(result)
 
             logger.info("Import completed: \(result.assetId)")
+            NotificationCenter.default.post(
+                name: .aasxImportDidComplete,
+                object: nil,
+                userInfo: ["assetId": result.assetId]
+            )
 
         } catch {
             logger.error("Parse failed: \(error.localizedDescription)")

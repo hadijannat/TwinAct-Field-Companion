@@ -52,6 +52,8 @@ public final class ChatViewModel: ObservableObject {
 
     private var generationTask: Task<Void, Never>?
     private let logger: Logger
+    private var hasIndexedAASXDocuments = false
+    private var aasxImportObserver: NSObjectProtocol?
 
     // MARK: - Initialization
 
@@ -89,6 +91,8 @@ public final class ChatViewModel: ObservableObject {
 
         // Add welcome message
         addWelcomeMessage()
+
+        setupAASXIndexing(assetId: assetId)
     }
 
     /// Initialize with dependency injection for testing
@@ -114,6 +118,14 @@ public final class ChatViewModel: ObservableObject {
         )
 
         addWelcomeMessage()
+
+        setupAASXIndexing(assetId: assetId)
+    }
+
+    deinit {
+        if let observer = aasxImportObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
 
     // MARK: - Public Methods
@@ -329,6 +341,68 @@ public final class ChatViewModel: ObservableObject {
         Ask me about this asset's documentation or any questions about industrial standards and regulations.
         """
         messages.append(.assistant(welcomeText))
+    }
+
+    private func setupAASXIndexing(assetId: String?) {
+        guard let assetId else { return }
+
+        Task {
+            await indexAASXDocumentsIfAvailable(for: assetId)
+        }
+
+        aasxImportObserver = NotificationCenter.default.addObserver(
+            forName: .aasxImportDidComplete,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let self else { return }
+            guard let importedAssetId = notification.userInfo?["assetId"] as? String,
+                  importedAssetId == assetId else {
+                return
+            }
+            Task {
+                await self.indexAASXDocumentsIfAvailable(for: assetId)
+            }
+        }
+    }
+
+    private func indexAASXDocumentsIfAvailable(for assetId: String) async {
+        guard !hasIndexedAASXDocuments else { return }
+        let extractedDocuments = AASXContentStore.shared.documents(for: assetId)
+        let pdfDocuments = extractedDocuments.filter { $0.mimeType.lowercased().contains("pdf") }
+        guard !pdfDocuments.isEmpty else { return }
+
+        let documents: [Document] = pdfDocuments.map { extracted in
+            let titleText = extracted.title.isEmpty ? (extracted.originalFilename ?? extracted.id) : extracted.title
+            let title = [LangString(language: "en", text: titleText)]
+            let digitalFile = DigitalFile(
+                fileFormat: extracted.mimeType,
+                file: extracted.localURL,
+                fileSize: extracted.fileSize,
+                fileName: extracted.originalFilename
+            )
+            return Document(
+                id: extracted.id,
+                title: title,
+                summary: nil,
+                documentClass: .other,
+                documentVersion: nil,
+                language: ["en"],
+                digitalFile: [digitalFile],
+                keywords: nil,
+                documentDate: nil,
+                organization: nil
+            )
+        }
+
+        await indexDocuments(documents)
+
+        for document in documents {
+            if await vectorStore.hasDocument(document.id) {
+                hasIndexedAASXDocuments = true
+                break
+            }
+        }
     }
 
     private func updateMessage(id: UUID, with newMessage: ChatMessage) {

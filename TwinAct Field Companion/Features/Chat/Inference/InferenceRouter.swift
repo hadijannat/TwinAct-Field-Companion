@@ -58,6 +58,8 @@ public final class InferenceRouter: @unchecked Sendable {
 
     private var strategy: InferenceRoutingStrategy
     private var lastUsedProvider: InferenceProviderType?
+    private let onDevicePreferenceKey = "useOnDeviceInference"
+    private var lastUseOnDevicePreference: Bool?
 
     // MARK: - Initialization
 
@@ -81,6 +83,7 @@ public final class InferenceRouter: @unchecked Sendable {
             subsystem: AppConfiguration.AppInfo.bundleIdentifier,
             category: "InferenceRouter"
         )
+        self.lastUseOnDevicePreference = UserDefaults.standard.object(forKey: onDevicePreferenceKey) as? Bool
 
         // Determine strategy from app configuration
         if let explicitStrategy = strategy {
@@ -108,6 +111,8 @@ public final class InferenceRouter: @unchecked Sendable {
         prompt: String,
         options: GenerationOptions = .default
     ) async throws -> GenerationResult {
+        updateStrategyFromSettings()
+
         // Validate prompt safety
         let promptValidation = SafetyPolicy.validatePrompt(prompt)
         guard promptValidation.isValid else {
@@ -164,6 +169,21 @@ public final class InferenceRouter: @unchecked Sendable {
         strategy
     }
 
+    // MARK: - Settings Sync
+
+    private func updateStrategyFromSettings() {
+        let currentPreference = UserDefaults.standard.object(forKey: onDevicePreferenceKey) as? Bool
+        guard currentPreference != lastUseOnDevicePreference else { return }
+        lastUseOnDevicePreference = currentPreference
+
+        guard let useOnDevice = currentPreference else { return }
+        let preferredStrategy: InferenceRoutingStrategy = useOnDevice ? .preferOnDevice : .preferCloud
+        if strategy != preferredStrategy {
+            strategy = preferredStrategy
+            logger.info("Routing strategy updated from settings to: \(preferredStrategy.rawValue)")
+        }
+    }
+
     // MARK: - Routing Implementations
 
     private func generatePreferOnDevice(
@@ -179,6 +199,11 @@ public final class InferenceRouter: @unchecked Sendable {
                 logger.warning("On-device inference failed: \(error.localizedDescription)")
                 // Fall through to cloud
             }
+        }
+
+        // Try configured cloud provider before legacy cloud
+        if let result = try await generateWithConfiguredProvider(prompt: prompt, options: options) {
+            return result
         }
 
         // Fall back to cloud
@@ -266,19 +291,13 @@ public final class InferenceRouter: @unchecked Sendable {
         prompt: String,
         options: GenerationOptions
     ) async throws -> GenerationResult? {
-        guard let manager = providerManager else {
-            return nil
-        }
-
-        // Get the active provider from manager (must call on main actor)
-        let activeProvider = await MainActor.run { manager.activeProvider() }
-
-        guard let provider = activeProvider else {
+        guard let resolved = await resolveConfiguredProvider() else {
             logger.info("No configured cloud provider available")
             return nil
         }
 
-        let providerType = await MainActor.run { manager.activeProviderType }
+        let provider = resolved.provider
+        let providerType = resolved.type
         logger.info("Using configured provider: \(providerType.rawValue)")
 
         do {
@@ -287,6 +306,25 @@ public final class InferenceRouter: @unchecked Sendable {
             logger.warning("Configured provider failed (retryable): \(error.localizedDescription)")
             return nil  // Allow fallback
         }
+    }
+
+    private func resolveConfiguredProvider() async -> (provider: any CloudAIProvider, type: AIProviderType)? {
+        guard let manager = providerManager else { return nil }
+
+        let activeType = await MainActor.run { manager.activeProviderType }
+        if let activeProvider = await MainActor.run { manager.provider(for: activeType) } {
+            return (activeProvider, activeType)
+        }
+
+        // Active provider unavailable; try any other configured provider with a key.
+        for type in AIProviderType.allCases {
+            if let provider = await MainActor.run { manager.provider(for: type) } {
+                logger.warning("Active provider unavailable. Falling back to configured provider: \(type.rawValue)")
+                return (provider, type)
+            }
+        }
+
+        return nil
     }
 
     private func generateAdaptive(

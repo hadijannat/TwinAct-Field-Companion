@@ -31,6 +31,7 @@ struct TwinAct_Field_CompanionApp: App {
         _dependencyContainer = StateObject(wrappedValue: container)
         _syncEngine = StateObject(wrappedValue: engine)
         container.setSyncEngine(engine)
+        UITestHarness.configureIfNeeded(container: container)
     }
 
     #if os(iOS)

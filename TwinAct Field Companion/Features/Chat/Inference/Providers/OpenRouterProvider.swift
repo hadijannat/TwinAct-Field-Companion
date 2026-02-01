@@ -50,7 +50,13 @@ public actor OpenRouterProvider: CloudAIProvider {
             defaultTimeout: configuration.timeout,
             maxRetryAttempts: configuration.maxRetries
         )
-        self.httpClient = HTTPClient(configuration: httpConfig)
+        let sessionConfig = URLSessionConfiguration.default
+        sessionConfig.timeoutIntervalForRequest = configuration.timeout
+        sessionConfig.timeoutIntervalForResource = configuration.timeout * 2
+        sessionConfig.waitsForConnectivity = false
+        sessionConfig.httpMaximumConnectionsPerHost = AppConfiguration.AASServer.maxConcurrentConnections
+        let session = URLSession(configuration: sessionConfig)
+        self.httpClient = HTTPClient(configuration: httpConfig, session: session)
     }
 
     // MARK: - InferenceProvider

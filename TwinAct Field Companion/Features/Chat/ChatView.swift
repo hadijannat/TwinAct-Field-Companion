@@ -205,6 +205,7 @@ public struct ChatView: View {
                     .focused($isInputFocused)
                     .lineLimit(1...5)
                     .submitLabel(.send)
+                    .accessibilityIdentifier("chat.input")
                     .onSubmit {
                         if !viewModel.inputText.isEmpty && !viewModel.isGenerating {
                             Task {
@@ -227,6 +228,8 @@ public struct ChatView: View {
                         .font(.system(size: 32))
                         .foregroundColor(sendButtonColor)
                 }
+                .accessibilityIdentifier("chat.sendButton")
+                .accessibilityLabel(viewModel.isGenerating ? "Stop Generation" : "Send Message")
                 .disabled(sendButtonDisabled)
                 .animation(.easeInOut(duration: 0.2), value: viewModel.isGenerating)
             }
