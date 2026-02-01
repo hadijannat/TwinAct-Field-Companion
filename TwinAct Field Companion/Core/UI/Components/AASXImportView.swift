@@ -11,8 +11,8 @@ import UniformTypeIdentifiers
 // MARK: - AASX UTType
 
 extension UTType {
-    /// AASX file type
-    static let aasx = UTType(filenameExtension: "aasx") ?? .data
+    /// AASX file type - uses the type declared in Info.plist UTImportedTypeDeclarations
+    static let aasx = UTType("com.twinact.aasx") ?? UTType(filenameExtension: "aasx") ?? .data
 }
 
 // MARK: - AASX Import Sheet
