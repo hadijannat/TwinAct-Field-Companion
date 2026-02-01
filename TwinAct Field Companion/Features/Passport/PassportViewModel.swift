@@ -98,7 +98,7 @@ public final class PassportViewModel: ObservableObject {
 
         logger.debug("Loading passport data for asset: \(self.assetId)")
 
-        if AppConfiguration.isDemoMode, assetId == DemoData.asset.id {
+        if AppConfiguration.isDemoMode, assetId == DemoData.asset.aasId {
             applyPassportData(
                 PassportData(
                     asset: DemoData.asset,

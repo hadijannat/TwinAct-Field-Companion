@@ -62,6 +62,7 @@ public enum HTTPError: Error, LocalizedError, Sendable {
     case tooManyRequests   // 429
     case serverError(statusCode: Int)  // 5xx
     case cancelled
+    case notImplemented
 
     public var errorDescription: String? {
         switch self {
@@ -87,6 +88,8 @@ public enum HTTPError: Error, LocalizedError, Sendable {
             return "The server encountered an error. Please try again later."
         case .cancelled:
             return "The request was cancelled."
+        case .notImplemented:
+            return "This network operation is not implemented."
         }
     }
 
@@ -95,7 +98,7 @@ public enum HTTPError: Error, LocalizedError, Sendable {
         switch self {
         case .networkError, .timeout, .tooManyRequests, .serverError:
             return true
-        case .invalidURL, .httpError, .decodingError, .unauthorized, .forbidden, .notFound, .cancelled:
+        case .invalidURL, .httpError, .decodingError, .unauthorized, .forbidden, .notFound, .cancelled, .notImplemented:
             return false
         }
     }

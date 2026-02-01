@@ -2,13 +2,26 @@
 //  TechnicianView.swift
 //  TwinAct Field Companion
 //
-//  Placeholder for Technician feature
+//  Technician feature entry point.
 //
 
 import SwiftUI
 
-// TODO: Implement Technician feature
-// - Maintenance procedures
-// - Technical documentation
-// - Spare parts lookup
-// - Service history
+public struct TechnicianView: View {
+    @EnvironmentObject private var appState: AppState
+
+    public init() {}
+
+    public var body: some View {
+        TechnicianConsoleView(assetId: appState.selectedAsset?.aasId)
+    }
+}
+
+#Preview {
+    TechnicianView()
+        .environmentObject(AppState())
+        .environmentObject(SyncEngine(
+            persistence: PersistenceService(),
+            repositoryService: RepositoryService()
+        ))
+}

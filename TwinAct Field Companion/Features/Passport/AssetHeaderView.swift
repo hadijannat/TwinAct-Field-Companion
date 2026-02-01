@@ -38,8 +38,8 @@ public struct AssetHeaderView: View {
             }
 
             // Asset ID badge
-            if let id = asset?.id {
-                AssetIdBadge(id: id)
+            if let asset = asset {
+                AssetIdBadge(id: asset.displayId)
             }
 
             // Quick info pills

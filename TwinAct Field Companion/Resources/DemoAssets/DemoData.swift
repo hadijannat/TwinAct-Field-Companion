@@ -69,7 +69,9 @@ enum DemoData {
 
     /// Demo asset model - uses nameplate data
     static let asset = Asset(
-        id: assetId,
+        id: globalAssetId,
+        aasId: assetId,
+        globalAssetId: globalAssetId,
         name: nameplate.manufacturerProductDesignation ?? "CRE 95-3-2 Multi-Stage Inline Pump",
         assetType: "Instance",
         manufacturer: nameplate.manufacturerName,

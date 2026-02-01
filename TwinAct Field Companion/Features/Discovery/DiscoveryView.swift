@@ -18,6 +18,7 @@ public struct DiscoveryView: View {
     @StateObject private var viewModel = DiscoveryViewModel()
     @State private var showScanner = false
     @State private var showManualSearch = false
+    @State private var showBrowse = false
     @State private var searchText = ""
     @State private var navigateToPassport = false
     @EnvironmentObject private var appState: AppState
@@ -58,9 +59,25 @@ public struct DiscoveryView: View {
                     onSearch: handleManualSearch
                 )
             }
+            .sheet(isPresented: $showBrowse) {
+                BrowseAssetsView { summary in
+                    let asset = Asset(
+                        id: summary.id,
+                        aasId: summary.aasId,
+                        globalAssetId: summary.globalAssetId,
+                        name: summary.name,
+                        manufacturer: summary.manufacturer,
+                        model: summary.model,
+                        thumbnailURL: summary.thumbnailURL,
+                        availableSubmodels: []
+                    )
+                    appState.setSelectedAsset(asset)
+                    navigateToPassport = true
+                }
+            }
             .navigationDestination(isPresented: $navigateToPassport) {
                 if let asset = viewModel.discoveredAsset ?? appState.selectedAsset {
-                    PassportView(assetId: asset.id)
+                    PassportView(assetId: asset.aasId)
                 }
             }
             .onChange(of: viewModel.state) { _, newState in
@@ -207,7 +224,7 @@ private var autoDismissDelay: TimeInterval {
                     subtitle: "View all assets",
                     color: .purple
                 ) {
-                    // TODO: Implement browse functionality
+                    showBrowse = true
                 }
 
                 if AppConfiguration.isDemoMode {
@@ -246,7 +263,8 @@ private var autoDismissDelay: TimeInterval {
             ForEach(viewModel.recentDiscoveries) { asset in
                 RecentAssetRow(asset: asset) {
                     Task {
-                        await viewModel.lookupByGlobalAssetId(asset.id)
+                        let lookupId = asset.globalAssetId ?? asset.id
+                        await viewModel.lookupByGlobalAssetId(lookupId)
                     }
                 }
             }
@@ -370,7 +388,10 @@ private var autoDismissDelay: TimeInterval {
 
         if AppConfiguration.isDemoMode {
             let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-            if trimmed == "demo" || trimmed == "demo-asset" || trimmed == DemoData.asset.id.lowercased() {
+            if trimmed == "demo"
+                || trimmed == "demo-asset"
+                || trimmed == DemoData.assetId.lowercased()
+                || trimmed == DemoData.globalAssetId.lowercased() {
                 appState.setSelectedAsset(DemoData.asset)
                 navigateToPassport = true
                 return

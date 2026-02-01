@@ -2,13 +2,14 @@
 //  Localizable.swift
 //  TwinAct Field Companion
 //
-//  Placeholder for localization
+//  Lightweight localization helpers.
 //
 
 import Foundation
 
-// TODO: Implement localization
-// - String catalogs
-// - Language bundles
-// - Localized string keys
-// - Pluralization rules
+enum L10n {
+    /// Look up a localized string by key.
+    static func tr(_ key: String, comment: String = "") -> String {
+        NSLocalizedString(key, comment: comment)
+    }
+}

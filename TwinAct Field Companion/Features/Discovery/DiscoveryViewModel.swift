@@ -403,6 +403,8 @@ public final class DiscoveryViewModel: ObservableObject {
 
         return Asset(
             id: id,
+            aasId: descriptor.id,
+            globalAssetId: descriptor.globalAssetId,
             name: name,
             assetType: descriptor.assetKind?.rawValue,
             manufacturer: manufacturer,

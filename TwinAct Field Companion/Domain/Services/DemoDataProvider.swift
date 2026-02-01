@@ -57,6 +57,8 @@ public final class DemoDataProvider: @unchecked Sendable {
 
         return Asset(
             id: descriptor.globalAssetId ?? descriptor.id,
+            aasId: descriptor.id,
+            globalAssetId: descriptor.globalAssetId,
             name: descriptor.idShort ?? "Demo Asset",
             assetType: descriptor.assetKind?.rawValue,
             manufacturer: try? loadDigitalNameplate().manufacturerName,

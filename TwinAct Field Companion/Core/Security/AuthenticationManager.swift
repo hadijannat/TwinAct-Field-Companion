@@ -146,8 +146,9 @@ public final class AuthenticationManager: NSObject, ObservableObject {
         } catch {
             logError("Login failed: \(error)")
             currentPKCE = nil
-            self.error = error as? AuthenticationError ?? .networkError(underlying: error)
-            throw self.error!
+            let authError = error as? AuthenticationError ?? .networkError(underlying: error)
+            self.error = authError
+            throw authError
         }
 
         isLoading = false

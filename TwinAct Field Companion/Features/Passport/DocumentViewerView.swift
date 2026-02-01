@@ -540,6 +540,8 @@ struct ZoomableImageView: UIViewRepresentable {
 #if DEBUG
 struct DocumentViewerView_Previews: PreviewProvider {
     static var previews: some View {
+        let fallbackURL = URL(string: "https://example.com/manual.pdf")
+            ?? URL(fileURLWithPath: "/dev/null")
         DocumentViewerView(
             document: Document(
                 id: "preview-doc",
@@ -548,7 +550,7 @@ struct DocumentViewerView_Previews: PreviewProvider {
                 digitalFile: [
                     DigitalFile(
                         fileFormat: "application/pdf",
-                        file: URL(string: "https://example.com/manual.pdf")!
+                        file: fallbackURL
                     )
                 ]
             )

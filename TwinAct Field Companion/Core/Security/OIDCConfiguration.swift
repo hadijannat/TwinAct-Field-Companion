@@ -243,30 +243,11 @@ extension OIDCConfiguration {
 extension OIDCConfiguration {
     /// Default configuration based on current environment
     public static var `default`: OIDCConfiguration {
-        switch AppConfiguration.current {
-        case .development:
-            return OIDCConfiguration(
-                issuer: URL(string: "http://localhost:8080/auth/realms/twinact")!,
-                clientId: "twinact-mobile",
-                redirectURI: URL(string: "twinact://callback")!,
-                scopes: ["openid", "profile", "email", "aas"]
-            )
-        case .staging:
-            return OIDCConfiguration(
-                // TODO: Replace with actual staging auth URL
-                issuer: URL(string: "https://staging-auth.example.com/realms/twinact")!,
-                clientId: "twinact-mobile",
-                redirectURI: URL(string: "twinact://callback")!,
-                scopes: ["openid", "profile", "email", "aas"]
-            )
-        case .production:
-            return OIDCConfiguration(
-                // TODO: Replace with actual production auth URL
-                issuer: URL(string: "https://auth.example.com/realms/twinact")!,
-                clientId: "twinact-mobile",
-                redirectURI: URL(string: "twinact://callback")!,
-                scopes: ["openid", "profile", "email", "aas"]
-            )
-        }
+        OIDCConfiguration(
+            issuer: AppConfiguration.Auth.issuerURL,
+            clientId: AppConfiguration.Auth.clientId,
+            redirectURI: AppConfiguration.Auth.redirectURI,
+            scopes: AppConfiguration.Auth.scopes
+        )
     }
 }

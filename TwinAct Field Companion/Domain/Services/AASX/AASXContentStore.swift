@@ -13,6 +13,13 @@ import os.log
 /// Manages local storage of extracted AASX content.
 public final class AASXContentStore: @unchecked Sendable {
 
+    // MARK: - Errors
+
+    public enum AASXContentStoreError: Error {
+        case baseDirectoryUnavailable
+        case createDirectoryFailed(underlying: Error)
+    }
+
     // MARK: - Singleton
 
     public static let shared = AASXContentStore()
@@ -26,15 +33,25 @@ public final class AASXContentStore: @unchecked Sendable {
     )
 
     /// Base directory for all AASX content
-    private var baseDirectory: URL {
-        let documents = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
-        return documents.appendingPathComponent("AASXContent", isDirectory: true)
-    }
+    private let baseDirectory: URL
+    private let usesTemporaryDirectory: Bool
+    private var isAvailable: Bool = true
 
     // MARK: - Initialization
 
     private init() {
+        if let documents = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first {
+            baseDirectory = documents.appendingPathComponent("AASXContent", isDirectory: true)
+            usesTemporaryDirectory = false
+        } else {
+            baseDirectory = fileManager.temporaryDirectory.appendingPathComponent("AASXContent", isDirectory: true)
+            usesTemporaryDirectory = true
+            logger.error("Documents directory unavailable; falling back to temporary directory for AASX content.")
+        }
         createBaseDirectoryIfNeeded()
+        if usesTemporaryDirectory {
+            logger.warning("AASX content is stored in a temporary directory and may be purged by the system.")
+        }
     }
 
     // MARK: - Public Methods
@@ -43,6 +60,7 @@ public final class AASXContentStore: @unchecked Sendable {
     /// - Parameter result: Parse result to store
     /// - Returns: URL to the asset's content directory
     public func store(_ result: AASXParseResult) throws -> URL {
+        try ensureBaseDirectoryAvailable()
         let assetDir = assetDirectory(for: result.assetId)
 
         // Create directory structure
@@ -68,6 +86,7 @@ public final class AASXContentStore: @unchecked Sendable {
         subdirectory: String,
         filename: String
     ) throws -> URL {
+        try ensureBaseDirectoryAvailable()
         let assetDir = assetDirectory(for: assetId)
         let targetDir: URL
 
@@ -170,12 +189,14 @@ public final class AASXContentStore: @unchecked Sendable {
 
     /// Check if content exists for asset
     public func hasContent(for assetId: String) -> Bool {
+        guard isAvailable else { return false }
         let assetDir = assetDirectory(for: assetId)
         return fileManager.fileExists(atPath: assetDir.path)
     }
 
     /// Delete content for asset
     public func deleteContent(for assetId: String) throws {
+        try ensureBaseDirectoryAvailable()
         let assetDir = assetDirectory(for: assetId)
         if fileManager.fileExists(atPath: assetDir.path) {
             try fileManager.removeItem(at: assetDir)
@@ -185,6 +206,7 @@ public final class AASXContentStore: @unchecked Sendable {
 
     /// Get total storage used by all AASX content
     public func totalStorageUsed() -> Int64 {
+        guard isAvailable else { return 0 }
         guard let enumerator = fileManager.enumerator(
             at: baseDirectory,
             includingPropertiesForKeys: [.fileSizeKey],
@@ -204,6 +226,7 @@ public final class AASXContentStore: @unchecked Sendable {
 
     /// List all stored asset IDs
     public func storedAssetIds() -> [String] {
+        guard isAvailable else { return [] }
         guard let contents = try? fileManager.contentsOfDirectory(
             at: baseDirectory,
             includingPropertiesForKeys: [.isDirectoryKey],
@@ -255,8 +278,15 @@ public final class AASXContentStore: @unchecked Sendable {
                 try fileManager.createDirectory(at: baseDirectory, withIntermediateDirectories: true)
                 logger.info("Created AASX content directory: \(self.baseDirectory.path)")
             } catch {
+                isAvailable = false
                 logger.error("Failed to create base directory: \(error.localizedDescription)")
             }
+        }
+    }
+
+    private func ensureBaseDirectoryAvailable() throws {
+        guard isAvailable else {
+            throw AASXContentStoreError.baseDirectoryUnavailable
         }
     }
 

@@ -41,7 +41,7 @@ struct ContentView: View {
                     Label("Passport", systemImage: "tag.fill")
                 }
 
-            TechnicianConsoleView(assetId: appState.selectedAsset?.id)
+            TechnicianConsoleView(assetId: appState.selectedAsset?.aasId)
                 .tabItem {
                     Label("Technician", systemImage: "wrench.and.screwdriver")
                 }
@@ -69,7 +69,7 @@ private struct PassportTabView: View {
         NavigationStack {
             if let asset = appState.selectedAsset {
                 PassportView(
-                    assetId: asset.id,
+                    assetId: asset.aasId,
                     glossaryService: DependencyContainer.shared.glossaryService
                 )
             } else {

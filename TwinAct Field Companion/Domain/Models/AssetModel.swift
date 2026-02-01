@@ -11,8 +11,14 @@ import Foundation
 
 /// A high-level asset representation combining AAS descriptor with parsed submodels.
 public struct Asset: Identifiable, Sendable {
-    /// Unique identifier (matches AAS globalAssetId)
+    /// Unique identifier (typically the global asset ID when available)
     public let id: String
+
+    /// Asset Administration Shell identifier (AAS ID)
+    public let aasId: String
+
+    /// Global asset identifier, if available from descriptor data
+    public let globalAssetId: String?
 
     /// Short display name
     public let name: String
@@ -40,6 +46,8 @@ public struct Asset: Identifiable, Sendable {
 
     public init(
         id: String,
+        aasId: String? = nil,
+        globalAssetId: String? = nil,
         name: String,
         assetType: String? = nil,
         manufacturer: String? = nil,
@@ -50,6 +58,8 @@ public struct Asset: Identifiable, Sendable {
         availableSubmodels: Set<SubmodelType> = []
     ) {
         self.id = id
+        self.aasId = aasId ?? id
+        self.globalAssetId = globalAssetId
         self.name = name
         self.assetType = assetType
         self.manufacturer = manufacturer
@@ -63,6 +73,8 @@ public struct Asset: Identifiable, Sendable {
     /// Create from AAS descriptor and digital nameplate
     public init(from descriptor: AASDescriptor, nameplate: DigitalNameplate? = nil) {
         self.id = descriptor.globalAssetId ?? descriptor.id
+        self.aasId = descriptor.id
+        self.globalAssetId = descriptor.globalAssetId
         self.name = descriptor.idShort ?? descriptor.displayName?.englishText ?? "Unknown Asset"
         self.aasDescriptor = descriptor
         self.assetType = descriptor.assetKind?.rawValue
@@ -87,6 +99,11 @@ public struct Asset: Identifiable, Sendable {
             }
         }
         self.availableSubmodels = submodels
+    }
+
+    /// Best available identifier for display to users.
+    public var displayId: String {
+        globalAssetId ?? id
     }
 
     /// Whether this asset has a nameplate
@@ -236,6 +253,8 @@ public enum SubmodelType: String, CaseIterable, Sendable {
 /// Lightweight summary for list displays.
 public struct AssetSummary: Identifiable, Sendable, Hashable {
     public let id: String
+    public let aasId: String
+    public let globalAssetId: String?
     public let name: String
     public let manufacturer: String?
     public let model: String?
@@ -244,6 +263,8 @@ public struct AssetSummary: Identifiable, Sendable, Hashable {
 
     public init(
         id: String,
+        aasId: String,
+        globalAssetId: String? = nil,
         name: String,
         manufacturer: String? = nil,
         model: String? = nil,
@@ -251,6 +272,8 @@ public struct AssetSummary: Identifiable, Sendable, Hashable {
         submodelCount: Int = 0
     ) {
         self.id = id
+        self.aasId = aasId
+        self.globalAssetId = globalAssetId
         self.name = name
         self.manufacturer = manufacturer
         self.model = model
@@ -261,11 +284,18 @@ public struct AssetSummary: Identifiable, Sendable, Hashable {
     /// Create from full Asset
     public init(from asset: Asset) {
         self.id = asset.id
+        self.aasId = asset.aasId
+        self.globalAssetId = asset.globalAssetId
         self.name = asset.name
         self.manufacturer = asset.manufacturer
         self.model = asset.model
         self.thumbnailURL = asset.thumbnailURL
         self.submodelCount = asset.availableSubmodels.count
+    }
+
+    /// Best available identifier for display.
+    public var displayId: String {
+        globalAssetId ?? id
     }
 }
 
@@ -307,6 +337,7 @@ public struct AssetFilter: Sendable {
         if let searchText = searchText, !searchText.isEmpty {
             let lowercased = searchText.lowercased()
             let matches = asset.name.lowercased().contains(lowercased) ||
+                          asset.displayId.lowercased().contains(lowercased) ||
                           asset.manufacturer?.lowercased().contains(lowercased) == true ||
                           asset.model?.lowercased().contains(lowercased) == true ||
                           asset.serialNumber?.lowercased().contains(lowercased) == true

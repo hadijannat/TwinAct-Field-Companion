@@ -88,7 +88,21 @@ public final class PersistenceController: ObservableObject {
             container.mainContext.autosaveEnabled = true
 
         } catch {
-            fatalError("Failed to create ModelContainer: \(error.localizedDescription)")
+            persistenceLogger.error("Failed to create ModelContainer: \(error.localizedDescription)")
+
+            let fallbackConfig = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: true
+            )
+
+            do {
+                container = try ModelContainer(for: schema, configurations: [fallbackConfig])
+                container.mainContext.autosaveEnabled = true
+                persistenceLogger.info("Using in-memory storage as a fallback for persistence.")
+            } catch {
+                persistenceLogger.fault("Failed to create fallback in-memory ModelContainer: \(error.localizedDescription)")
+                preconditionFailure("PersistenceController could not initialize storage.")
+            }
         }
     }
 
